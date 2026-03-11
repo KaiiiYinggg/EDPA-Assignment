@@ -112,7 +112,7 @@
     </form>
 
     <!-- 车辆列表，只对客户显示 -->
-    <c:if test="${sessionScope.user.role == 'cUSTOMER'}">
+    <c:if test="${sessionScope.user.role == 'counter staff'}">
         <h3>My Vehicles</h3>
         <table>
             <tr>
