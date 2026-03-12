@@ -13,7 +13,9 @@
     </head>
     <body>
         <h2>Hi, ${sessionScope.user.username}!</h2>
+        <!--if role = manager -->
         
+        <!--if role=customer-->
         <nav>
             <a href="customerDashboard.jsp">Home Page</a> |
             <a href="EditProfile.jsp">My Profile</a> |
