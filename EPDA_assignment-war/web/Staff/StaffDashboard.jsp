@@ -24,7 +24,7 @@
 
         <ul>
             <li>
-                <a href="${pageContext.request.contextPath}/ManageCustomers?action=list">
+                <a href="ManageCustomers?action=list">
                     Manage Customers
                 </a>
             </li>

@@ -1,0 +1,4 @@
+INSERT INTO USERS_LIST (ID, EMAIL, GENDER, PASSWORD, PHONENUMBER, ROLE, USERNAME, PROFILEPIC) 
+VALUES 
+(1, 'customer1@gmail.com', 'Male', '1111', 123456432, 'customer', 'Ching Ying', 'male_default.jpg'),
+(2, 'kaiyingx12@gmail.com', 'Female', '1111', 123333333, 'counter staff', 'Kai Ying', 'female_default.jpg');

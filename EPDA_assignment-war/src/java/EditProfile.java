@@ -1,4 +1,5 @@
 
+
 import Entity.User;
 import Entity.UserFacade;
 import java.io.File;
@@ -110,3 +111,4 @@ public class EditProfile extends HttpServlet {
         request.getRequestDispatcher("EditProfile.jsp").forward(request, response);
     }
 }
+

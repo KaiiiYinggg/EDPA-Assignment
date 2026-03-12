@@ -129,6 +129,7 @@ public class ManageCustomers extends HttpServlet {
         } else if ("update".equals(action)) {
             try {
                 Long id = Long.parseLong(request.getParameter("user_id"));
+
                 String username = request.getParameter("username");
                 int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
                 String email = request.getParameter("email");

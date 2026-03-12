@@ -64,10 +64,10 @@ public class Login extends HttpServlet {
                         response.sendRedirect("managerDashboard.jsp");
                         break;
                     case "counter staff":
-                        response.sendRedirect("counterDashboard.jsp");
+                        response.sendRedirect("Staff/StaffDashboard.jsp");
                         break;
                     case "technician":
-                        response.sendRedirect("technicianDashboard.jsp");
+                        response.sendRedirect("Staff/TechDashboard.jsp");
                         break;
                     case "customer":
                         response.sendRedirect("customerDashboard.jsp");

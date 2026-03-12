@@ -96,6 +96,7 @@ public class UserFacade extends AbstractFacade<User> {
         return "User not found!";
     }
 ////    
+
     public List<User> findAllCustomers() {
         return em.createQuery("SELECT u FROM User u WHERE u.role = 'customer'", User.class)
                 .getResultList();
@@ -109,15 +110,14 @@ public class UserFacade extends AbstractFacade<User> {
         .getResultList();
 }
 
-    @Transactional ////user_id
+    @Transactional
     public void deleteById(Long id) {
         User user = em.find(User.class, id);
         if (user != null) {
             em.remove(em.merge(user));
         }
     }
-//method//
-    
+
     @Override
     protected EntityManager getEntityManager() {
         return em;
@@ -126,5 +126,5 @@ public class UserFacade extends AbstractFacade<User> {
     public UserFacade() {
         super(User.class);
     }
-    
+
 }
