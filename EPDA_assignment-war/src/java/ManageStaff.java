@@ -6,7 +6,6 @@
 import Entity.User;
 import Entity.UserFacade;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;

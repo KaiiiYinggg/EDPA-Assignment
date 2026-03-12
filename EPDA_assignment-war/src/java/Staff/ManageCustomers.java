@@ -87,7 +87,7 @@ public class ManageCustomers extends HttpServlet {
 
         // 逻辑：更新
         if (action.equals("update")) {
-            Long id = Long.parseLong(request.getParameter("id"));
+            Long id = Long.parseLong(request.getParameter("user_id"));
             String newName = request.getParameter("username");
             User u = userFacade.find(id);
             if (u != null) {
@@ -128,7 +128,8 @@ public class ManageCustomers extends HttpServlet {
             }
         } else if ("update".equals(action)) {
             try {
-                Long id = Long.parseLong(request.getParameter("id"));
+                Long id = Long.parseLong(request.getParameter("user_id"));
+
                 String username = request.getParameter("username");
                 int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
                 String email = request.getParameter("email");

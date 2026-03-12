@@ -5,7 +5,6 @@
 
 import Entity.UserFacade;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -35,14 +34,14 @@ public class DeleteUser extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         
-            // 获取 JSP 传过来的 email
+            // get email from JSP
             String emailToDelete = request.getParameter("email");
 
             if (emailToDelete != null && !emailToDelete.isEmpty()) {
                 userFacade.deleteByEmail(emailToDelete);
             }
 
-            // 重定向回列表页刷新数据
+            // refresh list
             response.sendRedirect("ManageStaff");
     }
 

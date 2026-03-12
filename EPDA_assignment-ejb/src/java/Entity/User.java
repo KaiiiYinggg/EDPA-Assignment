@@ -23,14 +23,13 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long user_id;
     
     private String username;
     private String password;
     private int phoneNumber;
     private String gender;
     private String role;
-    
     
 
     @Column(unique = true)
@@ -40,28 +39,34 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Long id, String username, String password, int phoneNumber, String gender, String role, String email) {
-        this.id = id;
+    /*public User(Long id, String username, String password, int phoneNumber, String gender, String role, String email) {
+        this.user_id = id;
         this.username = username;
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.role = role;
         this.email = email;
-    }
+    }*/
 
-    public User(String username, String password, int phoneNumber, String gender, String role, String email) {
+    public User(String username, String password, int phoneNumber, String gender, String role, String email,String profilePic) {
         this.username = username;
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.role = role;
         this.email = email;
+        this.profilePic = profilePic;
     }
 
     public String getEmail() {
         return email;
     }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
     
     public int getPhoneNumber() {
         return phoneNumber;
@@ -74,61 +79,39 @@ public class User implements Serializable {
     public String getUsername() {
         return username;
     }
-
-    public String getRole() {
-        return role;
-    }
-
-    public String getGender() {
-        return gender;
-    }
     
-    
-
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
+    public String getRole() {
+        return role;
     }
 
     public void setRole(String role) {
         this.role = role;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getGender() {
+        return gender;
     }
 
-    public String getProfilePic() {
-        return profilePic;
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
-    public void setProfilePic(String profilePic) {
-        this.profilePic = profilePic;
+    public long getUser_id() {
+        return user_id;
     }
-    
-    
-    
-    
+
+    public void setUser_id(Long id) {
+        this.user_id = id;
+    }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (user_id != null ? user_id.hashCode() : 0);
         return hash;
     }
 
@@ -139,7 +122,7 @@ public class User implements Serializable {
             return false;
         }
         User other = (User) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.user_id == null && other.user_id != null) || (this.user_id != null && !this.user_id.equals(other.user_id))) {
             return false;
         }
         return true;
@@ -147,11 +130,24 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "Entity.User[ id=" + id + " ]";
+        return "Entity.User[ id=" + user_id + " ]";
     }
 
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+
     }
     
 }

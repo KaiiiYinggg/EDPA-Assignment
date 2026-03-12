@@ -21,11 +21,11 @@
                 <tr>
                     <td>Email:</td>
                     <td><input type="text" name="email" size="20"/></td>
-                </tr><br>
+                </tr>
                 <tr>
                     <td>Password:</td>
                     <td><input type="password" name="password" size="20"/></td>
-                </tr><br>
+                </tr>
             </table>
             <p><input type="submit" value="Login"/></p>
         </form>

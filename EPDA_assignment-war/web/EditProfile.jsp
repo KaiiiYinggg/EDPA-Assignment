@@ -141,7 +141,21 @@
     </c:if>
 
     <br>
-    <a href="${pageContext.request.contextPath}/Staff/StaffDashboard.jsp">Back to Dashboard</a>
+    <br>
+    <c:choose>
+        <c:when test="${sessionScope.user.role == 'manager'}">
+            <a href="${pageContext.request.contextPath}/managerDashboard.jsp">Back to Dashboard</a>
+        </c:when>
+        <c:when test="${sessionScope.user.role == 'technician'}">
+            <a href="technicianDashboard.jsp">Back to Dashboard</a>
+        </c:when>
+        <c:when test="${sessionScope.user.role == 'counter staff'}">
+            <a href="${pageContext.request.contextPath}/Staff/StaffDashboard.jsp">Back to Dashboard</a>
+        </c:when>
+        <c:otherwise>
+            <a href="${pageContext.request.contextPath}/customerDashboard.jsp">Back to Dashboard</a>
+        </c:otherwise>
+    </c:choose>
 </div>
 </body>
 </html>

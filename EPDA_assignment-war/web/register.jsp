@@ -20,32 +20,37 @@
             <a href="managerDashboard.jsp">Home Page</a> | 
             <a href="register.jsp">Register</a> | 
             <a href="ManageStaff">Manage Staff</a> |
-            <a href="setPrice.jsp">Set Price</a> | 
-            <a href="managerViewFeedback.jsp">View Feedback</a> | 
+            <a href="SetPrice">Set Price</a> | 
+            <a href="viewFeedback.jsp">View Feedback</a> | 
+            <a href="EditProfile.jsp">My Profile</a> |
             <a href="Logout">Logout</a>
         </nav>
         <hr>
         
         <h2>User Registration</h2>
         
-        <form action="Register" method="post">
+        <form action="Register" method="post" enctype="multipart/form-data">
             <table>
+                <tr>
+                    <td>Profile Picture (Optional):</td>
+                    <td><input type="file" name="profilePic" accept="image/*"/></td>
+                </tr>
                 <tr>
                     <td>Username:</td>
                     <td><input type="text" name="username" size="20"/></td>
-                </tr><br>
+                </tr>
                 <tr>
                     <td>Password:</td>
                     <td><input type="password" name="password" size="20"/></td>
-                </tr><br>           
+                </tr>           
                 <tr>
                     <td>Email:</td>
                     <td><input type="text" name="email" size="20"/></td>
-                </tr><br>
+                </tr>
                 <tr>
                     <td>Phone Number:</td>
                     <td><input type="text" name="phoneNumber" size="20"/></td>
-                </tr><br>
+                </tr>
                 <tr>
                     <td>Gender:</td>
                     <td>
@@ -53,17 +58,16 @@
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                     </td>
-                </tr><br>
+                </tr>
                 <tr>
                     <td>Role:</td>
                     <td><select name="role">
-                            <option value="customer">Customer</option>
                             <option value="manager">Manager</option>
                             <option value="counter staff">Counter Staff</option>
                             <option value="technician">Technician</option>
                         </select>
                     </td>
-                </tr><br>
+                </tr>
             </table>
             <p><input type="submit" value="Register"/></p>
         </form>

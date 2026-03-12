@@ -20,8 +20,9 @@
             <a href="managerDashboard.jsp">Home Page</a> | 
             <a href="register.jsp">Register</a> | 
             <a href="ManageStaff">Manage Staff</a> |
-            <a href="setPrice.jsp">Set Price</a> | 
-            <a href="managerViewFeedback.jsp">View Feedback</a> | 
+            <a href="SetPrice">Set Price</a> | 
+            <a href="viewFeedback.jsp">View Feedback</a> | 
+            <a href="EditProfile.jsp">My Profile</a> | 
             <a href="Logout">Logout</a>
         </nav>        
         <hr>
@@ -34,7 +35,7 @@
         </form>
         <br>
         
-        <table border="1">
+        <table border="1" cellpadding="10">
             <tr>
                 <th>Username</th>
                 <th>Email</th>
@@ -49,7 +50,7 @@
                     <td>${staff.phoneNumber}</td>
                     <td>${staff.role}</td>
                     <td>
-                        <a href="PrepareUpdate?email=${staff.email}">Update</a>
+                        <a href="UpdateStaff?email=${staff.email}">Update</a> | 
                         <a href="DeleteUser?email=${staff.email}" 
                            onclick="return confirm('Are you sure to delete ${staff.username} with email ${staff.email}?')">Delete</a>
                     </td>
