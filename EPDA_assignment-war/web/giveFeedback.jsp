@@ -14,44 +14,77 @@
     </head>
     <body>
         <h2>Hi, ${sessionScope.user.username}!</h2>
-        
+
         <nav>
             <a href="customerDashboard.jsp">Home Page</a> |
             <a href="EditProfile.jsp">My Profile</a> |
-            <a href="viewHistory.jsp">View History</a> |
-            <a href="viewFeedback.jsp">Feedback</a> |
+            <a href="ViewHistory">View History</a> |
+            <a href="ViewFeedback">Feedback</a> |
             <a href="Logout">Logout</a>
         </nav>
         <hr>
         <h2>Give Feedback</h2>
-        
-        <form action="customerGiveFeedback" method="post">
+
+        <form action="GiveFeedback" method="post">
+            <input type="hidden" name="appointmentId" value="${param.appointmentId}"/>
+
             <table>
                 <tr>
-                    <td>Phone Number:</td>
-                    <td><input type="text" name="phoneNumber" size="20"/></td>
-                </tr>
-                <tr>
-                    <td>Give feedback to:</td>
+                    <td>Comment target:</td>
                     <td>
-                        <select name="role">
-                            <option value="technician">Technician</option>
-                            <option value="counter staff">Counter Staff</option>
+                        <select name="commentTarget">
+                            <option value="To TECHNICIAN: ">Technician</option>
+                            <option value="To STAFF: ">Counter Staff</option>
+                            <option value="To BOTH: ">Both</option>
+                        </select>
                     </td>
                 </tr>
                 <tr>
-                    <td>Ranking to Service:</td>
+                    <td>Your Comment:</td>
                     <td>
-                        <select name="role">
-                            <option value="technician">Technician</option>
-                            <option value="counter staff">Counter Staff</option>
+                        <textarea name="customerComment" rows="4" cols="40" placeholder="Enter your feedback here..." required></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ranking (1-5 Stars):</td>
+                    <td>
+                        <select name="ranking">
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Good</option>
+                            <option value="3">3 - Average</option>
+                            <option value="2">2 - Poor</option>
+                            <option value="1">1 - Very Bad</option>
+                        </select>
                     </td>
                 </tr>
             </table>
-            <p><input type="submit" value="Save"/></p>
+            <p>
+                <input type="submit" value="Save"/> <button type="button" onclick="window.location.href='ViewHistory'">Cancel</button>
+            </p>
         </form>
-        <nav>
-            <a href="veiwFeedback.jsp">View Feedback</a>
-        </nav>
+
+        <script>
+            // Unsaved Changes Warning Logic
+            let formChanged = false;
+            const feedbackForm = document.querySelector('form[action="GiveFeedback"]');
+
+            // Track if user types anything or changes dropdowns
+            feedbackForm.addEventListener('input', () => {
+                formChanged = true;
+            });
+
+            // Reset the flag when the user actually clicks "Save"
+            feedbackForm.addEventListener('submit', () => {
+                formChanged = false;
+            });
+
+            // Browser intercept when leaving the page
+            window.addEventListener('beforeunload', (event) => {
+                if (formChanged) {
+                    event.preventDefault(); // Standard for modern browsers
+                    event.returnValue = ''; // Required for Chrome/Firefox
+                }
+            });
+        </script>
     </body>
 </html>

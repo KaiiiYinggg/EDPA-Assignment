@@ -38,6 +38,54 @@ public class Appointment implements Serializable {
         this.appointment_id = id;
     }
 
+    public String getAppointment_date() {
+        return appointment_date;
+    }
+
+    public void setAppointment_date(String appointment_date) {
+        this.appointment_date = appointment_date;
+    }
+
+    public String getAppointment_status() {
+        return appointment_status;
+    }
+
+    public void setAppointment_status(String appointment_status) {
+        this.appointment_status = appointment_status;
+    }
+
+    public String getAppointment_time() {
+        return appointment_time;
+    }
+
+    public void setAppointment_time(String appointment_time) {
+        this.appointment_time = appointment_time;
+    }
+
+    public String getCustomer_email() {
+        return customer_email;
+    }
+
+    public void setCustomer_email(String customer_email) {
+        this.customer_email = customer_email;
+    }
+
+    public String getStaff_email() {
+        return staff_email;
+    }
+
+    public void setStaff_email(String staff_email) {
+        this.staff_email = staff_email;
+    }
+
+    public String getTechnician_email() {
+        return technician_email;
+    }
+
+    public void setTechnician_email(String technician_email) {
+        this.technician_email = technician_email;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;

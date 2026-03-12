@@ -4,9 +4,11 @@
  */
 package Entity;
 
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,4 +29,25 @@ public class PaymentFacade extends AbstractFacade<Payment> {
         super(Payment.class);
     }
     
+    public List<Payment> findFilteredPayments(String email, String date, String method) {
+        StringBuilder queryStr = new StringBuilder(
+            "SELECT p FROM Payment p, Appointment a " +
+            "WHERE p.appointment_id = a.appointment_id AND a.customer_email = :email"
+        );
+
+        if (date != null && !date.isEmpty()) {
+            queryStr.append(" AND p.payment_date = :date");
+        }
+        if (method != null && !method.isEmpty()) {
+            queryStr.append(" AND p.payment_method = :method");
+        }
+
+        Query query = em.createQuery(queryStr.toString(), Payment.class);
+        query.setParameter("email", email);
+
+        if (date != null && !date.isEmpty()) query.setParameter("date", date);
+        if (method != null && !method.isEmpty()) query.setParameter("method", method);
+
+        return query.getResultList();
+    }
 }

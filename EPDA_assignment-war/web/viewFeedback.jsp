@@ -28,7 +28,7 @@
         <nav>
             <a href="customerDashboard.jsp">Home Page</a> |
             <a href="EditProfile.jsp">My Profile</a> |
-            <a href="viewHistory.jsp">View History</a> |
+            <a href="ViewHistory">View History</a> |
             <a href="viewFeedback.jsp">Feedback</a> |
             <a href="Logout">Logout</a>
         </nav>

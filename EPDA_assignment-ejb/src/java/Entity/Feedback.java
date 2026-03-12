@@ -19,8 +19,13 @@ public class Feedback implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedback_id;
+    
+    private String customer_comment;
+    private int ranking;
+    private String technician_feedback;
+    private Long appointment_id;
 
     public Long getFeedback_id() {
         return feedback_id;
@@ -28,6 +33,42 @@ public class Feedback implements Serializable {
 
     public void setFeedback_id(Long id) {
         this.feedback_id = id;
+    }
+
+    public Long getAppointment_id() {
+        return appointment_id;
+    }
+
+    public void setAppointment_id(Long appointment_id) {
+        this.appointment_id = appointment_id;
+    }
+
+    public String getCustomer_comment() {
+        return customer_comment;
+    }
+
+    public void setCustomer_comment(String customer_comments) {
+        this.customer_comment = customer_comments;
+    }
+
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getTechnician_feedback() {
+        return technician_feedback;
+    }
+
+    public void setTechnician_feedback(String technician_feedback) {
+        this.technician_feedback = technician_feedback;
     }
 
     @Override
