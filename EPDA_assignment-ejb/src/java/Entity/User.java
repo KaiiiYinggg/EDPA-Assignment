@@ -39,15 +39,14 @@ public class User implements Serializable {
     public User() {
     }
 
-    /*public User(Long id, String username, String password, int phoneNumber, String gender, String role, String email) {
-        this.user_id = id;
+    public User(String username, String password, int phoneNumber, String gender, String role, String email) {
         this.username = username;
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.role = role;
         this.email = email;
-    }*/
+    }
 
     public User(String username, String password, int phoneNumber, String gender, String role, String email,String profilePic) {
         this.username = username;
@@ -59,8 +58,52 @@ public class User implements Serializable {
         this.profilePic = profilePic;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Long getUser_id() {
+        return user_id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public int getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setUser_id(Long user_id) {
+        this.user_id = user_id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPhoneNumber(int phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public void setEmail(String email) {
@@ -68,45 +111,7 @@ public class User implements Serializable {
     }
     
     
-    public int getPhoneNumber() {
-        return phoneNumber;
-    }
 
-    public void setPhoneNumber(int phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-    
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public long getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(Long id) {
-        this.user_id = id;
-    }
 
     @Override
     public int hashCode() {
