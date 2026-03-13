@@ -5,6 +5,7 @@
 package Entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -26,6 +27,8 @@ public class Car implements Serializable {
     private String carBrand;
     private String carModel;
     private String color;
+    
+    @Column(name = "\"YEAR\"")
     private int year;
 
     @ManyToOne

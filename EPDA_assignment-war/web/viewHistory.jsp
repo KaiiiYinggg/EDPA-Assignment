@@ -92,7 +92,7 @@
             <c:forEach var="pay" items="${payments}">
                 <tr>
                     <td>${pay.payment_id}</td>
-                    <td>${pay.appointment_id}</td>
+                    <td>${empty pay.appointment ? 'N/A' : pay.appointment.appointment_id}</td>
                     <td>${pay.payment_method}</td>
                     <td>${pay.payment_date}</td>
                     <td>${pay.payment_amount}</td>

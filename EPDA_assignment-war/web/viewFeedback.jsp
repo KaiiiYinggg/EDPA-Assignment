@@ -66,7 +66,7 @@
             <c:forEach var="row" items="${feedbackData}">
                 <tr>
                     <td>${row[0].feedback_id}</td>
-                    <td>${row[0].appointment_id}</td>
+                    <td>${row[0].appointment.appointment_id}</td>
 
                     <c:if test="${sessionScope.user.role == 'manager'}">
                         <td>${row[8]}</td> </c:if>

@@ -54,28 +54,31 @@ public class ViewHistory extends HttpServlet {
             throws ServletException, IOException {
         // 1. Get the current user from the session
         User user = (User) request.getSession().getAttribute("user");
-        
+               
         if (user == null) {
             response.sendRedirect("login.jsp");
             return;
         }
+        // 关键修复：根据 ID 重新获取一个“活跃”的 User 对象
+        // 这样能确保 email 和其它关联字段 100% 可用且受 JPA 管理
+        User activeUser = userFacade.find(user.getUser_id()); 
+
+        if (activeUser == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
         
-        // Capture search parameters
-        String searchDate = request.getParameter("searchDate");
-        String searchName = request.getParameter("searchName");
-        
-        // Capture Payment search parameters
-        String payDate = request.getParameter("payDate");
-        String payMethod = request.getParameter("payMethod");
-        
-       // Fetch filtered data
+        // 使用这个 activeUser 的 email 进行查询
         List<Object[]> appointmentData = appointmentFacade.findFilteredAppointments(
-            user.getEmail(), searchDate, searchName
+            activeUser.getEmail(), 
+            request.getParameter("searchDate"), 
+            request.getParameter("searchName")
         );
-        
-        // Fetch filtered Payment data
+
         List<Payment> payments = paymentFacade.findFilteredPayments(
-            user.getEmail(), payDate, payMethod
+            activeUser.getEmail(), 
+            request.getParameter("payDate"), 
+            request.getParameter("payMethod")
         );
 
         // 3. Pass the lists to the JSP
