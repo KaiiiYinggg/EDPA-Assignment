@@ -29,18 +29,24 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     }
     
 
-    public List<Object[]> findFilteredAppointments(String email, String date, String name) {
-        // 1. 修改 SELECT 增加字段：a.appointment_time, a.staff_email, a.technician_email, c.carPlateNumber
+    public List<Object[]> findFilteredAppointments(String email, String role, String date, String name) {
+        // 1. 基础 SELECT 和 JOIN 部分 (不要在这里写 WHERE)
         StringBuilder queryStr = new StringBuilder(
             "SELECT a, s.serviceName, s.serviceType, a.appointment_time, " +
             "a.staff_email, a.technician_email, c.carPlateNumber " + 
             "FROM Appointment a " +
             "JOIN a.service s " +
-            "LEFT JOIN a.car c " + // 必须 JOIN car 才能拿到车牌
-            "WHERE a.customer.email = :email"
+            "LEFT JOIN a.car c "
         );
 
-        // 保持现有的 filter 逻辑不变
+        // 2. 根据角色动态添加第一个 WHERE
+        if ("technician".equals(role)) {
+            queryStr.append(" WHERE a.technician_email = :email");
+        } else {
+            queryStr.append(" WHERE a.customer.email = :email");
+        }
+
+        // 3. 后续过滤条件使用 AND
         if (date != null && !date.isEmpty()) {
             queryStr.append(" AND a.appointment_date = :date");
         }
@@ -55,5 +61,22 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         if (name != null && !name.isEmpty()) query.setParameter("name", "%" + name.toUpperCase() + "%");
 
         return query.getResultList();
+    }
+    
+    public List<Object[]> findServiceSummary(String email) {
+        try {
+            // 选择日期、服务名称和状态。通过 a.customer.email 过滤
+            return em.createQuery(
+                "SELECT a.appointment_date, s.serviceName, a.appointment_status " +
+                "FROM Appointment a JOIN a.service s " +
+                "WHERE a.customer.email = :email " +
+                "ORDER BY a.appointment_date DESC", Object[].class)
+                .setParameter("email", email)
+                .setMaxResults(5) // 可选：只显示最近的 5 条记录
+                .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
     }
 }

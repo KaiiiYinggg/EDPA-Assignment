@@ -24,7 +24,8 @@ public class Feedback implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedback_id;
     
-    private String customer_comment;
+    private String customerCommentToTech;
+    private String customerCommentToStaff;
     private int ranking;
     private String technician_feedback;
 
@@ -48,13 +49,22 @@ public class Feedback implements Serializable {
         this.appointment = appointment;
     }
 
-    public String getCustomer_comment() {
-        return customer_comment;
+    public String getCustomerCommentToStaff() {
+        return customerCommentToStaff;
     }
 
-    public void setCustomer_comment(String customer_comments) {
-        this.customer_comment = customer_comments;
+    public void setCustomerCommentToStaff(String customerCommentToStaff) {
+        this.customerCommentToStaff = customerCommentToStaff;
     }
+
+    public String getCustomerCommentToTech() {
+        return customerCommentToTech;
+    }
+
+    public void setCustomerCommentToTech(String customerCommentToTech) {
+        this.customerCommentToTech = customerCommentToTech;
+    }
+
 
     public int getRanking() {
         return ranking;

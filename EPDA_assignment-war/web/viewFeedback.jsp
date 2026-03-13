@@ -31,6 +31,20 @@
                 <h1>Customer Feedback Overview</h1>
             </c:when>
 
+            <%-- Technician View --%>
+            <c:when test="${sessionScope.user.role == 'technician'}">
+                <nav>
+                    <a href="Technician/TechDashboard.jsp">Home Page</a> | 
+                    <a href="${pageContext.request.contextPath}/ViewHistory">Add Feedback</a> | 
+                    <a href="${pageContext.request.contextPath}/UpdateTask.jsp">Update Tasks</a> |
+                    <a href="${pageContext.request.contextPath}/ViewFeedback">View Comments</a> | 
+                    <a href="${pageContext.request.contextPath}/EditProfile.jsp">My Profile</a> | 
+                    <a href="${pageContext.request.contextPath}/Logout">Logout</a>
+                </nav>
+                <hr>
+                <h1>Technician Task Feedback</h1>
+            </c:when>
+
             <%-- Customer View --%>
             <c:otherwise>
                 <nav>
@@ -58,7 +72,8 @@
                 <th>Date / Time</th>
                 <th>Staff</th>
                 <th>Technician</th>
-                <th>Comment</th>
+                <th>Comment to Technician</th>
+                <th>Comment to Staff</th>
                 <th>Ranking</th>
                 <th>Technician feedback</th>
             </tr>
@@ -69,14 +84,27 @@
                     <td>${row[0].appointment.appointment_id}</td>
 
                     <c:if test="${sessionScope.user.role == 'manager'}">
-                        <td>${row[8]}</td> </c:if>
+                        <td>${row[8]}</td> 
+                    </c:if>
 
-                        <td>${empty row[7] ? 'No Car' : row[7]}</td> 
+                    <td>${empty row[7] ? 'No Car' : row[7]}</td> 
                     <td>${row[1]} (${row[2]})</td>
                     <td>${row[3]} / ${row[4]}</td>
-                    <td>${empty row[5] ? 'N/A' : row[5]}</td> <td>${empty row[6] ? 'N/A' : row[6]}</td> <td>${row[0].customer_comment}</td>
+                    <td>${empty row[5] ? 'N/A' : row[5]}</td> 
+                    <td>${empty row[6] ? 'N/A' : row[6]}</td> 
+                    <td>${empty row[0].customerCommentToTech ? '-' : row[0].customerCommentToTech}</td>
+                    <td>${empty row[0].customerCommentToStaff ? '-' : row[0].customerCommentToStaff}</td>
                     <td>${row[0].ranking} / 5</td>
-                    <td>${empty row[0].technician_feedback ? 'Pending' : row[0].technician_feedback}</td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${empty row[0].technician_feedback}">
+                                <span style="color: gray;">Pending</span>
+                            </c:when>
+                            <c:otherwise>
+                                <strong>${row[0].technician_feedback}</strong>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
                 </tr>
             </c:forEach>
         </table>

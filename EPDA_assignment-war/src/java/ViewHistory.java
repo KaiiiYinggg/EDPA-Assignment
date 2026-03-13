@@ -67,19 +67,25 @@ public class ViewHistory extends HttpServlet {
             response.sendRedirect("login.jsp");
             return;
         }
-        
-        // 使用这个 activeUser 的 email 进行查询
+        String role = activeUser.getRole().toLowerCase();
+        String searchDate = request.getParameter("searchDate");
+        String searchName = request.getParameter("searchName");
+
         List<Object[]> appointmentData = appointmentFacade.findFilteredAppointments(
             activeUser.getEmail(), 
-            request.getParameter("searchDate"), 
-            request.getParameter("searchName")
+            role, 
+            searchDate, 
+            searchName
         );
-
-        List<Payment> payments = paymentFacade.findFilteredPayments(
-            activeUser.getEmail(), 
-            request.getParameter("payDate"), 
-            request.getParameter("payMethod")
-        );
+        
+        List<Payment> payments = null;
+        if ("customer".equals(role)) {
+            payments = paymentFacade.findFilteredPayments(
+                activeUser.getEmail(), 
+                request.getParameter("payDate"), 
+                request.getParameter("payMethod")
+            );
+        }
 
         // 3. Pass the lists to the JSP
         request.setAttribute("appointmentData", appointmentData);

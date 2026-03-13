@@ -15,13 +15,27 @@
     <body>
         <h2>Hi, ${sessionScope.user.username}!</h2>
 
-        <nav>
-            <a href="customerDashboard.jsp">Home Page</a> |
-            <a href="EditProfile.jsp">My Profile</a> |
-            <a href="ViewHistory">View History</a> |
-            <a href="ViewFeedback">Feedback</a> |
-            <a href="Logout">Logout</a>
-        </nav>
+        <c:choose>
+            <c:when test="${sessionScope.user.role == 'technician'}">
+                <nav>
+                    <a href="Technician/TechDashboard.jsp">Home Page</a> | 
+                    <a href="${pageContext.request.contextPath}/ViewHistory">Task History</a> | 
+                    <a href="${pageContext.request.contextPath}/UpdateTask.jsp">Update Tasks</a> |
+                    <a href="${pageContext.request.contextPath}/ViewFeedback">View Comments</a> | 
+                    <a href="${pageContext.request.contextPath}/EditProfile.jsp">My Profile</a> | 
+                    <a href="${pageContext.request.contextPath}/Logout">Logout</a>
+                </nav>
+            </c:when>
+            <c:otherwise>
+                <nav>
+                    <a href="customerDashboard.jsp">Home Page</a> | 
+                    <a href="EditProfile.jsp">My Profile</a> |
+                    <a href="ViewHistory">View History</a> |
+                    <a href="ViewFeedback">Feedback</a> |
+                    <a href="Logout">Logout</a>
+                </nav>
+            </c:otherwise>
+        </c:choose>
         <hr>
 
         <h1>Appointment History</h1>  
@@ -69,13 +83,16 @@
                     <td>${row[0].appointment_status}</td>
                     <td>
                         <c:if test="${row[0].appointment_status == 'Done'}">
-                            <a href="giveFeedback.jsp?appointmentId=${row[0].appointment_id}">Give Feedback</a>
+                            <a href="GiveFeedback?appointmentId=${row[0].appointment_id}">
+                                <c:out value="${sessionScope.user.role == 'technician' ? 'Add Tech Note' : 'Give Feedback'}" />
+                            </a>
                         </c:if>
                     </td>
                 </tr>
             </c:forEach>
         </table>
 
+        <c:if test="${sessionScope.user.role != 'technician'}">
         <h1>Payment History</h1>
         <fieldset style="margin-bottom: 20px; padding: 10px;">
             <legend>Filter Payment History</legend>
@@ -114,6 +131,7 @@
                 </tr>
             </c:forEach>
         </table>
+        </c:if>
 
         <script>
             const urlParams = new URLSearchParams(window.location.search);
