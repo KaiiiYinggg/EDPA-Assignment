@@ -33,12 +33,14 @@ public class CarFacade {
 
     public List<Car> findAll() {
         return em.createQuery("SELECT c FROM Car c", Car.class)
-                 .getResultList();
+                .getResultList();
     }
 
-    public List<Car> findByUser(User user) {
-        return em.createQuery("SELECT c FROM Car c WHERE c.user = :user", Car.class)
-                 .setParameter("user", user)
-                 .getResultList();
+    // 根据 email 查用户的车辆
+    public List<Car> findByUserEmail(String email) {
+        // 将 c.user.email 改为 c.userEmail
+        return em.createQuery("SELECT c FROM Car c WHERE c.userEmail = :email", Car.class)
+                .setParameter("email", email)
+                .getResultList();
     }
 }

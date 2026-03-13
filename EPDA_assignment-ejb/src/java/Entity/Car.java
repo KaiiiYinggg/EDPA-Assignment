@@ -5,43 +5,43 @@
 package Entity;
 
 import java.io.Serializable;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-/**
- *
- * @author Kai Ying
- */
+import javax.persistence.Column;
 
 @Entity
 @Table(name = "CAR_LIST")
 public class Car implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
+
     @Id
     private String carPlateNumber;
+    
 
     private String carBrand;
     private String carModel;
     private String color;
-    
-    @Column(name = "\"YEAR\"")
+    @Column(name = "CAR_YEAR")
     private int year;
+    private String userEmail;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id") // 数据库列
-    private User user;
-    
-    // In Car.java, ensure this matches the variable name in Appointment.java
-    @javax.persistence.OneToMany(mappedBy = "car") 
-    private java.util.List<Appointment> appointment;
-    
     public Car() {
     }
 
+    public Car(String carPlateNumber, String carBrand, String carModel,
+            String color, int year, String userEmail) {
+        this.carPlateNumber = carPlateNumber;
+        this.carBrand = carBrand;
+        this.carModel = carModel;
+        this.color = color;
+        this.year = year;
+        this.userEmail = userEmail;
+    }
+
+    // getters 和 setters
     public String getCarPlateNumber() {
         return carPlateNumber;
     }
@@ -82,19 +82,11 @@ public class Car implements Serializable {
         this.year = year;
     }
 
-    public User getUser() {
-        return user;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-    
-    public java.util.List<Appointment> getAppointment() {
-        return appointment;
-    }
-
-    public void setAppointment(java.util.List<Appointment> appointment) {
-        this.appointment = appointment;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 }

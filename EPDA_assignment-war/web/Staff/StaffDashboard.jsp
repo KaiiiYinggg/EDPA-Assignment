@@ -30,10 +30,11 @@
             </li>
             
             <li>
-                <a href="${pageContext.request.contextPath}/EditProfile.jsp">
+                <a href="${pageContext.request.contextPath}/EditProfile">
                      Edit My Profile
                 </a>
             </li>
+            
 
             <li>
                 <a href="${pageContext.request.contextPath}/AssignAppointment.jsp">
