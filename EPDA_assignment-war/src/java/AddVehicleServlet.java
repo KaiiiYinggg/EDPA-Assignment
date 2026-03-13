@@ -30,6 +30,12 @@ public class AddVehicleServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user"); 
         response.setContentType("text/html;charset=UTF-8");
+        
+        // 1. 先检查用户是否登录，没登录直接拦截
+        if (user == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
 
         try {
             String carPlate = request.getParameter("carPlate");
@@ -38,19 +44,18 @@ public class AddVehicleServlet extends HttpServlet {
             String color = request.getParameter("color");
             int year = Integer.parseInt(request.getParameter("year"));
 
-            // 使用 User 对象里的 email，避免重复存储
-            String email = (user != null) ? user.getEmail() : null;
+            // 2. 使用 User 对象创建 Car 
+            Car car = new Car(carPlate, brand, model, color, year, user);
 
-            Car car = new Car(carPlate, brand, model, color, year, email);
-            car.setUserEmail(email);
+            // 3. 执行数据库保存 
             carFacade.create(car);
 
-            // 成功后跳转并提示
+            // 4. 成功后跳转 (在 try 块内) 
             response.sendRedirect(request.getContextPath() + "/EditProfile?vehicleAdded=true");
 
         } catch (Exception e) {
             e.printStackTrace(); 
-            request.setAttribute("errorMessage", "添加车辆失败: " + e.getMessage());
+            request.setAttribute("errorMessage", "Failed: " + e.getMessage());
             request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
         }
     }

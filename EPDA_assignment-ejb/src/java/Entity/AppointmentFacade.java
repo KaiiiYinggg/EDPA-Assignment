@@ -30,12 +30,17 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     
 
     public List<Object[]> findFilteredAppointments(String email, String date, String name) {
+        // 1. 修改 SELECT 增加字段：a.appointment_time, a.staff_email, a.technician_email, c.carPlateNumber
         StringBuilder queryStr = new StringBuilder(
-            "SELECT a, s.serviceName, s.serviceType FROM Appointment a " +
-            "JOIN a.service s WHERE a.customer.email = :email"
+            "SELECT a, s.serviceName, s.serviceType, a.appointment_time, " +
+            "a.staff_email, a.technician_email, c.carPlateNumber " + 
+            "FROM Appointment a " +
+            "JOIN a.service s " +
+            "LEFT JOIN a.car c " + // 必须 JOIN car 才能拿到车牌
+            "WHERE a.customer.email = :email"
         );
 
-        // Add optional filters
+        // 保持现有的 filter 逻辑不变
         if (date != null && !date.isEmpty()) {
             queryStr.append(" AND a.appointment_date = :date");
         }

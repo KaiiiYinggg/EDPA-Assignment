@@ -42,15 +42,30 @@
         <table border="1" cellpadding="10">
             <tr>
                 <th>Appointment ID</th>
+                <th>Car Plate</th>
                 <th>Date</th>
-                <th>Service Name</th>
-                <th>Service Type</th> <th>Status</th>
-                <th>Action</th> </tr>
-                    <c:forEach var="row" items="${appointmentData}">
+                <th>Time</th>
+                <th>Service Name (Type)</th>
+                <th>Staff</th>
+                <th>Technician</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            <c:forEach var="row" items="${appointmentData}">
                 <tr>
                     <td>${row[0].appointment_id}</td>
+                    <%-- Car Plate (Index 6) --%>
+                    <td>${empty row[6] ? 'No Car' : row[6]}</td> 
+                    <%-- Date --%>
                     <td>${row[0].appointment_date}</td>
-                    <td>${row[1]}</td> <td>${row[2]}</td> 
+                    <%-- Time (Index 3) --%>
+                    <td>${row[3]}</td>
+                    <%-- Service Name (Index 1) and Type (Index 2) --%>
+                    <td>${row[1]} (${row[2]})</td>
+                    <%-- Staff Email (Index 4) --%>
+                    <td>${empty row[4] ? 'Pending' : row[4]}</td> 
+                    <%-- Technician Email (Index 5) --%>
+                    <td>${empty row[5] ? 'Pending' : row[5]}</td> 
                     <td>${row[0].appointment_status}</td>
                     <td>
                         <c:if test="${row[0].appointment_status == 'Done'}">
