@@ -4,6 +4,7 @@
  */
 package Entity;
 
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -27,4 +28,29 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
         super(Feedback.class);
     }
     
+   public List<Object[]> findDetailedFeedback(String email, String role) {
+        // We select 'f' first to match your viewFeedback.jsp logic (row[0])
+        String baseSelect = "SELECT f, s.serviceName, s.serviceType, a.appointment_date, " +
+                            "a.appointment_time, a.staff_email, a.technician_email, c.carPlateNumber, a.customer.email ";
+
+        // Use JPA paths: f.appointment -> a.service -> a.car
+        String baseJoin = "FROM Feedback f " +
+                          "JOIN f.appointment a " + 
+                          "JOIN a.service s " +     
+                          "LEFT JOIN a.car c ";     
+
+        String jpql = baseSelect + baseJoin;
+
+        if ("manager".equals(role)) {
+            jpql += " ORDER BY a.appointment_date DESC";
+            return em.createQuery(jpql, Object[].class).getResultList();
+        } else {
+            // Accessing the email via the 'customer' object property
+            jpql += " WHERE a.customer.email = :email ORDER BY a.appointment_date DESC";
+            return em.createQuery(jpql, Object[].class)
+                     .setParameter("email", email)
+                     .getResultList();
+        }
+    }
+
 }

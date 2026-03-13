@@ -31,8 +31,7 @@ public class PaymentFacade extends AbstractFacade<Payment> {
     
     public List<Payment> findFilteredPayments(String email, String date, String method) {
         StringBuilder queryStr = new StringBuilder(
-            "SELECT p FROM Payment p, Appointment a " +
-            "WHERE p.appointment_id = a.appointment_id AND a.customer_email = :email"
+            "SELECT p FROM Payment p WHERE p.appointment.customer.email = :email"
         );
 
         if (date != null && !date.isEmpty()) {

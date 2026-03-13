@@ -31,8 +31,8 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
 
     public List<Object[]> findFilteredAppointments(String email, String date, String name) {
         StringBuilder queryStr = new StringBuilder(
-            "SELECT a, s.serviceName, s.serviceType FROM Appointment a, Services s " +
-            "WHERE a.service_id = s.service_id AND a.customer_email = :email"
+            "SELECT a, s.serviceName, s.serviceType FROM Appointment a " +
+            "JOIN a.service s WHERE a.customer.email = :email"
         );
 
         // Add optional filters

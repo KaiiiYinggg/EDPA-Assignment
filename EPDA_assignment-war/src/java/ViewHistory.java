@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import Entity.Appointment;
 import Entity.AppointmentFacade;
 import Entity.Payment;
 import Entity.PaymentFacade;

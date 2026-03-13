@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -25,7 +27,10 @@ public class Feedback implements Serializable {
     private String customer_comment;
     private int ranking;
     private String technician_feedback;
-    private Long appointment_id;
+
+    @ManyToOne
+    @JoinColumn(name="appointment_id", nullable=false)
+    private Appointment appointment;
 
     public Long getFeedback_id() {
         return feedback_id;
@@ -35,12 +40,12 @@ public class Feedback implements Serializable {
         this.feedback_id = id;
     }
 
-    public Long getAppointment_id() {
-        return appointment_id;
+    public Appointment getAppointment() {
+        return appointment;
     }
 
-    public void setAppointment_id(Long appointment_id) {
-        this.appointment_id = appointment_id;
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
     }
 
     public String getCustomer_comment() {

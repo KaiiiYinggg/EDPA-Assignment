@@ -3,10 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import Entity.Appointment;
+import Entity.AppointmentFacade;
 import Entity.Feedback;
 import Entity.FeedbackFacade;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,7 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 public class GiveFeedback extends HttpServlet {
 
     @EJB
-    FeedbackFacade FeedbackFacade;
+    FeedbackFacade feedbackFacade;
+    @EJB
+    private AppointmentFacade appointmentFacade; 
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -71,16 +74,22 @@ public class GiveFeedback extends HttpServlet {
             int ranking = Integer.parseInt(rankingStr);
             Long appointmentId = Long.parseLong(appIdStr);
             String fullComment = target + commentText; // Example: "To TECHNICIAN: Excellent service"
+            
+            Appointment appointment = appointmentFacade.find(appointmentId);
+            if (appointment == null) {
+                response.sendRedirect("ViewHistory?error=appointmentNotFound");
+                return;
+            }
 
             // 4. Populate and Create Entity
             Feedback fb = new Feedback();
             // IMPORTANT: Ensure the method name matches your Feedback.java exactly
             fb.setCustomer_comment(fullComment); 
             fb.setRanking(ranking);
-            fb.setAppointment_id(appointmentId);
-            fb.setTechnician_feedback(""); 
+            fb.setAppointment(appointment);
+            fb.setTechnician_feedback(null); 
 
-            FeedbackFacade.create(fb);
+            feedbackFacade.create(fb);
             
             // 5. Success redirect
             response.sendRedirect("ViewHistory?commentmessage=saved");

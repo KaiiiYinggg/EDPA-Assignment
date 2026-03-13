@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -19,10 +21,13 @@ public class Payment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long payment_id;
     
-    private Long appointment_id;
+    @OneToOne // 或者 @ManyToOne，取决于你的业务
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
+    
     private String payment_method;
     private String payment_date;
     private double payment_amount;
@@ -35,12 +40,12 @@ public class Payment implements Serializable {
         this.payment_id = payment_id;
     }
 
-    public Long getAppointment_id() {
-        return appointment_id;
+    public Appointment getAppointment() {
+        return appointment;
     }
 
-    public void setAppointment_id(Long appointment_id) {
-        this.appointment_id = appointment_id;
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
     }
 
     public double getPayment_amount() {

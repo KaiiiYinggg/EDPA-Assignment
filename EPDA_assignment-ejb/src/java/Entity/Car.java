@@ -31,6 +31,11 @@ public class Car implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id") // 数据库列
     private User user;
+    
+    // In Car.java, ensure this matches the variable name in Appointment.java
+    @javax.persistence.OneToMany(mappedBy = "car") 
+    private java.util.List<Appointment> appointment;
+    
     public Car() {
     }
 
@@ -80,5 +85,13 @@ public class Car implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+    
+    public java.util.List<Appointment> getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(java.util.List<Appointment> appointment) {
+        this.appointment = appointment;
     }
 }

@@ -3,8 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import Entity.FeedbackFacade;
+import Entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,6 +20,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(urlPatterns = {"/ViewFeedback"})
 public class ViewFeedback extends HttpServlet {
+    @EJB
+    private FeedbackFacade FeedbackFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -27,25 +32,7 @@ public class ViewFeedback extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ViewFeedback</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ViewFeedback at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-            
-            //if role= cuatomer only show the comment to who and ranking
-            //if role = manager show all include appoinment id and feedback id.....
-        }
-    }
+    
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -59,7 +46,23 @@ public class ViewFeedback extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        String email = user.getEmail();
+        String role = user.getRole();
+
+        // Call the detailed method that joins Feedback, Appointment, Services, and Car 
+        List<Object[]> feedbackData = FeedbackFacade.findDetailedFeedback(email, role);
+
+        // Pass the object array list to the JSP 
+        request.setAttribute("feedbackData", feedbackData);
+
+        request.getRequestDispatcher("viewFeedback.jsp").forward(request, response);
     }
 
     /**
@@ -73,7 +76,7 @@ public class ViewFeedback extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**
