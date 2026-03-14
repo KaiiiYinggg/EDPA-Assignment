@@ -21,7 +21,7 @@
             <a href="register.jsp">Register</a> | 
             <a href="ManageStaff">Manage Staff</a> |
             <a href="SetPrice">Set Price</a> | 
-            <a href="viewFeedback.jsp">View Feedback</a> | 
+            <a href="ViewFeedback">View Feedback</a> | 
             <a href="EditProfile.jsp">My Profile</a> | 
             <a href="Logout">Logout</a>
         </nav>        
@@ -38,16 +38,20 @@
         <table border="1" cellpadding="10">
             <tr>
                 <th>Username</th>
+                <th>User IC</th>
                 <th>Email</th>
                 <th>Phone(+60)</th>
+                <th>Address</th>
                 <th>Role</th>
                 <th>Actions</th>
             </tr>
             <c:forEach items="${staffList}" var="staff">
                 <tr>
                     <td>${staff.username}</td>
+                    <td>${staff.userIC}</td>
                     <td>${staff.email}</td>
                     <td>${staff.phoneNumber}</td>
+                    <td>${staff.address}</td>
                     <td>${staff.role}</td>
                     <td>
                         <a href="UpdateStaff?email=${staff.email}">Update</a> | 

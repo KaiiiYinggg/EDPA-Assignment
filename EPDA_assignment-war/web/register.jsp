@@ -13,7 +13,7 @@
         <title>Register Page</title>
     </head>
     <body>
-        
+
         <h2>Hi, ${sessionScope.user.username}!</h2>
 
         <nav>
@@ -26,9 +26,9 @@
             <a href="Logout">Logout</a>
         </nav>
         <hr>
-        
+
         <h2>User Registration</h2>
-        
+
         <form action="Register" method="post" enctype="multipart/form-data">
             <table>
                 <tr>
@@ -42,7 +42,17 @@
                 <tr>
                     <td>Password:</td>
                     <td><input type="password" name="password" size="20"/></td>
-                </tr>           
+                </tr>
+                <tr>
+                    <td>IC:</td>
+                    <td><input type="text" 
+                               name="userIC" 
+                               maxlength="12" 
+                               pattern="\[0-9]{12}" 
+                               inputmode="numeric"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                               required></td>
+                </tr>
                 <tr>
                     <td>Email:</td>
                     <td><input type="text" name="email" size="20"/></td>
@@ -50,6 +60,10 @@
                 <tr>
                     <td>Phone Number:</td>
                     <td><input type="text" name="phoneNumber" size="20"/></td>
+                </tr>
+                <tr>
+                    <td>Address:</td>
+                    <td><input type="text" name="address" size="20"/></td>
                 </tr>
                 <tr>
                     <td>Gender:</td>
@@ -71,7 +85,7 @@
             </table>
             <p><input type="submit" value="Register"/></p>
         </form>
-        
+
         <c:if test="${not empty error}">
             <p style="color: red; font-weight: bold;">${error}</p>
         </c:if>
@@ -80,9 +94,9 @@
             String successMsg = (String) request.getAttribute("loginSuccessMessage");
             if (successMsg != null) {
         %>
-            <script type="text/javascript">
-                alert("<%= successMsg %>");
-            </script>
+        <script type="text/javascript">
+            alert("<%= successMsg%>");
+        </script>
         <%
             }
         %>

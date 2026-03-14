@@ -67,7 +67,7 @@ public class UserFacade extends AbstractFacade<User> {
         }
     }
     
-    public String updateStaff(String oldEmail,String newEmail, String username, int phone, String role,String gender,String password,String profilePic) {
+    public String updateStaff(String oldEmail,String newEmail, String username, int phone, String role,String gender,String password,String profilePic,String userIC, String address) {
         // 1. 检查新 Email 是否已经被其他人占用
         // 如果用户没改 Email，newEmail == oldEmail，我们就跳过检查
         if (!oldEmail.equals(newEmail)) {
@@ -86,6 +86,8 @@ public class UserFacade extends AbstractFacade<User> {
             user.setRole(role);
             user.setGender(gender);
             user.setPassword(password);
+            user.setUserIC(userIC);
+            user.setAddress(address);
             
             user.setProfilePic(profilePic);
 

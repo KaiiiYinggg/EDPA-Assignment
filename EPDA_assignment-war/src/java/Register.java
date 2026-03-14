@@ -46,14 +46,25 @@ public class Register extends HttpServlet {
             String role = request.getParameter("role");
             String gender = request.getParameter("gender");
             String phoneStr = request.getParameter("phoneNumber");
+            String userICStr = request.getParameter("userIC");
+            String address = request.getParameter("address");
 
             // 2. Basic validation
             if (name == null || name.trim().isEmpty()
                     || email == null || email.trim().isEmpty()
                     || password == null || password.trim().isEmpty()
-                    || phoneStr == null || phoneStr.trim().isEmpty()) {
+                    || phoneStr == null || phoneStr.trim().isEmpty()
+                    || userICStr == null || userICStr.trim().isEmpty()
+                    || address == null || address.trim().isEmpty()) {
 
                 request.setAttribute("error", "All fields are required!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+            
+            // Check if null, check length, and check if it's numeric
+            if (userICStr == null || userICStr.trim().length() != 12 || !userICStr.matches("^[0-9]+$")) {
+                request.setAttribute("error", "IC must be exactly 12 numeric digits!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
@@ -62,11 +73,12 @@ public class Register extends HttpServlet {
             int phoneNumber;
             try {
                 phoneNumber = Integer.parseInt(phoneStr.replaceAll("[^0-9]", ""));
+                
                 if (phoneNumber < 0 || phoneNumber > 2147483647) {
                     throw new NumberFormatException("Phone number out of range");
                 }
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid phone number!");
+                request.setAttribute("error", "Invalid phone number format!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
@@ -87,7 +99,7 @@ public class Register extends HttpServlet {
             }
 
             // 6. Create user with default profile pic
-            User newUser = new User(name, password, phoneNumber, gender, role, email);
+            User newUser = new User(name, password, userICStr, address, phoneNumber, gender, role, email);
             newUser.setProfilePic(defaultPic);
             userFacade.create(newUser);
 
