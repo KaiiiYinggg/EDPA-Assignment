@@ -53,7 +53,6 @@ public class ViewFeedback extends HttpServlet {
             return;
         }
         
-
         String email = user.getEmail();
         String role = user.getRole();
         // 添加下面这一行，运行后看 NetBeans 底下的 Output 窗口

@@ -29,7 +29,6 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
     }
     
     public List<Object[]> findDetailedFeedback(String email, String role) {
-        // SELECT f 表示 row[0] 是一个完整的 Feedback 对象
         String baseSelect = "SELECT f, s.serviceName, s.serviceType, a.appointment_date, " +
                             "a.appointment_time, a.staff_email, a.technician_email, c.carPlateNumber, a.customer.email ";
 
@@ -41,15 +40,24 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
         String jpql = baseSelect + baseJoin;
 
         if ("manager".equals(role)) {
+            // 管理员：通常看到所有已存在反馈的记录（可选：是否过滤 Pending）
             jpql += " ORDER BY a.appointment_date DESC";
             return em.createQuery(jpql, Object[].class).getResultList();
+
         } else if ("technician".equals(role)) {
-            // 新增：技术人员只能看到分配给自己的任务评价
-            jpql += " WHERE a.technician_email = :email ORDER BY a.appointment_date DESC";
+            // 技术人员逻辑：必须是分配给自己的，且自己已经回复过的 (不等于 Pending)
+            jpql += " WHERE a.technician_email = :email " +
+                    " AND f.technician_feedback IS NOT NULL " +
+                    " AND f.technician_feedback <> 'Pending' " +
+                    " AND f.technician_feedback <> '' " +
+                    " ORDER BY a.appointment_date DESC";
             return em.createQuery(jpql, Object[].class).setParameter("email", email).getResultList();
+
         } else {
-            // 客户：看到自己提交的评价
-            jpql += " WHERE a.customer.email = :email ORDER BY a.appointment_date DESC";
+            // 顾客逻辑：必须是自己的，且自己已经评价过的 (ranking > 0)
+            jpql += " WHERE a.customer.email = :email " +
+                    " AND f.ranking > 0 " + 
+                    " ORDER BY a.appointment_date DESC";
             return em.createQuery(jpql, Object[].class).setParameter("email", email).getResultList();
         }
     }

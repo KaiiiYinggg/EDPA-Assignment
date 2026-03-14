@@ -60,7 +60,11 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         Query query = em.createQuery(queryStr.toString());
         query.setParameter("email", email);
 
-        if (date != null && !date.isEmpty()) query.setParameter("date", date);
+        if (date != null && !date.isEmpty()) {
+            try {
+                query.setParameter("date", java.time.LocalDate.parse(date)); 
+            } catch (Exception e) { e.printStackTrace(); }
+        }
         if (name != null && !name.isEmpty()) query.setParameter("name", "%" + name.toUpperCase() + "%");
 
         return query.getResultList();
