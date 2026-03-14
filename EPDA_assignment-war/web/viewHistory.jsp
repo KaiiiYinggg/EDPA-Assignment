@@ -80,12 +80,34 @@
                     <td>${empty row[4] ? 'Pending' : row[4]}</td> 
                     <%-- Technician Email (Index 5) --%>
                     <td>${empty row[5] ? 'Pending' : row[5]}</td> 
+                    <%--status--%>
                     <td>${row[0].appointment_status}</td>
                     <td>
                         <c:if test="${row[0].appointment_status == 'Done'}">
-                            <a href="GiveFeedback?appointmentId=${row[0].appointment_id}">
-                                <c:out value="${sessionScope.user.role == 'technician' ? 'Add Tech Note' : 'Give Feedback'}" />
-                            </a>
+                            <c:choose>
+                                <%-- 检查该预约是否已经有关联的反馈记录 --%>
+                                <c:when test="${empty row[0].feedbacks}">
+                                    <a href="GiveFeedback?appointmentId=${row[0].appointment_id}">
+                                        <c:out value="${sessionScope.user.role == 'technician' ? 'Add Tech Note' : 'Give Feedback'}" />
+                                    </a>
+                                </c:when>
+
+                                <%-- 如果已有反馈记录，则显示提示信息并禁用功能 --%>
+                                <c:otherwise>
+                                    <c:choose>
+                                        <c:when test="${sessionScope.user.role == 'technician'}">
+                                            <%-- 如果是技术人员，可以显示已添加备注的状态 --%>
+                                            <span style="color: green; font-weight: bold;">Note Added</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <%-- 如果是客户，显示已评价并禁用链接 --%>
+                                            <span style="color: gray; font-style: italic;" title="Feedback already submitted">
+                                                Already Commented
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:otherwise>
+                            </c:choose>
                         </c:if>
                     </td>
                 </tr>
@@ -93,44 +115,44 @@
         </table>
 
         <c:if test="${sessionScope.user.role != 'technician'}">
-        <h1>Payment History</h1>
-        <fieldset style="margin-bottom: 20px; padding: 10px;">
-            <legend>Filter Payment History</legend>
-            <form action="ViewHistory" method="GET">
-                <label>Payment Date:</label>
-                <input type="date" name="payDate">
+            <h1>Payment History</h1>
+            <fieldset style="margin-bottom: 20px; padding: 10px;">
+                <legend>Filter Payment History</legend>
+                <form action="ViewHistory" method="GET">
+                    <label>Payment Date:</label>
+                    <input type="date" name="payDate">
 
-                <label>Method:</label>
-                <select name="payMethod">
-                    <option value="">All Methods</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Cash">Cash</option>
-                    <option value="Online Banking">Online Banking</option>
-                </select>
+                    <label>Method:</label>
+                    <select name="payMethod">
+                        <option value="">All Methods</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Online Banking">Online Banking</option>
+                    </select>
 
-                <button type="submit">Filter Payments</button>
-                <a href="ViewHistory">Reset</a>
-            </form>
-        </fieldset>
-        <hr>
-        <table border="1" cellpadding="10">
-            <tr>
-                <th>ID</th>
-                <th>Appointment ID</th>
-                <th>Method</th>
-                <th>Date</th>
-                <th>Amount (RM)</th>
-            </tr>
-            <c:forEach var="pay" items="${payments}">
+                    <button type="submit">Filter Payments</button>
+                    <a href="ViewHistory">Reset</a>
+                </form>
+            </fieldset>
+            <hr>
+            <table border="1" cellpadding="10">
                 <tr>
-                    <td>${pay.payment_id}</td>
-                    <td>${empty pay.appointment ? 'N/A' : pay.appointment.appointment_id}</td>
-                    <td>${pay.payment_method}</td>
-                    <td>${pay.payment_date}</td>
-                    <td>${pay.payment_amount}</td>
+                    <th>ID</th>
+                    <th>Appointment ID</th>
+                    <th>Method</th>
+                    <th>Date</th>
+                    <th>Amount (RM)</th>
                 </tr>
-            </c:forEach>
-        </table>
+                <c:forEach var="pay" items="${payments}">
+                    <tr>
+                        <td>${pay.payment_id}</td>
+                        <td>${empty pay.appointment ? 'N/A' : pay.appointment.appointment_id}</td>
+                        <td>${pay.payment_method}</td>
+                        <td>${pay.payment_date}</td>
+                        <td>${pay.payment_amount}</td>
+                    </tr>
+                </c:forEach>
+            </table>
         </c:if>
 
         <script>
@@ -138,6 +160,10 @@
             if (urlParams.get('commentmessage') === 'saved') {
                 alert("Comment saved successfully!");
                 // Clean the URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            if (urlParams.get('error') === 'already_commented') {
+                alert("You have already submitted feedback for this appointment!");
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         </script>

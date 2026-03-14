@@ -16,7 +16,7 @@
 
         <nav>
             <a href="${pageContext.request.contextPath}/Technician/TechDashboard.jsp">Home Page</a> | 
-            <a href="${pageContext.request.contextPath}/ViewHistory">Add Feedback</a> | 
+            <a href="${pageContext.request.contextPath}/ViewHistory">Task History</a> | 
             <a href="${pageContext.request.contextPath}/UpdateTask.jsp">Update Tasks</a> |
             <a href="${pageContext.request.contextPath}/ViewFeedback">View Comments</a> | 
             <a href="${pageContext.request.contextPath}/EditProfile.jsp">My Profile</a> | 

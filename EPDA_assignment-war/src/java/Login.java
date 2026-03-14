@@ -53,7 +53,7 @@ public class Login extends HttpServlet {
             String role = user.getRole().toLowerCase();
             switch (role) {
                 case "manager":
-                    response.sendRedirect("managerDashboard.jsp");
+                    response.sendRedirect("loadManagerDashboard");
                     break;
                 case "counter staff":
                     response.sendRedirect("Staff/StaffDashboard.jsp");

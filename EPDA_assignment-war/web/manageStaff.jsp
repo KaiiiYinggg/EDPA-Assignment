@@ -17,7 +17,7 @@
         <h2>Hi, ${sessionScope.user.username}!</h2>
 
         <nav>
-            <a href="managerDashboard.jsp">Home Page</a> | 
+            <a href="loadManagerDashboard">Home Page</a> | 
             <a href="register.jsp">Register</a> | 
             <a href="ManageStaff">Manage Staff</a> |
             <a href="SetPrice">Set Price</a> | 

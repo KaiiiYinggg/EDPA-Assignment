@@ -28,7 +28,7 @@ public class Car implements Serializable {
     @Column(name = "CAR_YEAR")
     private int year;
     
-    @JoinColumn(name = "userEmail") 
+    @JoinColumn(name = "userEmail",referencedColumnName = "email") 
     private User user;
 
     public Car() {

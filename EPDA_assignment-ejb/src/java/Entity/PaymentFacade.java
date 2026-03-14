@@ -49,4 +49,17 @@ public class PaymentFacade extends AbstractFacade<Payment> {
 
         return query.getResultList();
     }
+    
+    // 获取总收入
+    public double getTotalRevenue() {
+        Double total = (Double) em.createQuery("SELECT SUM(p.payment_amount) FROM Payment p").getSingleResult();
+        return (total != null) ? total : 0.0;
+    }
+
+    // 获取服务类型的分布情况 (Service Name vs Count)
+    public List<Object[]> getServiceDistribution() {
+        return em.createQuery(
+            "SELECT s.serviceName, COUNT(a) FROM Appointment a JOIN a.service s GROUP BY s.serviceName", 
+            Object[].class).getResultList();
+    }
 }

@@ -30,7 +30,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     
 
     public List<Object[]> findFilteredAppointments(String email, String role, String date, String name) {
-        // 1. 基础 SELECT 和 JOIN 部分 (不要在这里写 WHERE)
+        // 1. 基础 SELECT 和 JOIN 部分
         StringBuilder queryStr = new StringBuilder(
             "SELECT a, s.serviceName, s.serviceType, a.appointment_time, " +
             "a.staff_email, a.technician_email, c.carPlateNumber " + 
@@ -45,6 +45,9 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         } else {
             queryStr.append(" WHERE a.customer.email = :email");
         }
+
+        // --- 核心修改：强制只查询状态为 Done 的数据 ---
+        queryStr.append(" AND a.appointment_status = 'Done'"); 
 
         // 3. 后续过滤条件使用 AND
         if (date != null && !date.isEmpty()) {
@@ -65,15 +68,20 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     
     public List<Object[]> findServiceSummary(String email) {
         try {
-            // 选择日期、服务名称和状态。通过 a.customer.email 过滤
-            return em.createQuery(
-                "SELECT a.appointment_date, s.serviceName, a.appointment_status " +
-                "FROM Appointment a JOIN a.service s " +
-                "WHERE a.customer.email = :email " +
-                "ORDER BY a.appointment_date DESC", Object[].class)
-                .setParameter("email", email)
-                .setMaxResults(5) // 可选：只显示最近的 5 条记录
-                .getResultList();
+            // 更新 SELECT 语句：增加 s.serviceType
+            String jpql = "SELECT a.appointment_date, s.serviceName, a.appointment_status, " +
+                          "a.appointment_time, c.carPlateNumber, s.serviceType " + // s.serviceType 现在是索引 [5]
+                          "FROM Appointment a " +
+                          "JOIN a.service s " +
+                          "LEFT JOIN a.car c " +
+                          "WHERE a.customer.email = :email " +
+                          "AND a.appointment_status = 'Pending' " +
+                          "ORDER BY a.appointment_date DESC";
+
+            return em.createQuery(jpql, Object[].class)
+                    .setParameter("email", email)
+                    .setMaxResults(5)
+                    .getResultList();
         } catch (Exception e) {
             e.printStackTrace();
             return new java.util.ArrayList<>();

@@ -10,7 +10,32 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Customer Page</title>
+        <title>Customer Dashboard</title>
+        <style>
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+            th {
+                background-color: #f4f4f4;
+            }
+            .status-pending {
+                color: #d97706;
+                font-weight: bold;
+            } /* 橙色表示等待中 */
+            .car-box {
+                background: #f9fafb;
+                padding: 10px;
+                border-left: 4px solid #3b82f6;
+                margin-bottom: 5px;
+            }
+        </style>
     </head>
     <body>
         <h2>Hi, ${sessionScope.user.username}!</h2>
@@ -24,20 +49,52 @@
         </nav>
         <hr>
 
-        <!--display car information-->
-        <h1>My Car</h1>
-        
-        <c:forEach var="car" items="${customerCars}">
-            <p>Plate: ${car.carPlateNumber} - Brand: ${car.carBrand}</p>
-        </c:forEach>
+        <h1>My Registered Vehicles</h1>
+        <c:choose>
+            <c:when test="${empty customerCars}">
+                <p>You haven't registered any cars yet.</p>
+            </c:when>
+            <c:otherwise>
+                <c:forEach var="car" items="${customerCars}">
+                    <div class="car-box">
+                        <strong>Plate:</strong> ${car.carPlateNumber} | 
+                        <strong>Brand:</strong> ${car.carBrand} | 
+                        <strong>Model:</strong> ${car.carModel}
+                    </div>
+                </c:forEach>
+            </c:otherwise>
+        </c:choose>
 
-        <h2>Service Summary</h2>
-        <table border="1">
-            <tr><th>Date</th><th>Service</th><th>Status</th></tr>
-            <c:forEach var="row" items="${serviceSummary}">
-                <tr>
-                    <td>${row[0]}</td> <td>${row[1]}</td> <td>${row[2]}</td> </tr>
-            </c:forEach>
-        </table>
+        <h2>Active Service Requests (Pending)</h2>
+        <c:choose>
+            <c:when test="${empty serviceSummary}">
+                <p>No pending service requests at the moment.</p>
+            </c:when>
+            <c:otherwise>
+                <table>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Car Plate</th>
+                        <th>Service (Type)</th> <th>Status</th>
+                    </tr>
+                    <c:forEach var="row" items="${serviceSummary}">
+                        <tr>
+                            <td>${row[0]}</td> <td>${row[3]}</td> <td>${empty row[4] ? 'N/A' : row[4]}</td> <%-- 同时显示 Service Name 和 Service Type --%>
+                            <td>
+                                <strong>${row[1]}</strong> 
+                                <br/>
+                                <small style="color: gray;">Type: ${row[5]}</small>
+                            </td>
+
+                            <td>
+                                <span class="status-pending">${row[2]}</span> </td> 
+                        </tr>
+                    </c:forEach>
+                </table>
+            </c:otherwise>
+        </c:choose>
+
+        <p><small>* View your full service history in the "View History" section.</small></p>
     </body>
 </html>

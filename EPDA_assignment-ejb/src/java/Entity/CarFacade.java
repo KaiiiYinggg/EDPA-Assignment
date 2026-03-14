@@ -39,7 +39,7 @@ public class CarFacade {
     // 根据 email 查用户的车辆
     public List<Car> findByUserEmail(String email) {
         // 将 c.user.email 改为 c.userEmail
-        return em.createQuery("SELECT c FROM Car c WHERE c.userEmail = :email", Car.class)
+        return em.createQuery("SELECT c FROM Car c WHERE c.user.email = :email", Car.class)
                 .setParameter("email", email)
                 .getResultList();
     }

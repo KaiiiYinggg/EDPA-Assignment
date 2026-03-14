@@ -19,7 +19,7 @@
             <%-- Manager View --%>
             <c:when test="${sessionScope.user.role == 'manager'}">
                 <nav>
-                    <a href="managerDashboard.jsp">Home Page</a> | 
+                    <a href="loadManagerDashboard">Home Page</a> | 
                     <a href="register.jsp">Register</a> | 
                     <a href="ManageStaff">Manage Staff</a> |
                     <a href="SetPrice">Set Price</a> | 
@@ -35,7 +35,7 @@
             <c:when test="${sessionScope.user.role == 'technician'}">
                 <nav>
                     <a href="Technician/TechDashboard.jsp">Home Page</a> | 
-                    <a href="${pageContext.request.contextPath}/ViewHistory">Add Feedback</a> | 
+                    <a href="${pageContext.request.contextPath}/ViewHistory">Task History</a> | 
                     <a href="${pageContext.request.contextPath}/UpdateTask.jsp">Update Tasks</a> |
                     <a href="${pageContext.request.contextPath}/ViewFeedback">View Comments</a> | 
                     <a href="${pageContext.request.contextPath}/EditProfile.jsp">My Profile</a> | 

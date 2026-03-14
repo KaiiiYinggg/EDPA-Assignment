@@ -17,11 +17,11 @@
         <h2>Hi, ${sessionScope.user.username}!</h2>
         
         <nav>
-            <a href="managerDashboard.jsp">Home Page</a> | 
+            <a href="loadManagerDashboard">Home Page</a> | 
             <a href="register.jsp">Register</a> | 
             <a href="ManageStaff">Manage Staff</a> |
             <a href="SetPrice">Set Price</a> | 
-            <a href="viewFeedback.jsp">View Feedback</a> | 
+            <a href="ViewFeedback">View Feedback</a> | 
             <a href="EditProfile.jsp">My Profile</a> |
             <a href="Logout">Logout</a>
         </nav>

@@ -151,7 +151,7 @@
             <br>
             <c:choose>
                 <c:when test="${sessionScope.user.role == 'manager'}">
-                    <a href="${pageContext.request.contextPath}/managerDashboard.jsp">Back to Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/loadManagerDashboard">Back to Dashboard</a>
                 </c:when>
                 <c:when test="${sessionScope.user.role == 'technician'}">
                     <a href="${pageContext.request.contextPath}/Technician/TechDashboard.jsp">Back to Dashboard</a>

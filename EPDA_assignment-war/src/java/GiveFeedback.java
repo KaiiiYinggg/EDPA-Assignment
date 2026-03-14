@@ -54,7 +54,18 @@ public class GiveFeedback extends HttpServlet {
         String appIdStr = request.getParameter("appointmentId");
         if (appIdStr != null && !appIdStr.isEmpty()) {
             Long appId = Long.parseLong(appIdStr);
-            // 查询预约详情，传给 JSP 显示只读信息
+
+            // 核心安全检查：如果该预约已有反馈，重定向并报错 
+            Feedback fb = feedbackFacade.findByAppointmentId(appId);
+            if (fb != null) {
+                // 如果反馈已存在，且当前用户是客户（不是技术人员更新备注），则拦截
+                User user = (User) request.getSession().getAttribute("user");
+                if (user != null && "customer".equalsIgnoreCase(user.getRole())) {
+                    response.sendRedirect("ViewHistory?error=already_commented");
+                    return;
+                }
+            }
+
             Appointment app = appointmentFacade.find(appId);
             request.setAttribute("app", app);
         }
