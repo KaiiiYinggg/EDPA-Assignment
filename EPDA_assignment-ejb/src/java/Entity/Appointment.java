@@ -25,30 +25,31 @@ public class Appointment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointment_id;
-    
+
     private LocalDate appointment_date;
     private LocalTime appointment_time;
-    
+
     @ManyToOne
-    @JoinColumn(name="customer_email",referencedColumnName="email")
+    @JoinColumn(name = "customer_email", referencedColumnName = "email")
     private User customer;
-    
+
     private String staff_email;
     private String technician_email;
-    
+
     @ManyToOne
-    @JoinColumn(name="service_id")
+    @JoinColumn(name = "service_id")
     private Services service;
-    
+
     private String appointment_status;
-    
+
+    // 在 Appointment.java 中修改
     @ManyToOne
-    @JoinColumn(name = "car_plate_number") // This creates the column in the APPOINTMENT table
+    @JoinColumn(name = "CAR_PLATE_NUMBER") // 对应数据库 APPOINTMENT 表中的列名
     private Car car;
-    
+
     @javax.persistence.OneToMany(mappedBy = "appointment", cascade = javax.persistence.CascadeType.ALL)
     private java.util.List<Feedback> feedbacks;
-    
+
     public java.util.List<Feedback> getFeedbacks() {
         return feedbacks;
     }
@@ -73,7 +74,6 @@ public class Appointment implements Serializable {
         this.appointment_date = appointment_date;
     }
 
-
     public String getAppointment_status() {
         return appointment_status;
     }
@@ -89,7 +89,6 @@ public class Appointment implements Serializable {
     public void setAppointment_time(LocalTime appointment_time) {
         this.appointment_time = appointment_time;
     }
-
 
     public void setCustomer(User customer) {
         this.customer = customer;
@@ -155,5 +154,5 @@ public class Appointment implements Serializable {
     public String toString() {
         return "Entity.Appointment[ id=" + appointment_id + " ]";
     }
-    
+
 }
