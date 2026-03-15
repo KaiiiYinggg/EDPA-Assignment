@@ -23,42 +23,42 @@ public class UserFacade extends AbstractFacade<User> {
     public void create(User user) {
         em.persist(user);
     }
-    
+
 // method//
     public User findByEmail(String email) {
         try {
             return em.createQuery(
-                "SELECT u FROM User u WHERE u.email = :email", User.class)
-                .setParameter("email", email)
-                .getSingleResult();
+                    "SELECT u FROM User u WHERE u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     public List<User> findAllStaffExceptMe(String myEmail) {
         // We use u.email here because it is marked as Unique in your Entity class
         // role=null(customer)
         return em.createQuery(
-            "SELECT u FROM User u WHERE u.role IN ('manager', 'technician', 'counter staff') " +
-            "AND u.email != :email", User.class)
-            .setParameter("email", myEmail)
-            .getResultList();
+                "SELECT u FROM User u WHERE u.role IN ('manager', 'technician', 'counter staff') "
+                + "AND u.email != :email", User.class)
+                .setParameter("email", myEmail)
+                .getResultList();
     }
-    
+
     public List<User> searchStaffExceptMe(String myEmail, String query) {
         // 使用 UPPER 进行不区分大小写的搜索
         // % 代表通配符，表示匹配任何字符
         return em.createQuery(
-            "SELECT u FROM User u WHERE u.role IN ('manager', 'technician', 'counter staff') " +
-            "AND u.email != :email " +
-            "AND (UPPER(u.username) LIKE UPPER(:query) OR UPPER(u.email) LIKE UPPER(:query))", 
-            User.class)
-            .setParameter("email", myEmail)
-            .setParameter("query", "%" + query + "%") 
-            .getResultList();
+                "SELECT u FROM User u WHERE u.role IN ('manager', 'technician', 'counter staff') "
+                + "AND u.email != :email "
+                + "AND (UPPER(u.username) LIKE UPPER(:query) OR UPPER(u.email) LIKE UPPER(:query))",
+                User.class)
+                .setParameter("email", myEmail)
+                .setParameter("query", "%" + query + "%")
+                .getResultList();
     }
-    
+
     public void deleteByEmail(String email) {
         User user = findByEmail(email);
         if (user != null) {
@@ -66,8 +66,8 @@ public class UserFacade extends AbstractFacade<User> {
             em.remove(em.merge(user));
         }
     }
-    
-    public String updateStaff(String oldEmail,String newEmail, String username, int phone, String role,String gender,String password,String profilePic) {
+
+    public String updateStaff(String oldEmail, String newEmail, String username, int phone, String role, String gender, String password, String profilePic) {
         // 1. 检查新 Email 是否已经被其他人占用
         // 如果用户没改 Email，newEmail == oldEmail，我们就跳过检查
         if (!oldEmail.equals(newEmail)) {
@@ -86,7 +86,7 @@ public class UserFacade extends AbstractFacade<User> {
             user.setRole(role);
             user.setGender(gender);
             user.setPassword(password);
-            
+
             user.setProfilePic(profilePic);
 
             em.merge(user);
@@ -95,20 +95,28 @@ public class UserFacade extends AbstractFacade<User> {
         }
         return "User not found!";
     }
-////    
+
+    ////    
 
     public List<User> findAllCustomers() {
         return em.createQuery("SELECT u FROM User u WHERE u.role = 'customer'", User.class)
                 .getResultList();
     }
+
     public List<User> searchCustomers(String query) {
-    return em.createQuery(
-        "SELECT u FROM User u WHERE u.role = 'customer' " +
-        "AND (UPPER(u.username) LIKE UPPER(:query) OR UPPER(u.email) LIKE UPPER(:query))", 
-        User.class)
-        .setParameter("query", "%" + query + "%")
-        .getResultList();
-}
+        return em.createQuery(
+                "SELECT u FROM User u WHERE u.role = 'customer' "
+                + "AND (UPPER(u.username) LIKE UPPER(:query) OR UPPER(u.email) LIKE UPPER(:query))",
+                User.class)
+                .setParameter("query", "%" + query + "%")
+                .getResultList();
+    }
+
+    public List<User> findByRole(String role) {
+        return em.createQuery("SELECT u FROM User u WHERE u.role = :role", User.class)
+                .setParameter("role", role)
+                .getResultList();
+    }
 
     @Transactional
     public void deleteById(Long id) {
