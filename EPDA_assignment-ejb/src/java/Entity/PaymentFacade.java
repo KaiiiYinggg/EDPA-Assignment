@@ -62,4 +62,11 @@ public class PaymentFacade extends AbstractFacade<Payment> {
             "SELECT s.serviceName, COUNT(a) FROM Appointment a JOIN a.service s GROUP BY s.serviceName", 
             Object[].class).getResultList();
     }
+    
+    public List<Object[]> getMonthlyRevenue() {
+        return em.createQuery(
+            "SELECT FUNCTION('MONTH', p.payment_date), SUM(p.payment_amount) " +
+            "FROM Payment p GROUP BY FUNCTION('MONTH', p.payment_date)", 
+            Object[].class).getResultList();
+    }
 }

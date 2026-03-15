@@ -91,4 +91,21 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
             return new java.util.ArrayList<>();
         }
     }
+    
+    public List<Object[]> getTechnicianPerformance() {
+        return em.createQuery(
+            "SELECT a.technician_email, COUNT(a) FROM Appointment a " +
+            "WHERE a.appointment_status = 'Done' " +
+            "GROUP BY a.technician_email ORDER BY COUNT(a) DESC", 
+            Object[].class).getResultList();
+    }
+    
+    public List<Object[]> getStaffPerformance() {
+        return em.createQuery(
+            "SELECT a.staff_email, COUNT(a) FROM Appointment a " +
+            "WHERE a.appointment_status = 'Done' " +
+            "GROUP BY a.staff_email ORDER BY COUNT(a) DESC", 
+            Object[].class).getResultList();
+    }
+   
 }

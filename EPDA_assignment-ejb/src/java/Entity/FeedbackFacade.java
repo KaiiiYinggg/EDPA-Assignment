@@ -78,5 +78,13 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
             return null;
         }
     }
+   
+   public List<Object[]> getServiceRatings() {
+        return em.createQuery(
+            "SELECT s.serviceName, AVG(f.ranking) FROM Feedback f " +
+            "JOIN f.appointment a JOIN a.service s " +
+            "WHERE f.ranking > 0 GROUP BY s.serviceName", 
+            Object[].class).getResultList();
+    }
 
 }

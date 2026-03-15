@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import Entity.AppointmentFacade;
+import Entity.FeedbackFacade;
 import Entity.PaymentFacade;
 import Entity.UserFacade;
 import java.io.IOException;
@@ -23,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 public class loadManagerDashboard extends HttpServlet {
     @EJB private PaymentFacade paymentFacade;
     @EJB private UserFacade userFacade;
+    @EJB private AppointmentFacade appointmentFacade;
+    @EJB private FeedbackFacade feedbackFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,16 +50,42 @@ public class loadManagerDashboard extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        double totalRevenue = paymentFacade.getTotalRevenue();
-        List<Object[]> serviceStats = paymentFacade.getServiceDistribution();
-        long totalUsers = userFacade.count(); // 假设 UserFacade 有 count 方法
+        try {
+            // 报表 1：总收入统计
+            double totalRevenue = paymentFacade.getTotalRevenue();
+            
+            // 报表 2：总用户数统计
+            long totalUsers = userFacade.count();
+            
+            // 报表 3：服务类型分布 (Popularity)
+            List<Object[]> serviceStats = paymentFacade.getServiceDistribution();
 
-        // 放入 Request 作用域
-        request.setAttribute("totalRevenue", totalRevenue);
-        request.setAttribute("serviceStats", serviceStats);
-        request.setAttribute("totalUsers", totalUsers);
+            // 报表 4：技术人员绩效 (按完成任务数量排名)
+            List<Object[]> technicianPerformance = appointmentFacade.getTechnicianPerformance();
+            //
+            List<Object[]> staffPerformance = appointmentFacade.getStaffPerformance();
 
-        request.getRequestDispatcher("managerDashboard.jsp").forward(request, response);
+            // 报表 5：服务质量满意度 (按服务名称计算平均分)
+            List<Object[]> serviceRatings = feedbackFacade.getServiceRatings();
+            
+            List<Object[]> monthlyRevenue = paymentFacade.getMonthlyRevenue();
+
+            // 将所有报表数据放入 Request 作用域传给 JSP
+            request.setAttribute("totalRevenue", totalRevenue);
+            request.setAttribute("totalUsers", totalUsers);
+            request.setAttribute("serviceStats", serviceStats);
+            request.setAttribute("technicianPerformance", technicianPerformance);
+            request.setAttribute("staffPerformance", staffPerformance);
+            request.setAttribute("serviceRatings", serviceRatings);
+            request.setAttribute("monthlyRevenue", monthlyRevenue);
+
+            // 跳转到经理看板页面
+            request.getRequestDispatcher("managerDashboard.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("login.jsp?error=report_loading_failed");
+        }
     }
 
     /**

@@ -10,7 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+
 
 /**
  *
@@ -29,7 +29,7 @@ public class Feedback implements Serializable {
     private int ranking;
     private String technician_feedback;
 
-    @ManyToOne
+    
     @JoinColumn(name="appointment_id", nullable=false)
     private Appointment appointment;
 
