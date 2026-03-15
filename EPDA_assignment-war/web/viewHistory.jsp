@@ -84,28 +84,30 @@
                     <td>${row[0].appointment_status}</td>
                     <td>
                         <c:if test="${row[0].appointment_status == 'Done'}">
+                            <c:set var="isRoleDone" value="false" />
+                            
+                            <%-- Optimized Check for Feedback Status --%>
+                            <c:forEach var="fb" items="${row[0].feedbacks}">
+                                <c:choose>
+                                    <c:when test="${sessionScope.user.role == 'technician' && not empty fb.technician_feedback}">
+                                        <c:set var="isRoleDone" value="true" />
+                                    </c:when>
+                                    <c:when test="${sessionScope.user.role == 'customer' && not empty fb.customerCommentToTech && not empty fb.customerCommentToStaff}">
+                                        <c:set var="isRoleDone" value="true" />
+                                    </c:when>
+                                </c:choose>
+                            </c:forEach>
+
                             <c:choose>
-                                <%-- 检查该预约是否已经有关联的反馈记录 --%>
-                                <c:when test="${empty row[0].feedbacks}">
+                                <c:when test="${isRoleDone}">
+                                    <span style="color: green; font-weight: bold;">
+                                        <c:out value="${sessionScope.user.role == 'technician' ? 'Note Added' : 'Already Commented'}" />
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
                                     <a href="GiveFeedback?appointmentId=${row[0].appointment_id}">
                                         <c:out value="${sessionScope.user.role == 'technician' ? 'Add Tech Note' : 'Give Feedback'}" />
                                     </a>
-                                </c:when>
-
-                                <%-- 如果已有反馈记录，则显示提示信息并禁用功能 --%>
-                                <c:otherwise>
-                                    <c:choose>
-                                        <c:when test="${sessionScope.user.role == 'technician'}">
-                                            <%-- 如果是技术人员，可以显示已添加备注的状态 --%>
-                                            <span style="color: green; font-weight: bold;">Note Added</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <%-- 如果是客户，显示已评价并禁用链接 --%>
-                                            <span style="color: gray; font-style: italic;" title="Feedback already submitted">
-                                                Already Commented
-                                            </span>
-                                        </c:otherwise>
-                                    </c:choose>
                                 </c:otherwise>
                             </c:choose>
                         </c:if>

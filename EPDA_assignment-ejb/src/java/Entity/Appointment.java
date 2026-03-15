@@ -46,7 +46,7 @@ public class Appointment implements Serializable {
     @JoinColumn(name = "car_plate_number") // This creates the column in the APPOINTMENT table
     private Car car;
     
-    @javax.persistence.OneToMany(mappedBy = "appointment", cascade = javax.persistence.CascadeType.ALL)
+    @javax.persistence.OneToMany(mappedBy = "appointment", cascade = javax.persistence.CascadeType.ALL,fetch = javax.persistence.FetchType.EAGER)
     private java.util.List<Feedback> feedbacks;
     
     public java.util.List<Feedback> getFeedbacks() {

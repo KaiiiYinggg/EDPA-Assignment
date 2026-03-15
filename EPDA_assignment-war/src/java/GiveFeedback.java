@@ -60,9 +60,16 @@ public class GiveFeedback extends HttpServlet {
             if (fb != null) {
                 // 如果反馈已存在，且当前用户是客户（不是技术人员更新备注），则拦截
                 User user = (User) request.getSession().getAttribute("user");
-                if (user != null && "customer".equalsIgnoreCase(user.getRole())) {
-                    response.sendRedirect("ViewHistory?error=already_commented");
-                    return;
+                if (fb != null && user != null && "customer".equalsIgnoreCase(user.getRole())) {
+                    // 只有当客户的评价字段不为空时，才拦截
+                    // Check if BOTH are filled. If one is empty, let them in to finish the feedback.
+                    boolean techFilled = fb.getCustomerCommentToTech() != null && !fb.getCustomerCommentToTech().trim().isEmpty();
+                    boolean staffFilled = fb.getCustomerCommentToStaff() != null && !fb.getCustomerCommentToStaff().trim().isEmpty();
+
+                    if (techFilled && staffFilled) {
+                        response.sendRedirect("ViewHistory?error=already_commented");
+                        return;
+                    }
                 }
             }
 
@@ -131,7 +138,7 @@ public class GiveFeedback extends HttpServlet {
             // 3. 统一使用 edit (JPA merge)，处理 INSERT 或 UPDATE [cite: 41]
             feedbackFacade.edit(fb); 
 
-            // 4. 跳转成功页面 [cite: 41]
+            // 4. 跳转成功页面 
             response.sendRedirect("ViewHistory?commentmessage=saved");
 
         } catch (Exception e) {

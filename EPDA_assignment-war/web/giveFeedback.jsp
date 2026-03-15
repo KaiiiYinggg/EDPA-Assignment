@@ -82,8 +82,9 @@
                             <td>Comment target:</td>
                             <td>
                                 <select name="commentTarget">
-                                    <option value="To TECHNICIAN: ">Technician</option>
-                                    <option value="To STAFF: ">Counter Staff</option>
+                                    <option value="To TECHNICIAN ">Technician</option>
+                                    <option value="To STAFF ">Counter Staff</option>
+                                    <option value="To BOTH ">Both</option>
                                 </select>
                             </td>
                         </tr>

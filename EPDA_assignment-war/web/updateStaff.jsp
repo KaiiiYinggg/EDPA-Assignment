@@ -46,6 +46,7 @@
                     <td>IC:</td>
                     <td><input type="text" 
                                name="userIC" 
+                               value="${staff.userIC}"
                                maxlength="12" 
                                pattern="\[0-9]{12}" 
                                inputmode="numeric"
@@ -62,7 +63,7 @@
                 </tr>
                 <tr>
                     <td>Address:</td>
-                    <td><input type="text" name="address" size="20"/></td>
+                    <td><input type="text" name="address" value="${staff.address}" size="20"/></td>
                 </tr>
                 <tr>
                     <td>Gender:</td>
