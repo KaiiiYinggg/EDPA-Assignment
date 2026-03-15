@@ -1,5 +1,3 @@
-package Servlet;
-
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
