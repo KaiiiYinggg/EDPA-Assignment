@@ -3,12 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Entity;
-
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Column;
+import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name = "CAR_LIST")
@@ -26,19 +26,28 @@ public class Car implements Serializable {
     private String color;
     @Column(name = "CAR_YEAR")
     private int year;
-    private String userEmail;
+    
+    @JoinColumn(name = "userEmail",referencedColumnName = "email") 
+    private User user;
 
     public Car() {
     }
+    public User getUser() {
+        return user;
+   }
 
+    public void setUser(User user) {
+        this.user = user;
+    } 
+    
     public Car(String carPlateNumber, String carBrand, String carModel,
-            String color, int year, String userEmail) {
+            String color, int year, User user) {
         this.carPlateNumber = carPlateNumber;
         this.carBrand = carBrand;
         this.carModel = carModel;
         this.color = color;
         this.year = year;
-        this.userEmail = userEmail;
+        this.user = user;
     }
 
     // getters 和 setters
@@ -80,13 +89,5 @@ public class Car implements Serializable {
 
     public void setYear(int year) {
         this.year = year;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
     }
 }

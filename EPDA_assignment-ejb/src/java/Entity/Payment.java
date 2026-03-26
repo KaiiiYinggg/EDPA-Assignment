@@ -5,6 +5,8 @@
 package Entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,10 +29,11 @@ public class Payment implements Serializable {
     @OneToOne // 或者 @ManyToOne，取决于你的业务
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
-    
+    private String receipt_id;
     private String payment_method;
-    private String payment_date;
-    private double payment_amount;
+    private LocalDate payment_date;
+    
+    private double total_price;
 
     public Long getPayment_id() {
         return payment_id;
@@ -48,22 +51,26 @@ public class Payment implements Serializable {
         this.appointment = appointment;
     }
 
-    public double getPayment_amount() {
-        return payment_amount;
+    public String getReceipt_id() {
+        return receipt_id;
     }
 
-    public void setPayment_amount(double payment_amount) {
-        this.payment_amount = payment_amount;
+    public void setReceipt_id(String receipt_id) {
+        this.receipt_id = receipt_id;
     }
 
-    public String getPayment_date() {
+    public LocalDate getPayment_date() {
         return payment_date;
     }
 
-    public void setPayment_date(String payment_date) {
+    
+    
+    public void setPayment_date(LocalDate payment_date) {
         this.payment_date = payment_date;
     }
 
+
+    
     public String getPayment_method() {
         return payment_method;
     }
@@ -71,6 +78,16 @@ public class Payment implements Serializable {
     public void setPayment_method(String payment_method) {
         this.payment_method = payment_method;
     }
+
+    public double getTotal_price() {
+        return total_price;
+    }
+
+    public void setTotal_price(double total_price) {
+        this.total_price = total_price;
+    }
+    
+    
 
     @Override
     public int hashCode() {

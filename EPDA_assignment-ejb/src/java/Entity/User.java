@@ -27,6 +27,8 @@ public class User implements Serializable {
     
     private String username;
     private String password;
+    private String userIC;
+    private String address;
     private int phoneNumber;
     private String gender;
     private String role;
@@ -39,7 +41,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(String username, String password, int phoneNumber, String gender, String role, String email) {
+    /*public User(String username, String password, int phoneNumber, String gender, String role, String email) {
         this.username = username;
         this.password = password;
         this.phoneNumber = phoneNumber;
@@ -51,6 +53,29 @@ public class User implements Serializable {
     public User(String username, String password, int phoneNumber, String gender, String role, String email,String profilePic) {
         this.username = username;
         this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
+        this.role = role;
+        this.email = email;
+        this.profilePic = profilePic;
+    }*/
+
+    public User(String username, String password, String userIC, String address, int phoneNumber, String gender, String role, String email) {
+        this.username = username;
+        this.password = password;
+        this.userIC = userIC;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
+        this.role = role;
+        this.email = email;
+    }
+
+    public User(String username, String password, String userIC, String address, int phoneNumber, String gender, String role, String email, String profilePic) {
+        this.username = username;
+        this.password = password;
+        this.userIC = userIC;
+        this.address = address;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.role = role;
@@ -109,7 +134,22 @@ public class User implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getUserIC() {
+        return userIC;
+    }
+
+    public void setUserIC(String userIC) {
+        this.userIC = userIC;
+    }
     
 
 

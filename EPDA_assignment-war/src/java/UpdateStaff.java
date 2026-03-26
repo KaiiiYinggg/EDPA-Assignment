@@ -68,7 +68,16 @@ public class UpdateStaff extends HttpServlet {
                     String role = request.getParameter("role");
                     String gender = request.getParameter("gender");
                     String password = request.getParameter("password");
+                    String address = request.getParameter("address");
+                    String userIC = request.getParameter("userIC");
                     int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber").replaceAll("[^0-9]", ""));
+                    
+                    // Check if null, check length, and check if it's numeric
+                    if (userIC == null || userIC.trim().length() != 12 || !userIC.matches("^[0-9]+$")) {
+                        request.setAttribute("error", "IC must be exactly 12 numeric digits!");
+                        request.getRequestDispatcher("register.jsp").forward(request, response);
+                        return;
+                    }
                     
                     // Get the current profile picture string from the hidden field
                     String profilePic = request.getParameter("profilePic");
@@ -101,7 +110,7 @@ public class UpdateStaff extends HttpServlet {
                     }
 
                     // update database
-                    String result = userFacade.updateStaff(oldEmail, newEmail, username, phoneNumber, role, gender, password,profilePic);
+                    String result = userFacade.updateStaff(oldEmail, newEmail, username, phoneNumber, role, gender, password,profilePic,userIC,address);
 
                     if (result.equals("success")) {
                         out.println("<script>alert('Update Successful!'); location='ManageStaff';</script>");

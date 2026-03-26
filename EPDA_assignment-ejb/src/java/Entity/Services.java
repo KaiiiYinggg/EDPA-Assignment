@@ -23,7 +23,7 @@ public class Services implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long service_id;
  
-    private String serviceName;// baterry change or screen replacement
+    private int serviceHour;// baterry change or screen replacement
     private String serviceType;//normal(1h) or major(3h)
     private double price;
 
@@ -38,13 +38,16 @@ public class Services implements Serializable {
         this.service_id = id;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public int getServiceHour() {
+        return serviceHour;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setServiceHour(int serviceHour) {
+        this.serviceHour = serviceHour;
     }
+
+
+    
 
     public void setPrice(double price) {
         this.price = price;
@@ -62,8 +65,8 @@ public class Services implements Serializable {
         return serviceType;
     }
 
-    public Services(String serviceName, String serviceType, double price) {
-        this.serviceName = serviceName;
+    public Services(int serviceHour, String serviceType, double price) {
+        this.serviceHour = serviceHour;
         this.serviceType = serviceType;
         this.price = price;
     }

@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Column;
 
 /**
  *
@@ -28,6 +29,9 @@ public class Appointment implements Serializable {
 
     private LocalDate appointment_date;
     private LocalTime appointment_time;
+
+    @Column(name = "EXPECTED_END_TIME")
+    private LocalTime expected_end_time;
 
     @ManyToOne
     @JoinColumn(name = "customer_email", referencedColumnName = "email")
@@ -47,7 +51,7 @@ public class Appointment implements Serializable {
     @JoinColumn(name = "CAR_PLATE_NUMBER") // 对应数据库 APPOINTMENT 表中的列名
     private Car car;
 
-    @javax.persistence.OneToMany(mappedBy = "appointment", cascade = javax.persistence.CascadeType.ALL)
+    @javax.persistence.OneToMany(mappedBy = "appointment", cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.EAGER)
     private java.util.List<Feedback> feedbacks;
 
     public java.util.List<Feedback> getFeedbacks() {
@@ -129,6 +133,16 @@ public class Appointment implements Serializable {
     public Car getCar() {
         return car;
     }
+
+    public LocalTime getExpected_end_time() {
+        return expected_end_time;
+    }
+
+    public void setExpected_end_time(LocalTime expected_end_time) {
+        this.expected_end_time = expected_end_time;
+    }
+    
+    
 
     @Override
     public int hashCode() {

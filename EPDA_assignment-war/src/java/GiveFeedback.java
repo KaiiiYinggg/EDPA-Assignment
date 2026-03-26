@@ -7,6 +7,7 @@ import Entity.Appointment;
 import Entity.AppointmentFacade;
 import Entity.Feedback;
 import Entity.FeedbackFacade;
+import Entity.User;
 import java.io.IOException;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -49,7 +50,33 @@ public class GiveFeedback extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("giveFeedback.jsp").forward(request, response);
+        // 获取 URL 传来的 appointmentId
+        String appIdStr = request.getParameter("appointmentId");
+        if (appIdStr != null && !appIdStr.isEmpty()) {
+            Long appId = Long.parseLong(appIdStr);
+
+            // 核心安全检查：如果该预约已有反馈，重定向并报错 
+            Feedback fb = feedbackFacade.findByAppointmentId(appId);
+            if (fb != null) {
+                // 如果反馈已存在，且当前用户是客户（不是技术人员更新备注），则拦截
+                User user = (User) request.getSession().getAttribute("user");
+                if (fb != null && user != null && "customer".equalsIgnoreCase(user.getRole())) {
+                    // 只有当客户的评价字段不为空时，才拦截
+                    // Check if BOTH are filled. If one is empty, let them in to finish the feedback.
+                    boolean techFilled = fb.getCustomerCommentToTech() != null && !fb.getCustomerCommentToTech().trim().isEmpty();
+                    boolean staffFilled = fb.getCustomerCommentToStaff() != null && !fb.getCustomerCommentToStaff().trim().isEmpty();
+
+                    if (techFilled && staffFilled) {
+                        response.sendRedirect(request.getContextPath() + "/Customer/ViewHistory?error=already_commented");
+                        return;
+                    }
+                }
+            }
+
+            Appointment app = appointmentFacade.find(appId);
+            request.setAttribute("app", app);
+        }
+        request.getRequestDispatcher("/giveFeedback.jsp").forward(request, response);
     }
 
     /**
@@ -63,40 +90,61 @@ public class GiveFeedback extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // 1. Retrieve raw parameters
-        String target = request.getParameter("commentTarget");
-        String commentText = request.getParameter("customerComment");
-        String rankingStr = request.getParameter("ranking");
+
+        User user = (User) request.getSession().getAttribute("user");
         String appIdStr = request.getParameter("appointmentId");
-        
+
         try {
-            // 3. Safe Parsing
-            int ranking = Integer.parseInt(rankingStr);
             Long appointmentId = Long.parseLong(appIdStr);
-            String fullComment = target + commentText; // Example: "To TECHNICIAN: Excellent service"
-            
-            Appointment appointment = appointmentFacade.find(appointmentId);
-            if (appointment == null) {
-                response.sendRedirect("ViewHistory?error=appointmentNotFound");
-                return;
+            Appointment app = appointmentFacade.find(appointmentId);
+
+            // 1. 查找是否已经存在该预约的反馈记录 [cite: 41]
+            Feedback fb = feedbackFacade.findByAppointmentId(appointmentId); 
+
+            if (fb == null) {
+                // 如果不存在，新建一个对象并绑定预约 [cite: 41]
+                fb = new Feedback();
+                fb.setAppointment(app);
+                
             }
 
-            // 4. Populate and Create Entity
-            Feedback fb = new Feedback();
-            // IMPORTANT: Ensure the method name matches your Feedback.java exactly
-            fb.setCustomer_comment(fullComment); 
-            fb.setRanking(ranking);
-            fb.setAppointment(appointment);
-            fb.setTechnician_feedback(null); 
+            // 2. 根据 Role 处理数据
+            String role = user.getRole().toLowerCase();
 
-            feedbackFacade.create(fb);
-            
-            // 5. Success redirect
-            response.sendRedirect("ViewHistory?commentmessage=saved");
-            
-        } catch (NumberFormatException e) {
-            // Log the error and notify the user
-            response.sendRedirect("ViewHistory?error=invalidFormat");
+            if ("technician".equals(role)) {
+                String techNote = request.getParameter("technicianNote");
+                fb.setTechnician_feedback(techNote);
+            } else {
+                // 客户逻辑：根据 Target 分流存储
+                String target = request.getParameter("commentTarget");
+                String commentText = request.getParameter("customerComment");
+                int ranking = Integer.parseInt(request.getParameter("ranking"));
+
+                // 设置 Ranking (共用字段) [cite: 41]
+                fb.setRanking(ranking);
+
+                // 根据目标存储到对应的列 (请确保 Feedback.java 中有这些 Setter)
+                if (target.contains("TECHNICIAN")) {
+                    fb.setCustomerCommentToTech(commentText);
+                } 
+                if (target.contains("STAFF")) {
+                    fb.setCustomerCommentToStaff(commentText);
+                }
+                if (target.contains("BOTH")) {
+                    fb.setCustomerCommentToTech(commentText);
+                    fb.setCustomerCommentToStaff(commentText);
+                }
+            }
+
+            // 3. 统一使用 edit (JPA merge)，处理 INSERT 或 UPDATE [cite: 41]
+            feedbackFacade.edit(fb); 
+
+            // 4. 跳转成功页面 
+            response.sendRedirect(request.getContextPath() + "/Customer/ViewHistory?commentmessage=saved");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/Customer/ViewHistory?error=failed");
         }
     }
 

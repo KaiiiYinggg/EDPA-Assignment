@@ -16,7 +16,7 @@
         <h2>Hi, ${sessionScope.user.username}!</h2>
         
         <nav>
-            <a href="managerDashboard.jsp">Home Page</a> | 
+            <a href="loadManagerDashboard">Home Page</a> | 
             <a href="register.jsp">Register</a> | 
             <a href="ManageStaff">Manage Staff</a> |
             <a href="SetPrice">Set Price</a> | 
@@ -41,7 +41,18 @@
                 <tr>
                     <td>Password:</td>
                     <td><input type="password" name="password"value="${staff.password}" size="20"/></td>
-                </tr>           
+                </tr>
+                <tr>
+                    <td>IC:</td>
+                    <td><input type="text" 
+                               name="userIC" 
+                               value="${staff.userIC}"
+                               maxlength="12" 
+                               pattern="\[0-9]{12}" 
+                               inputmode="numeric"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                               required></td>
+                </tr>
                 <tr>
                     <td>Email:</td>
                     <td><input type="text" name="newEmail"value="${staff.email}" size="20"/></td>
@@ -49,6 +60,10 @@
                 <tr>
                     <td>Phone Number:</td>
                     <td><input type="text" name="phoneNumber"value="${staff.phoneNumber}" size="20"/></td>
+                </tr>
+                <tr>
+                    <td>Address:</td>
+                    <td><input type="text" name="address" value="${staff.address}" size="20"/></td>
                 </tr>
                 <tr>
                     <td>Gender:</td>

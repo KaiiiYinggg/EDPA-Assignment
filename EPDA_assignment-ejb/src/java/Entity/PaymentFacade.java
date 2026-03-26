@@ -28,10 +28,10 @@ public class PaymentFacade extends AbstractFacade<Payment> {
     public PaymentFacade() {
         super(Payment.class);
     }
-    
+
     public List<Payment> findFilteredPayments(String email, String date, String method) {
         StringBuilder queryStr = new StringBuilder(
-            "SELECT p FROM Payment p WHERE p.appointment.customer.email = :email"
+                "SELECT p FROM Payment p WHERE p.appointment.customer.email = :email"
         );
 
         if (date != null && !date.isEmpty()) {
@@ -44,9 +44,34 @@ public class PaymentFacade extends AbstractFacade<Payment> {
         Query query = em.createQuery(queryStr.toString(), Payment.class);
         query.setParameter("email", email);
 
-        if (date != null && !date.isEmpty()) query.setParameter("date", date);
-        if (method != null && !method.isEmpty()) query.setParameter("method", method);
+        if (date != null && !date.isEmpty()) {
+            query.setParameter("date", date);
+        }
+        if (method != null && !method.isEmpty()) {
+            query.setParameter("method", method);
+        }
 
         return query.getResultList();
+    }
+
+
+    // 获取服务类型的分布情况 (Service Name vs Count)
+    public List<Object[]> getServiceDistribution() {
+        return em.createQuery(
+                "SELECT s.serviceType, COUNT(a) FROM Appointment a JOIN a.service s GROUP BY s.serviceType",
+                Object[].class).getResultList();
+    }
+
+    public List<Object[]> getMonthlyRevenue() {
+        return em.createQuery(
+                "SELECT FUNCTION('MONTH', p.payment_date), SUM(p.total_price) "
+                + "FROM Payment p GROUP BY FUNCTION('MONTH', p.payment_date)",
+                Object[].class).getResultList();
+    }
+
+    public double getTotalRevenue() {
+        // 确保这里的字段名是 total_price，和你 Entity 里的一样
+        Double total = (Double) em.createQuery("SELECT SUM(p.total_price) FROM Payment p").getSingleResult();
+        return (total != null) ? total : 0.0;
     }
 }

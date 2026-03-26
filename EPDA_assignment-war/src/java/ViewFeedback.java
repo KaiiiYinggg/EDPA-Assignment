@@ -52,11 +52,11 @@ public class ViewFeedback extends HttpServlet {
             response.sendRedirect("login.jsp");
             return;
         }
-
+        
         String email = user.getEmail();
         String role = user.getRole();
         // 添加下面这一行，运行后看 NetBeans 底下的 Output 窗口
-    System.out.println(">>> DEBUG: The email from Session is: [" + email + "]");
+        //System.out.println(">>> DEBUG: The email from Session is: [" + email + "]");
 
         // Call the detailed method that joins Feedback, Appointment, Services, and Car 
         List<Object[]> feedbackData = FeedbackFacade.findDetailedFeedback(email, role);

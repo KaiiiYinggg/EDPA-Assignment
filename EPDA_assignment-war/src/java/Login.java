@@ -3,9 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import Entity.AppointmentFacade;
+import Entity.Car;
+import Entity.CarFacade;
 import Entity.User;
 import Entity.UserFacade;
 import java.io.IOException;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +20,10 @@ public class Login extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
+    @EJB
+    private CarFacade carFacade;
+    @EJB
+    private AppointmentFacade appointmentFacade;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,16 +53,25 @@ public class Login extends HttpServlet {
             String role = user.getRole().toLowerCase();
             switch (role) {
                 case "manager":
-                    response.sendRedirect("managerDashboard.jsp");
+                    response.sendRedirect(request.getContextPath() + "/Manager/loadManagerDashboard");
                     break;
+                // 在 Login.java 的 switch 块中修改这一段
                 case "counter staff":
-                    response.sendRedirect("Staff/StaffDashboard.jsp");
+                    // 使用 request.getContextPath() 确保路径从项目根目录开始，避免 404
+                    response.sendRedirect(request.getContextPath() + "/Staff/StaffDashboardServlet");
                     break;
                 case "technician":
-                    response.sendRedirect("Staff/TechDashboard.jsp");
+                    response.sendRedirect("Technician/TechnicianServlet");
                     break;
                 case "customer":
-                    response.sendRedirect("customerDashboard.jsp");
+                    List<Car> customerCars = carFacade.findByUserEmail(user.getEmail());
+                    session.setAttribute("customerCars", customerCars);
+
+                    // 2. 获取服务摘要
+                    List<Object[]> serviceSummary = appointmentFacade.findServiceSummary(user.getEmail());
+                    session.setAttribute("serviceSummary", serviceSummary);
+
+                    request.getRequestDispatcher("/Customer/customerDashboard.jsp").forward(request, response);
                     break;
                 default:
                     response.sendRedirect("index.jsp");

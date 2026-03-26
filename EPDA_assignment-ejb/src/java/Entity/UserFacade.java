@@ -4,6 +4,9 @@
  */
 package Entity;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -67,7 +70,26 @@ public class UserFacade extends AbstractFacade<User> {
         }
     }
 
-    public String updateStaff(String oldEmail, String newEmail, String username, int phone, String role, String gender, String password, String profilePic) {
+    public List<User> findAvailableTechnicians(LocalDate date, LocalTime startTime, LocalTime endTime) {
+        // 逻辑：查询所有角色为 Technician 的用户，
+        // 并且他们没有参与任何在该时间段内重叠的 Appointment
+        return em.createQuery(
+                "SELECT u FROM User u WHERE u.role = 'technician' AND u.email NOT IN ("
+                + "    SELECT a.technician_email FROM Appointment a "
+                + "    WHERE a.appointment_date = :date "
+                + "    AND a.appointment_status != 'Cancelled' "
+                + "    AND a.appointment_time < :endTime "
+                + // 逻辑：旧预约的开始时间 < 新预约的结束时间
+                "    AND a.expected_end_time > :startTime"
+                + // 逻辑：旧预约的结束时间 > 新预约的开始时间
+                ")", User.class)
+                .setParameter("date", date)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .getResultList();
+    }
+
+    public String updateStaff(String oldEmail, String newEmail, String username, int phone, String role, String gender, String password, String profilePic, String userIC, String address) {
         // 1. 检查新 Email 是否已经被其他人占用
         // 如果用户没改 Email，newEmail == oldEmail，我们就跳过检查
         if (!oldEmail.equals(newEmail)) {
@@ -86,6 +108,8 @@ public class UserFacade extends AbstractFacade<User> {
             user.setRole(role);
             user.setGender(gender);
             user.setPassword(password);
+            user.setUserIC(userIC);
+            user.setAddress(address);
 
             user.setProfilePic(profilePic);
 
@@ -118,6 +142,12 @@ public class UserFacade extends AbstractFacade<User> {
                 .getResultList();
     }
 
+    public int countCustomers() {
+        // 使用 JPQL 直接从数据库查询数量，速度极快
+        return ((Number) em.createQuery("SELECT COUNT(u) FROM User u WHERE u.role = 'customer'")
+                .getSingleResult()).intValue();
+    }
+
     @Transactional
     public void deleteById(Long id) {
         User user = em.find(User.class, id);
@@ -125,6 +155,22 @@ public class UserFacade extends AbstractFacade<User> {
             em.remove(em.merge(user));
         }
     }
+
+    /**
+     * 功能：根据角色统计用户数量 (满足你想显示的 Total Customers)
+     */
+    public int countByRole(String roleName) {
+        try {
+            // 使用 JPQL 聚合函数 COUNT，效率比查询出所有对象再 size() 快得多
+            Long count = (Long) em.createQuery("SELECT COUNT(u) FROM User u WHERE LOWER(u.role) = :role")
+                    .setParameter("role", roleName.toLowerCase())
+                    .getSingleResult();
+            return count.intValue();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+    
 
     @Override
     protected EntityManager getEntityManager() {
