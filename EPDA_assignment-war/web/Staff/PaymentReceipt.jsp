@@ -11,9 +11,15 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心 CSS】 */
-            :root { --sidebar-width: 260px; }
-            body { background-color: #f4f7f6; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+            :root {
+                --sidebar-width: 260px;
+            }
+            body {
+                background-color: #f4f7f6;
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
 
             .sidebar {
                 width: var(--sidebar-width);
@@ -31,8 +37,16 @@
                 text-decoration: none;
                 transition: 0.3s;
             }
-            .sidebar a:hover { background: #34495e; color: white; border-left: 4px solid #1abc9c; }
-            .sidebar .active { background: #1abc9c; color: white; border-left: 4px solid #1abc9c; }
+            .sidebar a:hover {
+                background: #34495e;
+                color: white;
+                border-left: 4px solid #1abc9c;
+            }
+            .sidebar .active {
+                background: #1abc9c;
+                color: white;
+                border-left: 4px solid #1abc9c;
+            }
 
             .main-content {
                 margin-left: var(--sidebar-width);
@@ -40,43 +54,91 @@
             }
 
             /* Payment 页面特有样式优化 */
-            table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            th { background-color: #f8f9fa; padding: 15px; text-align: left; color: #2c3e50; border-bottom: 2px solid #eee; }
-            td { padding: 15px; border-bottom: 1px solid #eee; color: #444; }
-            
-            .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-            .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 10px; width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-            
-            .pay-btn { background: #FF9800; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; transition: 0.3s; }
-            .pay-btn:hover { background: #e68a00; transform: translateY(-2px); }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                background: white;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            th {
+                background-color: #f8f9fa;
+                padding: 15px;
+                text-align: left;
+                color: #2c3e50;
+                border-bottom: 2px solid #eee;
+            }
+            td {
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+                color: #444;
+            }
 
-            @media print { .no-print { display: none !important; } .main-content { margin-left: 0; padding: 0; } }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 2000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+            }
+            .modal-content {
+                background-color: white;
+                margin: 10% auto;
+                padding: 25px;
+                border-radius: 10px;
+                width: 400px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
+
+            .pay-btn {
+                background: #FF9800;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 5px;
+                font-weight: bold;
+                transition: 0.3s;
+            }
+            .pay-btn:hover {
+                background: #e68a00;
+                transform: translateY(-2px);
+            }
+
+            @media print {
+                .no-print {
+                    display: none !important;
+                }
+                .main-content {
+                    margin-left: 0;
+                    padding: 0;
+                }
+            }
         </style>
     </head>
     <body>
-
-        <div class="sidebar no-print">
+        <div class="sidebar bg-staff no-print">
             <div class="text-center mb-4">
                 <i class="fas fa-car-side fa-3x mb-2 text-info"></i>
-                <h5 class="fw-bold" style="color: white;">CAR SERVICE</h5>
+                <h5 class="fw-bold">STAFF PORTAL</h5>
             </div>
             <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-            
-            <a href="${pageContext.request.contextPath}/Dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+            <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
             <a href="${pageContext.request.contextPath}/Staff/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
             <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
             <a href="${pageContext.request.contextPath}/Staff/PaymentServlet" class="active"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
             <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
-
-            <div style="position: absolute; bottom: 20px; width: 100%;">
-                <a href="${pageContext.request.contextPath}/Logout" class="text-danger">
-                    <i class="fas fa-sign-out-alt me-2"></i> Logout
-                </a>
+            <div style="position:absolute; bottom:20px; width:100%;">
+                <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
             </div>
         </div>
 
         <div class="main-content">
-            
+
             <div class="d-flex justify-content-between align-items-center mb-4 no-print">
                 <h2 class="fw-bold" style="color: #2c3e50;">
                     <i class="fas fa-cash-register me-2 text-primary"></i>
@@ -237,8 +299,13 @@
                 document.getElementById('displayPrice').innerText = price;
                 document.getElementById('payModal').style.display = 'block';
             }
-            function closeModal() { document.getElementById('payModal').style.display = 'none'; }
-            window.onclick = function(e) { if(e.target == document.getElementById('payModal')) closeModal(); }
+            function closeModal() {
+                document.getElementById('payModal').style.display = 'none';
+            }
+            window.onclick = function (e) {
+                if (e.target == document.getElementById('payModal'))
+                    closeModal();
+            }
         </script>
     </body>
 </html>

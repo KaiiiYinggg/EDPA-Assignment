@@ -11,8 +11,15 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            :root { --sidebar-width: 260px; }
-            body { background-color: #f4f7f6; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+            :root {
+                --sidebar-width: 260px;
+            }
+            body {
+                background-color: #f4f7f6;
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
 
             /* 侧边栏基础样式 */
             .sidebar {
@@ -24,27 +31,96 @@
                 z-index: 1000;
                 transition: all 0.3s;
             }
-            .sidebar a { padding: 15px 25px; display: block; color: #bdc3c7; text-decoration: none; transition: 0.3s; }
-            .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid #1abc9c; }
-            .sidebar .active { background: #1abc9c !important; color: white !important; border-left: 4px solid #1abc9c; }
+            .sidebar a {
+                padding: 15px 25px;
+                display: block;
+                color: #bdc3c7;
+                text-decoration: none;
+                transition: 0.3s;
+            }
+            .sidebar a:hover {
+                background: rgba(255,255,255,0.1);
+                color: white;
+                border-left: 4px solid #1abc9c;
+            }
+            .sidebar .active {
+                background: #1abc9c !important;
+                color: white !important;
+                border-left: 4px solid #1abc9c;
+            }
 
             /* 角色背景色 */
-            .bg-manager { background: #1a252f; }
-            .bg-staff { background: #2c3e50; }
-            .bg-tech { background: #273746; }
-            .bg-customer { background: #1e272e; }
+            .bg-manager {
+                background: #1a252f;
+            }
+            .bg-staff {
+                background: #2c3e50;
+            }
+            .bg-tech {
+                background: #273746;
+            }
+            .bg-customer {
+                background: #1e272e;
+            }
 
-            .main-content { margin-left: var(--sidebar-width); padding: 30px; }
+            .main-content {
+                margin-left: var(--sidebar-width);
+                padding: 30px;
+            }
 
             /* 表格与功能样式 */
-            table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            th { background-color: #f8f9fa; padding: 15px; text-align: left; color: #2c3e50; border-bottom: 2px solid #eee; }
-            td { padding: 15px; border-bottom: 1px solid #eee; color: #444; vertical-align: middle; }
-            .clickable-row:hover { background-color: #f8fbff; cursor: pointer; }
-            
-            .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
-            .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border-radius: 8px; width: 35%; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-            .search-box { padding: 12px; width: 350px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                background: white;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            th {
+                background-color: #f8f9fa;
+                padding: 15px;
+                text-align: left;
+                color: #2c3e50;
+                border-bottom: 2px solid #eee;
+            }
+            td {
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+                color: #444;
+                vertical-align: middle;
+            }
+            .clickable-row:hover {
+                background-color: #f8fbff;
+                cursor: pointer;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 2000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.4);
+            }
+            .modal-content {
+                background-color: #fefefe;
+                margin: 10% auto;
+                padding: 25px;
+                border-radius: 8px;
+                width: 35%;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+            .search-box {
+                padding: 12px;
+                width: 350px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                outline: none;
+            }
         </style>
 
         <script>
@@ -55,141 +131,91 @@
                 document.getElementById('updateEmail').value = email;
                 document.getElementById('myModal').style.display = "block";
             }
-            function closeModal() { document.getElementById('myModal').style.display = "none"; }
-            window.onclick = function(e) { if(e.target == document.getElementById('myModal')) closeModal(); }
+            function closeModal() {
+                document.getElementById('myModal').style.display = "none";
+            }
+            window.onclick = function (e) {
+                if (e.target == document.getElementById('myModal'))
+                    closeModal();
+            }
         </script>
     </head>
     <body>
-
-    <c:choose>
-        <%-- MANAGER --%>
-        <c:when test="${sessionScope.user.role == 'manager'}">
-            <div class="sidebar bg-manager">
-                <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                <a href="loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-                <a href="register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
-                <a href="ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
-                <a href="SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
-                <a href="ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
-                <a href="EditProfile.jsp"><i class="fas fa-user-edit me-2"></i> My Profile</a>
-                <div style="position: absolute; bottom: 20px; width: 100%;">
-                    <a href="Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-                </div>
-            </div>
-        </c:when>
-
-        <%-- COUNTER STAFF --%>
-        <c:when test="${sessionScope.user.role == 'counter staff'}">
-            <div class="sidebar bg-staff">
-                <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
-                <a href="${pageContext.request.contextPath}/Staff/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
-                <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
-                <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
-                <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
-                <div style="position: absolute; bottom: 20px; width: 100%;">
-                    <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-                </div>
-            </div>
-        </c:when>
-
-        <%-- TECHNICIAN --%>
-        <c:when test="${sessionScope.user.role == 'technician'}">
-            <div class="sidebar bg-tech">
-                <div class="text-center mb-4"><i class="fas fa-tools fa-3x mb-2 text-secondary"></i><h5 class="fw-bold">TECHNICIAN</h5></div>
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                <a href="Technician/TechDashboard.jsp"><i class="fas fa-home me-2"></i> Home Page</a>
-                <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-history me-2"></i> Task History</a>
-                <a href="${pageContext.request.contextPath}/UpdateTask.jsp"><i class="fas fa-edit me-2"></i> Update Tasks</a>
-                <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comment-dots me-2"></i> View Comments</a>
-                <a href="${pageContext.request.contextPath}/EditProfile.jsp"><i class="fas fa-user-cog me-2"></i> My Profile</a>
-                <div style="position: absolute; bottom: 20px; width: 100%;">
-                    <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-                </div>
-            </div>
-        </c:when>
-
-        <%-- CUSTOMER --%>
-        <c:otherwise>
-            <div class="sidebar bg-customer">
-                <div class="text-center mb-4"><i class="fas fa-user-circle fa-3x mb-2 text-success"></i><h5 class="fw-bold">CUSTOMER</h5></div>
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp"><i class="fas fa-home me-2"></i> Home Page</a>
-                <a href="${pageContext.request.contextPath}/EditProfile.jsp"><i class="fas fa-id-card me-2"></i> My Profile</a>
-                <a href="${pageContext.request.contextPath}/Customer/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
-                <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-bullhorn me-2"></i> Feedback</a>
-                <div style="position: absolute; bottom: 20px; width: 100%;">
-                    <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-                </div>
-            </div>
-        </c:otherwise>
-    </c:choose>
-
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold" style="color: #2c3e50;">Customer Management</h2>
-            <div class="text-muted">Total Records: <span class="badge bg-primary rounded-pill">${userList.size()}</span></div>
+        <div class="sidebar bg-staff">
+            <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
+            <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
+            <a href="${pageContext.request.contextPath}/Staff/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
+            <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
+            <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
+            <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
         </div>
-        <hr>
 
-        <form action="ManageCustomers" method="GET" class="mb-4">
-            <input type="hidden" name="action" value="list">
-            <div class="d-flex gap-2">
-                <input type="text" name="searchQuery" class="search-box" placeholder="Search by name, email or phone..." value="${param.searchQuery}">
-                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-search me-2"></i>Search</button>
+
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold" style="color: #2c3e50;">Customer Management</h2>
+                <div class="text-muted">Total Records: <span class="badge bg-primary rounded-pill">${userList.size()}</span></div>
             </div>
-        </form>
+            <hr>
 
-        <form action="ManageCustomers" method="POST" onsubmit="return confirm('Delete selected customers?')">
-            <input type="hidden" name="action" value="deleteMultiple">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="checkbox-cell"><i class="fas fa-check-square"></i></th>
-                        <th>User ID</th>
-                        <th>Username</th>
-                        <th>Gender</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="u" items="${userList}">
-                        <tr class="clickable-row" onclick="openUpdateModal('${u.user_id}', '${u.username}', '${u.phoneNumber}', '${u.email}')">
-                            <td class="checkbox-cell" onclick="event.stopPropagation();"><input type="checkbox" name="selectedIds" value="${u.user_id}"></td>
-                            <td class="fw-bold text-info"># ${u.user_id}</td>
-                            <td>${u.username}</td>
-                            <td>${u.gender}</td>
-                            <td>${u.phoneNumber}</td>
-                            <td>${u.email}</td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-danger mt-4 px-4 shadow-sm"><i class="fas fa-trash-alt me-2"></i>Delete Selected</button>
-        </form>
-    </div>
-
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <h3 class="fw-bold mb-3" style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Update Customer</h3>
-            <form action="ManageCustomers" method="POST">
-                <input type="hidden" name="action" value="update">
-                <input type="hidden" name="user_id" id="updateId">
-                <div class="mb-3"><label class="small fw-bold text-muted">Username</label><input type="text" name="username" id="updateUsername" class="form-control" required></div>
-                <div class="mb-3"><label class="small fw-bold text-muted">Phone Number</label><input type="number" name="phoneNumber" id="updatePhone" class="form-control" required></div>
-                <div class="mb-3"><label class="small fw-bold text-muted">Email Address</label><input type="email" name="email" id="updateEmail" class="form-control" required></div>
-                <div class="d-flex gap-2 mt-4">
-                    <button type="button" onclick="closeModal()" class="btn btn-light flex-grow-1">Cancel</button>
-                    <button type="submit" class="btn btn-success flex-grow-1">Update</button>
-                    <button type="button" onclick="window.location.href='/EPDA_assignment-war/AppointmentServlet?customerEmail='+document.getElementById('updateEmail').value;" class="btn btn-primary" style="flex: 1.5;">Book Service</button>
+            <form action="ManageCustomers" method="GET" class="mb-4">
+                <input type="hidden" name="action" value="list">
+                <div class="d-flex gap-2">
+                    <input type="text" name="searchQuery" class="search-box" placeholder="Search by name, email or phone..." value="${param.searchQuery}">
+                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-search me-2"></i>Search</button>
                 </div>
             </form>
-        </div>
-    </div>
 
-    <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
+            <form action="ManageCustomers" method="POST" onsubmit="return confirm('Delete selected customers?')">
+                <input type="hidden" name="action" value="deleteMultiple">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell"><i class="fas fa-check-square"></i></th>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="u" items="${userList}">
+                            <tr class="clickable-row" onclick="openUpdateModal('${u.user_id}', '${u.username}', '${u.phoneNumber}', '${u.email}')">
+                                <td class="checkbox-cell" onclick="event.stopPropagation();"><input type="checkbox" name="selectedIds" value="${u.user_id}"></td>
+                                <td class="fw-bold text-info"># ${u.user_id}</td>
+                                <td>${u.username}</td>
+                                <td>${u.gender}</td>
+                                <td>${u.phoneNumber}</td>
+                                <td>${u.email}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-danger mt-4 px-4 shadow-sm"><i class="fas fa-trash-alt me-2"></i>Delete Selected</button>
+            </form>
+        </div>
+
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <h3 class="fw-bold mb-3" style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Update Customer</h3>
+                <form action="ManageCustomers" method="POST">
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="user_id" id="updateId">
+                    <div class="mb-3"><label class="small fw-bold text-muted">Username</label><input type="text" name="username" id="updateUsername" class="form-control" required></div>
+                    <div class="mb-3"><label class="small fw-bold text-muted">Phone Number</label><input type="number" name="phoneNumber" id="updatePhone" class="form-control" required></div>
+                    <div class="mb-3"><label class="small fw-bold text-muted">Email Address</label><input type="email" name="email" id="updateEmail" class="form-control" required></div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" onclick="closeModal()" class="btn btn-light flex-grow-1">Cancel</button>
+                        <button type="submit" class="btn btn-success flex-grow-1">Update</button>
+                        <button type="button" onclick="window.location.href = '/EPDA_assignment-war/AppointmentServlet?customerEmail=' + document.getElementById('updateEmail').value;" class="btn btn-primary" style="flex: 1.5;">Book Service</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

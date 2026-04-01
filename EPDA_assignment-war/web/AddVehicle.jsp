@@ -13,7 +13,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心布局 CSS】 */
             :root {
                 --sidebar-width: 260px;
             }
@@ -125,19 +124,6 @@
         %>
 
         <c:choose>
-            <%-- MANAGER --%>
-            <c:when test="${sessionScope.user.role == 'manager'}">
-                <div class="sidebar bg-manager">
-                    <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
-                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Dashboard"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
-                    <a href="ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
-                    <a href="SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
-                    <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
-                </div>
-            </c:when>
-
             <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
                 <div class="sidebar bg-staff">
@@ -171,6 +157,7 @@
                 <p class="text-muted mb-4 small">Please provide the details of your vehicle to register it in our system.</p>
 
                 <form action="AddVehicle" method="post">
+                    
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Car Plate Number</label>
