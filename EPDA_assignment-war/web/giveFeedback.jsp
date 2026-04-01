@@ -102,8 +102,8 @@
                 <div class="sidebar bg-tech">
                     <div class="text-center mb-4"><i class="fas fa-tools fa-3x mb-2 text-secondary"></i><h5 class="fw-bold">TECHNICIAN</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Technician/TechnicianServlet" class="active"><i class="fas fa-home me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-history me-2"></i> Task History</a>
+                    <a href="${pageContext.request.contextPath}/Technician/TechnicianServlet"><i class="fas fa-home me-2"></i> Home Page</a>
+                    <a href="${pageContext.request.contextPath}/ViewHistory" class="active"><i class="fas fa-history me-2"></i> Task History</a>
                     <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comment-dots me-2"></i> View Comments</a>
                     <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-cog me-2"></i> My Profile</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;">
@@ -119,7 +119,7 @@
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp" class="active"><i class="fas fa-home me-2"></i> Home Page</a>
                     <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-id-card me-22"></i> My Profile</a>
-                    <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
+                    <a href="${pageContext.request.contextPath}/ViewHistory" class="active"><i class="fas fa-file-alt me-2"></i> View History</a>
                     <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-star me-2"></i> Feedback</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;">
                         <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>

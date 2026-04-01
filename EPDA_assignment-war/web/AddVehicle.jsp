@@ -124,16 +124,19 @@
         %>
 
         <c:choose>
-            <%-- COUNTER STAFF --%>
+            %-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
                 <div class="sidebar bg-staff">
                     <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
-                    <a href="${pageContext.request.contextPath}/Staff/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
+                    <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
+                    <a href="${pageContext.request.contextPath}/Staff/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
                     <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile" class="active"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
-                    <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
+                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
+                    <div style="position: absolute; bottom: 20px; width: 100%;">
+                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+                    </div>
                 </div>
             </c:when>
 
@@ -143,7 +146,7 @@
                     <div class="text-center mb-4"><i class="fas fa-user-circle fa-3x mb-2 text-success"></i><h5 class="fw-bold">CUSTOMER</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp"><i class="fas fa-home me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-id-card me-2"></i> My Profile</a>
+                    <a href="${pageContext.request.contextPath}/EditProfile" class="active"><i class="fas fa-id-card me-2"></i> My Profile</a>
                     <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
                     <a href="ViewFeedback" class="active"><i class="fas fa-star me-2"></i> Feedback</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
@@ -156,12 +159,21 @@
                 <h3 class="fw-bold section-title">Add New Vehicle</h3>
                 <p class="text-muted mb-4 small">Please provide the details of your vehicle to register it in our system.</p>
 
+                <c:if test="${not empty errorMessage}">
+                    <div class="alert alert-danger shadow-sm py-2 mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i> ${errorMessage}
+                    </div>
+                </c:if>
+
                 <form action="AddVehicle" method="post">
-                    
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Car Plate Number</label>
-                            <input type="text" name="carPlate" class="form-control" placeholder="e.g. ABC 1234" required>
+                            <input type="text" name="carPlate" class="form-control" 
+                                   placeholder="e.g. ABC 1234" 
+                                   pattern="[A-Za-z0-9 ]+" 
+                                   title="Letters and numbers only"
+                                   required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Brand</label>
@@ -173,11 +185,12 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Color</label>
-                            <input type="text" name="color" class="form-control" placeholder="e.g. Silver">
+                            <input type="text" name="color" class="form-control" placeholder="e.g. Silver" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Year of Manufacture</label>
-                            <input type="number" name="year" class="form-control" placeholder="e.g. 2011" min="1900" max="2026">
+                            <input type="number" name="year" class="form-control" 
+                                   placeholder="e.g. 2011" min="1950" max="2026" required>
                         </div>
                     </div>
 
@@ -185,7 +198,7 @@
                         <button type="submit" class="btn btn-primary flex-grow-1 py-2 fw-bold shadow-sm">
                             <i class="fas fa-plus-circle me-2"></i>Register Vehicle
                         </button>
-                        <button type="button" onclick="history.back()" class="btn btn-light border px-4">
+                        <button type="button" onclick="window.location.href = 'EditProfile'" class="btn btn-light border px-4">
                             Cancel
                         </button>
                     </div>

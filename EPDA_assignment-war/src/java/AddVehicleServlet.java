@@ -1,3 +1,4 @@
+
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
@@ -14,7 +15,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet(urlPatterns = {"/AddVehicle"})
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024, // 1MB
-        maxFileSize = 1024 * 1024 * 5,   // 5MB
+        maxFileSize = 1024 * 1024 * 5, // 5MB
         maxRequestSize = 1024 * 1024 * 10 // 10MB
 )
 public class AddVehicleServlet extends HttpServlet {
@@ -26,34 +27,50 @@ public class AddVehicleServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user"); 
+        User user = (User) session.getAttribute("user");
         response.setContentType("text/html;charset=UTF-8");
-        
-        // 1. 先检查用户是否登录，没登录直接拦截
+
         if (user == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
         try {
-            String carPlate = request.getParameter("carPlate");
-            String brand = request.getParameter("brand");
-            String model = request.getParameter("model");
-            String color = request.getParameter("color");
-            int year = Integer.parseInt(request.getParameter("year"));
+            String carPlate = request.getParameter("carPlate").trim().toUpperCase(); // 统一转大写
+            String brand = request.getParameter("brand").trim();
+            String model = request.getParameter("model").trim();
+            String color = request.getParameter("color").trim();
+            String yearStr = request.getParameter("year");
 
-            // 2. 使用 User 对象创建 Car 
+            // 1. 基本非空检查
+            if (carPlate.isEmpty() || brand.isEmpty() || model.isEmpty()) {
+                throw new Exception("Please fill in all required fields.");
+            }
+
+            // 2. 核心逻辑：重复车牌检查
+            // 假设 carPlate 是 Car Entity 的 Primary Key (find 方法通常根据 PK 找)
+            Car existingCar = carFacade.find(carPlate);
+            if (existingCar != null) {
+                request.setAttribute("errorMessage", "Error: Car plate number '" + carPlate + "' already exists in our system.");
+                request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
+                return;
+            }
+
+            int year = (yearStr != null && !yearStr.isEmpty()) ? Integer.parseInt(yearStr) : 0;
+
+            // 3. 创建并保存
             Car car = new Car(carPlate, brand, model, color, year, user);
-
-            // 3. 执行数据库保存 
             carFacade.create(car);
 
-            // 4. 成功后跳转 (在 try 块内) 
+            // 4. 成功后跳转
             response.sendRedirect(request.getContextPath() + "/EditProfile?vehicleAdded=true");
 
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMessage", "Invalid Year format.");
+            request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
         } catch (Exception e) {
-            e.printStackTrace(); 
-            request.setAttribute("errorMessage", "Failed: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("errorMessage", e.getMessage());
             request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
         }
     }

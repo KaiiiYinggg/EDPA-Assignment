@@ -200,7 +200,7 @@
                     </div>
                 </form>
 
-                <%-- 车辆管理：只对 Customer (或者你 Debug 时用的特定角色) 显示 --%>
+                <%-- 车辆管理：只对 Customer 显示 --%>
                 <c:if test="${sessionScope.user.role == 'customer' || not empty carList}">
                     <hr class="my-4">
                     <h5 class="fw-bold mb-3"><i class="fas fa-car me-2 text-primary"></i>My Registered Vehicles</h5>
@@ -209,13 +209,28 @@
                             <div class="alert alert-light border small text-center">No vehicles found.</div>
                         </c:when>
                         <c:otherwise>
-                            <table class="table table-sm border">
+                            <table class="table table-sm border align-middle">
                                 <thead class="table-light">
-                                    <tr><th>Plate Number</th><th>Brand</th></tr>
+                                    <tr>
+                                        <th>Plate Number</th>
+                                        <th>Brand</th>
+                                        <th class="text-center" style="width: 80px;">Action</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="car" items="${carList}">
-                                        <tr><td>${car.carPlateNumber}</td><td>${car.carBrand}</td></tr>
+                                        <tr>
+                                            <td class="fw-bold">${car.carPlateNumber}</td>
+                                            <td>${car.carBrand}</td>
+                                            <td class="text-center">
+                                                <%-- Delete 按钮：跳转到删除 Servlet --%>
+                                                <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
+                                                   class="btn btn-sm btn-outline-danger border-0"
+                                                   onclick="return confirm('Are you sure you want to remove vehicle ${car.carPlateNumber}?')">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
                                     </c:forEach>
                                 </tbody>
                             </table>

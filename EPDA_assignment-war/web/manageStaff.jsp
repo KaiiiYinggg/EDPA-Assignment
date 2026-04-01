@@ -117,8 +117,6 @@
         </style>
     </head>
     <body>
-
-        <c:choose>
             <div class="sidebar bg-manager">
                 <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">

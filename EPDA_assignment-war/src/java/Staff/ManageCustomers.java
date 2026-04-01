@@ -89,25 +89,37 @@ public class ManageCustomers extends HttpServlet {
                     userFacade.remove(userFacade.find(Long.parseLong(idStr)));
                 }
             }
+            response.sendRedirect("ManageCustomers?action=list");
         } else if ("update".equals(action)) {
-            try {
-                Long id = Long.parseLong(request.getParameter("user_id"));
-                String username = request.getParameter("username");
-                int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
-                String email = request.getParameter("email");
+            String email = request.getParameter("email");
+            Long id = Long.parseLong(request.getParameter("user_id"));
 
-                User u = userFacade.find(id);
-                if (u != null) {
-                    u.setUsername(username);
-                    u.setPhoneNumber(phoneNumber);
-                    u.setEmail(email);
-                    userFacade.edit(u);
+            // 💡 1. 检查这个 Email 是否被【其他人】占用
+            User existingUser = userFacade.findByEmail(email);
+
+            if (existingUser != null && !existingUser.getUser_id().equals(id)) {
+                // 如果找到了人，且 ID 不是当前正在改的这个人 -> Email 重复了！
+                request.getSession().setAttribute("errorMsg", "Error: Email '" + email + "' is already taken by another user!");
+                response.sendRedirect("ManageCustomers?action=list");
+            } else {
+                try {
+                    String username = request.getParameter("username");
+                    // 这里的 phoneNumber 改为 String 接收更稳，因为 012 开头的数字 int 会丢掉 0
+                    String phoneStr = request.getParameter("phoneNumber");
+
+                    User u = userFacade.find(id);
+                    if (u != null) {
+                        u.setUsername(username);
+                        u.setPhoneNumber(Integer.parseInt(phoneStr)); // 保持你原来的 int 类型
+                        u.setEmail(email);
+                        userFacade.edit(u);
+                        request.getSession().setAttribute("successMsg", "Customer updated successfully!");
+                    }
+                } catch (Exception e) {
+                    request.getSession().setAttribute("errorMsg", "Update failed: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                request.setAttribute("error", "Email already exists!");
+                response.sendRedirect("ManageCustomers?action=list");
             }
         }
-
-        response.sendRedirect("ManageCustomers?action=list");
     }
 }
