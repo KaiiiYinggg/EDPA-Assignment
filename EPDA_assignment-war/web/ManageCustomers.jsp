@@ -20,7 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
-
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -47,7 +46,6 @@
                 color: white !important;
                 border-left: 4px solid #1abc9c;
             }
-
             .bg-staff {
                 background: #2c3e50;
             }
@@ -55,7 +53,6 @@
                 margin-left: var(--sidebar-width);
                 padding: 30px;
             }
-
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -82,7 +79,6 @@
                 background-color: #f8fbff;
                 cursor: pointer;
             }
-
             .modal {
                 display: none;
                 position: fixed;
@@ -113,27 +109,62 @@
                 width: 40px;
                 text-align: center;
             }
+            .nested-table th, .nested-table td {
+                padding: 10px;
+            }
+            .nested-table {
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
         </style>
     </head>
     <body>
-        <div class="sidebar bg-staff">
-            <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-            <a href="${pageContext.request.contextPath}/Dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
-            <a href="${pageContext.request.contextPath}/Staff/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
-            <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
-            <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
-            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
-            <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
-        </div>
 
-        <<div class="main-content">
+        <c:choose>
+            <%-- MANAGER --%>
+            <c:when test="${sessionScope.user.role == 'manager'}">
+                <div class="sidebar bg-manager">
+                    <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
+                    <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
+                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
+                    <a href="${pageContext.request.contextPath}/ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
+                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
+                    <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
+                    <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+                    <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
+                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+                    <div style="position: absolute; bottom: 20px; width: 100%;">
+                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+                    </div>
+                </div>
+            </c:when>
+
+            <%-- COUNTER STAFF --%>
+            <c:when test="${sessionScope.user.role == 'counter staff'}">
+                <div class="sidebar bg-staff">
+                    <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
+                    <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
+                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
+                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
+                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
+                    <div style="position: absolute; bottom: 20px; width: 100%;">
+                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+                    </div>
+                </div>
+            </c:when>
+        </c:choose>
+
+        <div class="main-content">
             <c:if test="${not empty sessionScope.errorMsg}">
                 <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4">
                     <i class="fas fa-exclamation-circle me-2"></i> ${sessionScope.errorMsg}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                <% session.removeAttribute("errorMsg"); %> 
+                <% session.removeAttribute("errorMsg"); %>
             </c:if>
 
             <c:if test="${not empty sessionScope.successMsg}">
@@ -169,6 +200,7 @@
                             <th>Gender</th>
                             <th>Phone</th>
                             <th>Email</th>
+                            <th>Vehicle</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -182,16 +214,53 @@
                                 <td>${u.gender}</td>
                                 <td>${u.phoneNumber}</td>
                                 <td>${u.email}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/AddVehicle.jsp?customerId=${u.user_id}">
+                                        <i class="fas fa-car"></i> Add Vehicle
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Nested Vehicle Table -->
+                            <tr>
+                                <td colspan="7" class="p-0">
+                                    <table class="table table-sm nested-table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Plate Number</th>
+                                                <th>Brand</th>
+                                                <th class="text-center" style="width: 80px;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach var="car" items="${u.carList}">
+                                                <tr>
+                                                    <td class="fw-bold">${car.carPlateNumber}</td>
+                                                    <td>${car.carBrand}</td>
+                                                    <td class="text-center">
+                                                        <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
+                                                           class="btn btn-sm btn-outline-danger border-0"
+                                                           onclick="return confirm('Are you sure you want to remove vehicle ${car.carPlateNumber}?')">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </td>
                             </tr>
                         </c:forEach>
                     </tbody>
                 </table>
+
                 <button type="submit" class="btn btn-danger mt-4 px-4 shadow-sm">
                     <i class="fas fa-trash-alt me-2"></i>Delete Selected
                 </button>
             </form>
         </div>
 
+        <!-- Update Customer Modal -->
         <div id="myModal" class="modal">
             <div class="modal-content">
                 <h4 class="fw-bold mb-3" style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Update Customer</h4>
@@ -226,7 +295,6 @@
         </div>
 
         <script>
-            // 1. Modal 基础控制
             function openUpdateModal(id, name, phone, email) {
                 document.getElementById('updateId').value = id;
                 document.getElementById('updateUsername').value = name;
@@ -244,15 +312,12 @@
                     closeModal();
             }
 
-            // 2. 批量选择 Checkbox
             function toggleSelectAll(source) {
                 const checkboxes = document.getElementsByName('selectedIds');
-                for (let i = 0; i < checkboxes.length; i++) {
+                for (let i = 0; i < checkboxes.length; i++)
                     checkboxes[i].checked = source.checked;
-                }
             }
 
-            // 3. 删除前的 Input Checking
             function validateDelete() {
                 const checkedCount = document.querySelectorAll('input[name="selectedIds"]:checked').length;
                 if (checkedCount === 0) {
@@ -262,7 +327,6 @@
                 return confirm("Are you sure you want to delete " + checkedCount + " selected customer(s)?");
             }
 
-            // 4. 更新表单的简单验证
             function validateUpdateForm() {
                 const phone = document.getElementById('updatePhone').value;
                 if (phone.length < 10) {
@@ -272,17 +336,16 @@
                 return true;
             }
 
-            // 5. 跳转到 Appointment 的安全逻辑
             function goToBooking() {
                 const email = document.getElementById('updateEmail').value;
                 if (!email) {
                     alert("Error: No customer email found.");
                     return;
                 }
-                // 使用动态的 ContextPath
                 window.location.href = '${pageContext.request.contextPath}/AppointmentServlet?customerEmail=' + encodeURIComponent(email);
             }
         </script>
+
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

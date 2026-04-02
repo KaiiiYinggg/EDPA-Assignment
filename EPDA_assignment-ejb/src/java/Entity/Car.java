@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Entity;
+
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,11 +16,9 @@ import javax.persistence.JoinColumn;
 public class Car implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
 
     @Id
     private String carPlateNumber;
-    
 
     private String carBrand;
     private String carModel;
@@ -27,19 +26,21 @@ public class Car implements Serializable {
     @Column(name = "CAR_YEAR")
     private int year;
     
-    @JoinColumn(name = "userEmail",referencedColumnName = "email") 
+    @javax.persistence.ManyToOne
+    @JoinColumn(name = "userEmail", referencedColumnName = "email")
     private User user;
 
     public Car() {
     }
+
     public User getUser() {
         return user;
-   }
+    }
 
     public void setUser(User user) {
         this.user = user;
-    } 
-    
+    }
+
     public Car(String carPlateNumber, String carBrand, String carModel,
             String color, int year, User user) {
         this.carPlateNumber = carPlateNumber;

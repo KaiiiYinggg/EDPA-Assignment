@@ -5,12 +5,14 @@
 package Entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Column;
+
 /**
  *
  * @author teech
@@ -24,7 +26,7 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long user_id;
-    
+
     private String username;
     private String password;
     private String userIC;
@@ -32,33 +34,16 @@ public class User implements Serializable {
     private int phoneNumber;
     private String gender;
     private String role;
-    
 
     @Column(unique = true)
     private String email;
     private String profilePic;
 
+    @javax.persistence.OneToMany(mappedBy = "user", cascade = javax.persistence.CascadeType.ALL)
+    private java.util.List<Car> carList;
+
     public User() {
     }
-
-    /*public User(String username, String password, int phoneNumber, String gender, String role, String email) {
-        this.username = username;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.gender = gender;
-        this.role = role;
-        this.email = email;
-    }
-
-    public User(String username, String password, int phoneNumber, String gender, String role, String email,String profilePic) {
-        this.username = username;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.gender = gender;
-        this.role = role;
-        this.email = email;
-        this.profilePic = profilePic;
-    }*/
 
     public User(String username, String password, String userIC, String address, int phoneNumber, String gender, String role, String email) {
         this.username = username;
@@ -150,8 +135,15 @@ public class User implements Serializable {
     public void setUserIC(String userIC) {
         this.userIC = userIC;
     }
-    
 
+    public List<Car> getCarList() {
+        return carList;
+    }
+
+    public void setCarList(List<Car> carList) {
+        this.carList = carList;
+    }
+    
 
     @Override
     public int hashCode() {
@@ -194,5 +186,5 @@ public class User implements Serializable {
         this.profilePic = profilePic;
 
     }
-    
+
 }

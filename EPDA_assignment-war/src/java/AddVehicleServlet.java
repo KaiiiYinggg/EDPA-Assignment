@@ -1,7 +1,7 @@
-
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
+import Entity.UserFacade;
 import java.io.IOException;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -14,80 +14,140 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet(urlPatterns = {"/AddVehicle"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024, // 1MB
-        maxFileSize = 1024 * 1024 * 5, // 5MB
-        maxRequestSize = 1024 * 1024 * 10 // 10MB
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5,
+        maxRequestSize = 1024 * 1024 * 10
 )
 public class AddVehicleServlet extends HttpServlet {
 
     @EJB
     private CarFacade carFacade;
 
+    @EJB
+    private UserFacade userFacade;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
+        User currentUser = (User) session.getAttribute("user");
+
         response.setContentType("text/html;charset=UTF-8");
 
-        if (user == null) {
+        if (currentUser == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
         try {
-            String carPlate = request.getParameter("carPlate").trim().toUpperCase(); // 统一转大写
+
+            String carPlate = request.getParameter("carPlate").trim().toUpperCase();
             String brand = request.getParameter("brand").trim();
             String model = request.getParameter("model").trim();
             String color = request.getParameter("color").trim();
             String yearStr = request.getParameter("year");
 
-            // 1. 基本非空检查
+            // 检查空值
             if (carPlate.isEmpty() || brand.isEmpty() || model.isEmpty()) {
                 throw new Exception("Please fill in all required fields.");
             }
 
-            // 2. 核心逻辑：重复车牌检查
-            // 假设 carPlate 是 Car Entity 的 Primary Key (find 方法通常根据 PK 找)
+            // 检查重复车牌
             Car existingCar = carFacade.find(carPlate);
             if (existingCar != null) {
-                request.setAttribute("errorMessage", "Error: Car plate number '" + carPlate + "' already exists in our system.");
-                request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
+
+                request.setAttribute("errorMessage",
+                        "Error: Car plate number '" + carPlate + "' already exists in our system.");
+
+                request.getRequestDispatcher("AddVehicle.jsp")
+                        .forward(request, response);
                 return;
             }
 
-            int year = (yearStr != null && !yearStr.isEmpty()) ? Integer.parseInt(yearStr) : 0;
+            int year = 0;
+            if (yearStr != null && !yearStr.isEmpty()) {
+                year = Integer.parseInt(yearStr);
+            }
 
-            // 3. 创建并保存
-            Car car = new Car(carPlate, brand, model, color, year, user);
+            /*
+            ------------------------------------------------
+            关键逻辑：判断车是属于谁
+            ------------------------------------------------
+             */
+
+            String customerIdStr = request.getParameter("customerId");
+            User owner;
+
+            if (customerIdStr != null && !customerIdStr.isEmpty()) {
+
+                Long customerId = Long.parseLong(customerIdStr);
+                owner = userFacade.find(customerId); // staff / manager 帮 customer 加
+
+                if (owner == null) {
+                    throw new Exception("Customer not found.");
+                }
+
+            } else {
+
+                owner = currentUser; // customer 自己加
+
+            }
+
+            // 创建 Car
+            Car car = new Car(carPlate, brand, model, color, year, owner);
+
             carFacade.create(car);
 
-            // 4. 成功后跳转
-            response.sendRedirect(request.getContextPath() + "/EditProfile?vehicleAdded=true");
+            /*
+            ------------------------------------------------
+            根据角色 redirect
+            ------------------------------------------------
+             */
+
+            if ("customer".equalsIgnoreCase(currentUser.getRole())) {
+
+                response.sendRedirect(request.getContextPath()
+                        + "/EditProfile?vehicleAdded=true");
+
+            } else {
+
+                response.sendRedirect(request.getContextPath()
+                        + "/ManageCustomers?action=list");
+
+            }
 
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Invalid Year format.");
-            request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", e.getMessage());
-            request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
-        }
-    }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        if ("true".equals(request.getParameter("success"))) {
-            request.setAttribute("successMessage", "Added Successful！");
+            request.setAttribute("errorMessage", "Invalid Year format.");
+
+            request.getRequestDispatcher("AddVehicle.jsp")
+                    .forward(request, response);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            request.setAttribute("errorMessage", e.getMessage());
+
+            request.getRequestDispatcher("AddVehicle.jsp")
+                    .forward(request, response);
         }
-        response.sendRedirect(request.getContextPath() + "/EditProfile?vehicleAdded=1");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
+
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.sendRedirect("AddVehicle.jsp");
+
     }
 
     @Override
