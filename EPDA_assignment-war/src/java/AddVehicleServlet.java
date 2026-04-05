@@ -1,3 +1,4 @@
+
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
@@ -74,7 +75,6 @@ public class AddVehicleServlet extends HttpServlet {
             关键逻辑：判断车是属于谁
             ------------------------------------------------
              */
-
             String customerIdStr = request.getParameter("customerId");
             User owner;
 
@@ -103,7 +103,6 @@ public class AddVehicleServlet extends HttpServlet {
             根据角色 redirect
             ------------------------------------------------
              */
-
             if ("customer".equalsIgnoreCase(currentUser.getRole())) {
 
                 response.sendRedirect(request.getContextPath()
@@ -146,8 +145,19 @@ public class AddVehicleServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.sendRedirect("AddVehicle.jsp");
+        String carPlate = request.getParameter("carPlate");
+        String customerId = request.getParameter("customerId");
 
+        // 默认是 false
+        boolean isViewOnly = false;
+
+        
+
+        // 统一设置，确保 JSP 拿到的永远不是 null
+        request.setAttribute("viewOnly", isViewOnly);
+        request.setAttribute("customerId", customerId);
+
+        request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
     }
 
     @Override

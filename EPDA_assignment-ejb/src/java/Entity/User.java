@@ -6,12 +6,14 @@ package Entity;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Column;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -39,8 +41,11 @@ public class User implements Serializable {
     private String email;
     private String profilePic;
 
-    @javax.persistence.OneToMany(mappedBy = "user", cascade = javax.persistence.CascadeType.ALL)
-    private java.util.List<Car> carList;
+//    @javax.persistence.OneToMany(mappedBy = "user", cascade = javax.persistence.CascadeType.ALL)
+//    private java.util.List<Car> carList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Car> carList;
 
     public User() {
     }
@@ -143,7 +148,6 @@ public class User implements Serializable {
     public void setCarList(List<Car> carList) {
         this.carList = carList;
     }
-    
 
     @Override
     public int hashCode() {

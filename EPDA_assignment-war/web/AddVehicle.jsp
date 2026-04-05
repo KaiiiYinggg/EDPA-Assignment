@@ -183,44 +183,76 @@
                     </div>
                 </c:if>
 
+                <%
+    // 修复 incompatible types 错误
+    Object viewObj = request.getAttribute("viewOnly");
+    boolean viewOnly = (viewObj != null) ? (Boolean) viewObj : false;
+    
+    // 确保 Car 对象不会导致 NullPointerException
+    Entity.Car car = (Entity.Car) request.getAttribute("car");
+%>
+
                 <form action="AddVehicle" method="post">
-                    <input type="hidden" name="customerId" value="${param.customerId}">
+                    <input type="hidden" name="customerId" value="${customerId}">
+
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Car Plate Number</label>
                             <input type="text" name="carPlate" class="form-control" 
+                                   value="<%= car != null ? car.getCarPlateNumber() : ""%>" 
                                    placeholder="e.g. ABC 1234" 
                                    pattern="[A-Za-z0-9 ]+" 
                                    title="Letters and numbers only"
-                                   required>
+                                   required
+                                   <%= viewOnly ? "readonly" : ""%>>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Brand</label>
-                            <input type="text" name="brand" class="form-control" placeholder="e.g. Toyota" required>
+                            <input type="text" name="brand" class="form-control" 
+                                   value="<%= car != null ? car.getCarBrand() : ""%>" 
+                                   required
+                                   <%= viewOnly ? "readonly" : ""%>>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Model</label>
-                            <input type="text" name="model" class="form-control" placeholder="e.g. Corolla Altis" required>
+                            <input type="text" name="model" class="form-control" 
+                                   value="<%= car != null ? car.getCarModel() : ""%>" 
+                                   required
+                                   <%= viewOnly ? "readonly" : ""%>>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Color</label>
-                            <input type="text" name="color" class="form-control" placeholder="e.g. Silver" required>
+                            <input type="text" name="color" class="form-control" 
+                                   value="<%= car != null ? car.getColor() : ""%>" 
+                                   required
+                                   <%= viewOnly ? "readonly" : ""%>>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Year of Manufacture</label>
                             <input type="number" name="year" class="form-control" 
-                                   placeholder="e.g. 2011" min="1950" max="2026" required>
+                                   value="<%= car != null ? car.getYear() : ""%>" 
+                                   min="1950" max="2026" 
+                                   required
+                                   <%= viewOnly ? "readonly" : ""%>>
                         </div>
                     </div>
 
+                    <% if (!viewOnly) { %>
                     <div class="mt-5 d-flex gap-2">
                         <button type="submit" class="btn btn-primary flex-grow-1 py-2 fw-bold shadow-sm">
-                            <i class="fas fa-plus-circle me-2"></i>Register Vehicle
+                            <i class="fas fa-plus-circle me-2"></i> Register Vehicle
                         </button>
                         <button type="button" onclick="window.location.href = 'EditProfile'" class="btn btn-light border px-4">
                             Cancel
                         </button>
                     </div>
+                    <% } else { %>
+                    <div class="mt-5 d-flex gap-2">
+                        <button type="button" onclick="window.history.back()" class="btn btn-light border px-4">
+                            Close
+                        </button>
+                    </div>
+                    <% }%>
                 </form>
             </div>
 

@@ -25,6 +25,8 @@ public class CarFacade {
 
     public void remove(Car car) {
         em.remove(em.merge(car));
+        em.flush();
+        em.clear();
     }
 
     public Car find(String carPlate) {
@@ -36,6 +38,10 @@ public class CarFacade {
                 .getResultList();
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     // 根据 email 查用户的车辆
     public List<Car> findByUserEmail(String email) {
         // 将 c.user.email 改为 c.userEmail
@@ -43,4 +49,5 @@ public class CarFacade {
                 .setParameter("email", email)
                 .getResultList();
     }
+    
 }

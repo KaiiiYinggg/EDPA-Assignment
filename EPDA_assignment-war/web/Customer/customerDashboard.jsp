@@ -131,37 +131,6 @@
                 </a>
             </div>
 
-            <h4 class="fw-bold mb-3 text-muted"><i class="fas fa-car me-2"></i>My Registered Vehicles</h4>
-            <div class="row g-3 mb-5">
-                <c:choose>
-                    <c:when test="${empty customerCars}">
-                        <div class="col-12">
-                            <div class="alert alert-light border text-center p-4">
-                                <p class="mb-0 text-muted">You haven't registered any cars yet.</p>
-                                <a href="${pageContext.request.contextPath}/AddVehicle.jsp" class="btn btn-primary mt-2">Add My First Car</a>
-                            </div>
-                        </div>
-                    </c:when>
-                    <c:otherwise>
-                        <c:forEach var="car" items="${customerCars}">
-                            <div class="col-md-4">
-                                <div class="card car-card p-3 border-start border-info border-5">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0 me-3">
-                                            <i class="fas fa-car fa-2x text-secondary opacity-50"></i>
-                                        </div>
-                                        <div>
-                                            <h5 class="fw-bold mb-0">${car.carPlateNumber}</h5>
-                                            <small class="text-muted">${car.carBrand} ${car.carModel}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </c:forEach>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-
             <h4 class="fw-bold mb-3 text-muted"><i class="fas fa-tools me-2"></i>Active Service Requests</h4>
             <div class="card shadow-sm border-0">
                 <c:choose>

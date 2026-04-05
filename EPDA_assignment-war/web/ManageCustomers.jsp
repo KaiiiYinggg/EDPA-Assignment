@@ -1,85 +1,109 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Manage Customers | Car Service Center</title>
 
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            :root {
-                --sidebar-width: 260px;
+
+            :root{
+                --sidebar-width:260px;
             }
-            body {
-                background-color: #f4f7f6;
-                margin: 0;
-                padding: 0;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+            body{
+                background:#f4f7f6;
+                font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+                margin:0;
+                padding:0;
             }
-            .sidebar {
-                width: var(--sidebar-width);
-                height: 100vh;
-                position: fixed;
-                color: white;
-                padding-top: 20px;
-                z-index: 1000;
-                transition: 0.3s;
+
+            .sidebar{
+                width:var(--sidebar-width);
+                height:100vh;
+                position:fixed;
+                color:white;
+                padding-top:20px;
+                z-index:1000;
             }
-            .sidebar a {
-                padding: 15px 25px;
-                display: block;
-                color: #bdc3c7;
-                text-decoration: none;
-                transition: 0.3s;
+
+            .sidebar a{
+                padding:15px 25px;
+                display:block;
+                color:#bdc3c7;
+                text-decoration:none;
             }
-            .sidebar a:hover {
-                background: rgba(255,255,255,0.1);
-                color: white;
-                border-left: 4px solid #1abc9c;
+
+            .sidebar a:hover{
+                background:rgba(255,255,255,0.1);
+                color:white;
+                border-left:4px solid #1abc9c;
             }
-            .sidebar .active {
-                background: #1abc9c !important;
-                color: white !important;
-                border-left: 4px solid #1abc9c;
+
+            .sidebar .active{
+                background:#1abc9c !important;
+                color:white !important;
+                border-left:4px solid #1abc9c;
             }
-            .bg-staff {
-                background: #2c3e50;
+
+            .bg-staff{
+                background:#2c3e50;
             }
-            .main-content {
-                margin-left: var(--sidebar-width);
-                padding: 30px;
+
+            .bg-manager{
+                background:#34495e;
             }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-                background: white;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+            .main-content{
+                margin-left:var(--sidebar-width);
+                padding:30px;
             }
-            th {
-                background-color: #f8f9fa;
-                padding: 15px;
-                text-align: left;
-                color: #2c3e50;
-                border-bottom: 2px solid #eee;
+
+            table{
+                width:100%;
+                background:white;
+                border-radius:10px;
+                overflow:hidden;
+                box-shadow:0 4px 6px rgba(0,0,0,0.1);
             }
-            td {
-                padding: 15px;
-                border-bottom: 1px solid #eee;
-                color: #444;
-                vertical-align: middle;
+
+            th{
+                background:#f8f9fa;
+                padding:15px;
+                color:#2c3e50;
+                border-bottom:2px solid #eee;
             }
-            .clickable-row:hover {
-                background-color: #f8fbff;
-                cursor: pointer;
+
+            td{
+                padding:15px;
+                border-bottom:1px solid #eee;
             }
-            .modal {
+
+            .clickable-row:hover{
+                background:#f8fbff;
+                cursor:pointer;
+            }
+
+            .search-box{
+                padding:12px;
+                width:350px;
+                border:1px solid #ddd;
+                border-radius:8px;
+            }
+
+            .checkbox-cell{
+                width:40px;
+                text-align:center;
+            }
+
+            .myModal {
                 display: none;
                 position: fixed;
                 z-index: 2000;
@@ -98,103 +122,147 @@
                 box-shadow: 0 8px 24px rgba(0,0,0,0.2);
                 border: none;
             }
-            .search-box {
-                padding: 12px;
-                width: 350px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                outline: none;
-            }
-            .checkbox-cell {
-                width: 40px;
-                text-align: center;
-            }
-            .nested-table th, .nested-table td {
-                padding: 10px;
-            }
-            .nested-table {
-                margin: 0;
-                border-radius: 0;
-                box-shadow: none;
-            }
         </style>
     </head>
+
     <body>
 
         <c:choose>
-            <%-- MANAGER --%>
+
             <c:when test="${sessionScope.user.role == 'manager'}">
+
                 <div class="sidebar bg-manager">
-                    <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
-                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
-                    <a href="${pageContext.request.contextPath}/ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
-                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
-                    <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
-                    <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
-                    <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
-                    <div style="position: absolute; bottom: 20px; width: 100%;">
-                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-shield fa-3x mb-2 text-warning"></i>
+                        <h5 class="fw-bold">MANAGER</h5>
                     </div>
+
+                    <hr style="border-color:rgba(255,255,255,0.1);margin:0 15px;">
+
+                    <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard">
+                        <i class="fas fa-chart-line me-2"></i> Home Page
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/register.jsp">
+                        <i class="fas fa-user-plus me-2"></i> Register Staff
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/ManageStaff">
+                        <i class="fas fa-users-cog me-2"></i> Manage Staff
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active">
+                        <i class="fas fa-users me-2"></i> Manage Customers
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/SetPrice">
+                        <i class="fas fa-tags me-2"></i> Set Price
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/PaymentServlet">
+                        <i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/ViewFeedback">
+                        <i class="fas fa-comments me-2"></i> View Feedback
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/EditProfile">
+                        <i class="fas fa-user-edit me-2"></i> My Profile
+                    </a>
+
+                    <div style="position:absolute;bottom:20px;width:100%;">
+                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </div>
+
                 </div>
+
             </c:when>
 
-            <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
+
                 <div class="sidebar bg-staff">
-                    <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
-                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
-                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
-                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
-                    <div style="position: absolute; bottom: 20px; width: 100%;">
-                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+
+                    <div class="text-center mb-4">
+                        <i class="fas fa-car-side fa-3x mb-2 text-info"></i>
+                        <h5 class="fw-bold">STAFF PORTAL</h5>
                     </div>
+
+                    <hr style="border-color:rgba(255,255,255,0.1);margin:0 15px;">
+
+                    <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet">
+                        <i class="fas fa-tachometer-alt me-2"></i> Home Page
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active">
+                        <i class="fas fa-users me-2"></i> Manage Customers
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/register.jsp">
+                        <i class="fas fa-user-plus me-2"></i> Registration
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet">
+                        <i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/EditProfile">
+                        <i class="fas fa-user-edit me-2"></i> Edit Profile
+                    </a>
+
+                    <div style="position:absolute;bottom:20px;width:100%;">
+                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </div>
+
                 </div>
+
             </c:when>
+
         </c:choose>
 
         <div class="main-content">
-            <c:if test="${not empty sessionScope.errorMsg}">
-                <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4">
-                    <i class="fas fa-exclamation-circle me-2"></i> ${sessionScope.errorMsg}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <% session.removeAttribute("errorMsg"); %>
-            </c:if>
 
-            <c:if test="${not empty sessionScope.successMsg}">
-                <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4">
-                    <i class="fas fa-check-circle me-2"></i> ${sessionScope.successMsg}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <% session.removeAttribute("successMsg");%>
-            </c:if>
+            <h2 class="fw-bold" style="color:#2c3e50;">Customer Management</h2>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold" style="color: #2c3e50;">Customer Management</h2>
-                <div class="text-muted">Total Records: <span class="badge bg-primary rounded-pill">${userList.size()}</span></div>
-            </div>
             <hr>
 
             <form action="ManageCustomers" method="GET" class="mb-4">
+
                 <input type="hidden" name="action" value="list">
+
                 <div class="d-flex gap-2">
-                    <input type="text" name="searchQuery" class="search-box" placeholder="Search by name, email or phone..." value="${param.searchQuery}">
-                    <button type="submit" class="btn btn-primary px-4 shadow-sm"><i class="fas fa-search me-2"></i>Search</button>
+
+                    <input type="text"
+                           name="searchQuery"
+                           class="search-box"
+                           placeholder="Search by name, email or phone..."
+                           value="${param.searchQuery}">
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+
                 </div>
+
             </form>
 
-            <form action="ManageCustomers" method="POST" id="deleteForm" onsubmit="return validateDelete()">
+            <form action="ManageCustomers" method="POST" onsubmit="return validateDelete()">
+
                 <input type="hidden" name="action" value="deleteMultiple">
+
                 <table>
+
                     <thead>
+
                         <tr>
-                            <th class="checkbox-cell"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                            </th>
                             <th>User ID</th>
                             <th>Username</th>
                             <th>Gender</th>
@@ -202,11 +270,13 @@
                             <th>Email</th>
                             <th>Vehicle</th>
                         </tr>
+
                     </thead>
+
                     <tbody>
                         <c:forEach var="u" items="${userList}">
                             <tr class="clickable-row" onclick="openUpdateModal('${u.user_id}', '${u.username}', '${u.phoneNumber}', '${u.email}')">
-                                <td class="checkbox-cell" onclick="event.stopPropagation();">
+                                <td onclick="event.stopPropagation();">
                                     <input type="checkbox" name="selectedIds" value="${u.user_id}">
                                 </td>
                                 <td class="fw-bold text-info"># ${u.user_id}</td>
@@ -214,93 +284,235 @@
                                 <td>${u.gender}</td>
                                 <td>${u.phoneNumber}</td>
                                 <td>${u.email}</td>
-                                <td>
-                                    <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/AddVehicle.jsp?customerId=${u.user_id}">
-                                        <i class="fas fa-car"></i> Add Vehicle
-                                    </a>
+                                <td onclick="event.stopPropagation();">
+                                    <div class="d-flex gap-2">
+                                        <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/AddVehicle.jsp?customerId=${u.user_id}">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-primary" type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#vehicleDetails-${u.user_id}">
+                                            View Vehicles <i class="fas fa-chevron-down ms-1"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
 
-                            <!-- Nested Vehicle Table -->
-                            <tr>
-                                <td colspan="7" class="p-0">
-                                    <table class="table table-sm nested-table mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Plate Number</th>
-                                                <th>Brand</th>
-                                                <th class="text-center" style="width: 80px;">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach var="car" items="${u.carList}">
+                            <tr class="collapse" id="vehicleDetails-${u.user_id}">
+                                <td colspan="7" class="bg-light p-0">
+                                    <div class="p-3 border-start border-4 border-primary">
+                                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-car me-2"></i>Registered Vehicles</h6>
+                                        <table class="table table-sm table-bordered bg-white mb-0 shadow-sm">
+                                            <thead class="table-dark">
                                                 <tr>
-                                                    <td class="fw-bold">${car.carPlateNumber}</td>
-                                                    <td>${car.carBrand}</td>
-                                                    <td class="text-center">
-                                                        <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
-                                                           class="btn btn-sm btn-outline-danger border-0"
-                                                           onclick="return confirm('Are you sure you want to remove vehicle ${car.carPlateNumber}?')">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </a>
-                                                    </td>
+                                                    <th>Plate Number (Click to Edit/View)</th>
+                                                    <th>Brand</th>
+                                                    <th class="text-center">Action</th>
                                                 </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <c:choose>
+                                                    <c:when test="${not empty u.carList}">
+                                                        <c:forEach var="car" items="${u.carList}">
+                                                            <tr>
+                                                                <td class="fw-bold">
+                                                                    <a href="AddVehicle?view=true&carPlate=${car.carPlateNumber}&customerId=${u.user_id}" 
+                                                                       class="text-decoration-none">
+                                                                        <i class="fas fa-external-link-alt me-1"></i>${car.carPlateNumber}
+                                                                    </a>
+                                                                </td>
+                                                                <td>${car.carBrand}</td>
+                                                                <td class="text-center">
+                                                                    <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
+                                                                       class="btn btn-sm btn-outline-danger"
+                                                                       onclick="return confirm('Remove vehicle ${car.carPlateNumber}?')">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        </c:forEach>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <tr><td colspan="3" class="text-center text-muted">No vehicles registered for this customer.</td></tr>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>
                     </tbody>
+
                 </table>
 
-                <button type="submit" class="btn btn-danger mt-4 px-4 shadow-sm">
-                    <i class="fas fa-trash-alt me-2"></i>Delete Selected
+                <br>
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete Selected
                 </button>
+
             </form>
+
         </div>
 
+        <!-- VEHICLE MODALS -->
+
+        <c:forEach var="u" items="${userList}">
+
+            <div class="modal fade"
+                 id="vehicleModal-${u.user_id}"
+                 tabindex="-1">
+
+                <div class="modal-dialog modal-dialog-centered">
+
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+
+                            <h5 class="modal-title">
+                                Vehicles for ${u.username}
+                            </h5>
+
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+
+                        </div>
+
+                        <div class="modal-body">
+
+                            <table class="table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Plate</th>
+                                        <th>Brand</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    <c:choose>
+
+                                        <c:when test="${not empty u.carList}">
+
+                                            <c:forEach var="car" items="${u.carList}">
+
+                                                <tr>
+                                                    <td>${car.carPlateNumber}</td>
+                                                    <td>${car.carBrand}</td>
+                                                </tr>
+
+                                            </c:forEach>
+
+                                        </c:when>
+
+                                        <c:otherwise>
+
+                                            <tr>
+                                                <td colspan="2" class="text-center text-muted">
+                                                    No vehicle found
+                                                </td>
+                                            </tr>
+
+                                        </c:otherwise>
+
+                                    </c:choose>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </c:forEach>
+
         <!-- Update Customer Modal -->
-        <div id="myModal" class="modal">
-            <div class="modal-content">
-                <h4 class="fw-bold mb-3" style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Update Customer</h4>
-                <form action="ManageCustomers" method="POST" onsubmit="return validateUpdateForm()">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="user_id" id="updateId">
+        <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <h4 class="fw-bold mb-3" style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Update Customer</h4>
+                    <form action="ManageCustomers" method="POST" onsubmit="return validateUpdateForm()">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="user_id" id="updateId">
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">Username</label>
-                        <input type="text" name="username" id="updateUsername" class="form-control" required minlength="2">
-                    </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted">Username</label>
+                            <input type="text" name="username" id="updateUsername" class="form-control" required minlength="2">
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">Phone Number</label>
-                        <input type="text" name="phoneNumber" id="updatePhone" class="form-control" 
-                               required pattern="[0-9]{10,11}" title="Phone number must be 10-11 digits"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                    </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted">Phone Number</label>
+                            <input type="text" name="phoneNumber" id="updatePhone" class="form-control" 
+                                   required pattern="[0-9]{10,11}" title="Phone number must be 10-11 digits"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted">Email Address</label>
-                        <input type="email" name="email" id="updateEmail" class="form-control" required>
-                    </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted">Email Address</label>
+                            <input type="email" name="email" id="updateEmail" class="form-control" required>
+                        </div>
 
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="button" onclick="closeModal()" class="btn btn-light border flex-grow-1">Cancel</button>
-                        <button type="submit" class="btn btn-success flex-grow-1">Update</button>
-                        <button type="button" onclick="goToBooking()" class="btn btn-primary" style="flex: 1.5;">Book Service</button>
-                    </div>
-                </form>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success flex-grow-1">Update</button>
+                            <button type="button" onclick="goToBooking()" class="btn btn-primary" style="flex: 1.5;">Book Service</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
         <script>
+
+            function toggleSelectAll(source) {
+
+                const checkboxes = document.getElementsByName('selectedIds');
+
+                for (let i = 0; i < checkboxes.length; i++) {
+
+                    checkboxes[i].checked = source.checked;
+
+                }
+
+            }
+
+            function validateDelete() {
+
+                const checked = document.querySelectorAll('input[name="selectedIds"]:checked').length;
+
+                if (checked == 0) {
+
+                    alert("Please select at least one customer");
+
+                    return false;
+
+                }
+
+                return confirm("Delete " + checked + " customer(s)?");
+
+            }
             function openUpdateModal(id, name, phone, email) {
                 document.getElementById('updateId').value = id;
                 document.getElementById('updateUsername').value = name;
                 document.getElementById('updatePhone').value = phone;
                 document.getElementById('updateEmail').value = email;
-                document.getElementById('myModal').style.display = "block";
+
+                // 使用 Bootstrap Modal API 弹出
+                var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+                myModal.show();
+            }
+
+            function closeModal() {
+                var myModalEl = document.getElementById('myModal');
+                var modal = bootstrap.Modal.getInstance(myModalEl);
+                if (modal) {
+                    modal.hide();
+                }
             }
 
             function closeModal() {
@@ -346,6 +558,8 @@
             }
         </script>
 
-        <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     </body>
 </html>
+

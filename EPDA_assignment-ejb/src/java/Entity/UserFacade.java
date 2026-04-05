@@ -123,7 +123,10 @@ public class UserFacade extends AbstractFacade<User> {
     ////    
 
     public List<User> findAllCustomers() {
-        return em.createQuery("SELECT u FROM User u WHERE u.role = 'customer'", User.class)
+        em.clear();
+        return em.createQuery(
+                "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.carList WHERE u.role = 'customer'",
+                User.class)
                 .getResultList();
     }
 
@@ -170,7 +173,6 @@ public class UserFacade extends AbstractFacade<User> {
             return 0;
         }
     }
-    
 
     @Override
     protected EntityManager getEntityManager() {

@@ -177,7 +177,11 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Username</label>
-                            <input type="text" name="username" class="form-control" value="${sessionScope.user.username}" required>
+                            <input type="text" name="username" class="form-control" 
+                                   value="${sessionScope.user.username}" 
+                                   required 
+                                   pattern="[A-Za-z ]{3,50}" 
+                                   title="Username can only contain letters and spaces (3-50 chars)">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email Address</label>
@@ -185,7 +189,11 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="phoneNumber" class="form-control" value="${sessionScope.user.phoneNumber}" required>
+                            <input type="text" name="phoneNumber" class="form-control" 
+                                   value="${sessionScope.user.phoneNumber}" 
+                                   required
+                                   pattern="\d{6,15}" 
+                                   title="Phone number must be 6-15 digits">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Gender</label>
@@ -193,7 +201,10 @@
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Update Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+                            <input type="password" name="password" class="form-control" 
+                                   placeholder="Leave blank to keep current password" 
+                                   pattern=".{4,}" 
+                                   title="Password must be at least 4 characters if you want to change it">
                         </div>
                     </div>
 
@@ -202,10 +213,10 @@
                     </div>
                 </form>
 
-                <%-- 车辆管理：只对 Customer 显示 --%>
                 <c:if test="${sessionScope.user.role == 'customer' || not empty carList}">
                     <hr class="my-4">
                     <h5 class="fw-bold mb-3"><i class="fas fa-car me-2 text-primary"></i>My Registered Vehicles</h5>
+
                     <c:choose>
                         <c:when test="${empty carList}">
                             <div class="alert alert-light border small text-center">No vehicles found.</div>
@@ -215,17 +226,32 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Plate Number</th>
-                                        <th>Brand</th>
                                         <th class="text-center" style="width: 80px;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="car" items="${carList}">
                                         <tr>
-                                            <td class="fw-bold">${car.carPlateNumber}</td>
-                                            <td>${car.carBrand}</td>
+                                            <td class="fw-bold">
+                                                ${car.carPlateNumber}
+                                                <br>
+                                                <button class="btn btn-sm btn-outline-secondary mt-1" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}" 
+                                                        aria-expanded="false" 
+                                                        aria-controls="carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}">
+                                                    View Info
+                                                </button>
+                                                <div class="collapse mt-1" id="carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}">
+                                                    <div class="card card-body p-2">
+                                                        <p class="mb-1"><strong>Brand:</strong> ${car.carBrand}</p>
+                                                        <p class="mb-1"><strong>Model:</strong> ${car.carModel}</p>
+                                                        <p class="mb-1"><strong>Color:</strong> ${car.color}</p>
+                                                        <p class="mb-0"><strong>Year:</strong> ${car.year}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td class="text-center">
-                                                <%-- Delete 按钮：跳转到删除 Servlet --%>
                                                 <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
                                                    class="btn btn-sm btn-outline-danger border-0"
                                                    onclick="return confirm('Are you sure you want to remove vehicle ${car.carPlateNumber}?')">
@@ -238,6 +264,7 @@
                             </table>
                         </c:otherwise>
                     </c:choose>
+
                     <a href="${pageContext.request.contextPath}/AddVehicle.jsp" class="btn btn-sm btn-outline-primary mt-2">
                         <i class="fas fa-plus me-1"></i>Add New Vehicle
                     </a>
@@ -245,6 +272,8 @@
             </div>
         </div>
 
-        <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
     </body>
 </html>
