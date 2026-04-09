@@ -53,7 +53,6 @@
                 padding: 30px;
             }
 
-            /* Payment 页面特有样式优化 */
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -110,12 +109,33 @@
             }
 
             @media print {
-                .no-print {
+                /* 1. 强制隐藏所有不需要的东西 */
+                .no-print, .sidebar, .sidebar *, .navbar, .btn, hr:not(.receipt-hr) {
                     display: none !important;
                 }
+
+                /* 2. 彻底清除主内容的边距和偏移 */
                 .main-content {
-                    margin-left: 0;
-                    padding: 0;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    position: absolute !important;
+                    left: 0 !important;
+                    top: 0 !important;
+                    width: 100% !important;
+                }
+
+                /* 3. 强制收据在纸张顶部居中 */
+                .receipt-mode {
+                    box-shadow: none !important;
+                    border: 1px solid #000 !important; /* 打印时可以留个细边框 */
+                    margin: 0 auto !important;
+                    width: 80mm !important; /* 标准小票宽度大约是 80mm */
+                    display: block !important;
+                }
+
+                @page {
+                    size: auto;
+                    margin: 5mm; /* 留一点边距防止切到字 */
                 }
             }
         </style>
@@ -148,7 +168,7 @@
                     <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
                     <a href="${pageContext.request.contextPath}/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
                     <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
-                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet" class="active"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+                    <a href="${pageContext.request.contextPath}/PaymentServlet" class="active"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
                     <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;">
                         <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
@@ -263,7 +283,7 @@
                 <div class="receipt-mode shadow-lg p-4 bg-white" style="width: 350px; margin: 20px auto; border: 1px solid #ddd; font-family: monospace;">
                     <h3 class="text-center mb-1">APU AUTOMOTIVE</h3>
                     <p class="text-center small text-muted">Official Receipt</p>
-                    <hr style="border-top: 1px dashed #000;">
+                    <hr class="receipt-hr" style="border-top: 1px dashed #000;">
                     <p><strong>ID:</strong> ${transactionId}</p>
                     <p><strong>Date:</strong> ${java.time.LocalDate.now()}</p>
                     <p><strong>Cust:</strong> ${custName}</p>

@@ -219,17 +219,52 @@
                                     </td>
                                     <td>
                                         <c:choose>
-                                            <%-- Technician Action --%>
+                                            <%-- 1. 技术员：如果任务还在 Approved 状态，显示 Finish 按钮 --%>
                                             <c:when test="${sessionScope.user.role == 'technician' && app.appointment_status == 'Approved'}">
                                                 <a href="UpdateAppointmentStatus?id=${app.appointment_id}&status=Completed" class="btn btn-sm btn-success">✅ Finish</a>
                                             </c:when>
-                                            <%-- Give Feedback Action --%>
+
+                                            <%-- 2. 反馈检查逻辑：Paid 或 Completed 才能操作 --%>
                                             <c:when test="${app.appointment_status == 'Paid' || app.appointment_status == 'Completed'}">
-                                                <a href="${pageContext.request.contextPath}/GiveFeedback?appointmentId=${app.appointment_id}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-comment-dots me-1"></i>Feedback
-                                                </a>
+                                                
+                                                <%-- 设置标记变量 --%>
+                                                <c:set var="isTechDone" value="false" />
+                                                <c:set var="isCustDone" value="false" />
+
+                                                <%-- 检查这个 Appt 下面的反馈 --%>
+                                                <c:forEach var="fb" items="${app.feedbacks}">
+                                                    <c:if test="${not empty fb.technician_feedback && fb.technician_feedback != 'Pending' && fb.technician_feedback != ''}">
+                                                        <c:set var="isTechDone" value="true" />
+                                                    </c:if>
+                                                    <c:if test="${fb.ranking > 0}">
+                                                        <c:set var="isCustDone" value="true" />
+                                                    </c:if>
+                                                </c:forEach>
+
+                                                <c:choose>
+                                                    <%-- 技术员已经写过笔记了 --%>
+                                                    <c:when test="${sessionScope.user.role == 'technician' && isTechDone}">
+                                                        <span class="badge bg-light text-success border border-success"><i class="fas fa-check-double"></i> Note Saved</span>
+                                                    </c:when>
+
+                                                    <%-- 客户已经给过评分了 --%>
+                                                    <c:when test="${sessionScope.user.role == 'customer' && isCustDone}">
+                                                        <span class="badge bg-light text-primary border border-primary"><i class="fas fa-check-circle"></i> Rated</span>
+                                                    </c:when>
+
+                                                    <%-- 还没写过，才显示按钮 --%>
+                                                    <c:otherwise>
+                                                        <a href="${pageContext.request.contextPath}/GiveFeedback?appointmentId=${app.appointment_id}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-comment-dots me-1"></i>
+                                                            ${sessionScope.user.role == 'technician' ? 'Write Note' : 'Feedback'}
+                                                        </a>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </c:when>
-                                            <c:otherwise><span class="text-muted small">N/A</span></c:otherwise>
+
+                                            <c:otherwise>
+                                                <span class="text-muted small">N/A</span>
+                                            </c:otherwise>
                                         </c:choose>
                                     </td>
                                 </tr>

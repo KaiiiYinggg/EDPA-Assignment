@@ -67,7 +67,7 @@ public class GiveFeedback extends HttpServlet {
                     boolean staffFilled = fb.getCustomerCommentToStaff() != null && !fb.getCustomerCommentToStaff().trim().isEmpty();
 
                     if (techFilled && staffFilled) {
-                        response.sendRedirect(request.getContextPath() + "/Customer/ViewHistory?error=already_commented");
+                        response.sendRedirect(request.getContextPath() + "/ViewHistory?error=already_commented");
                         return;
                     }
                 }
@@ -140,11 +140,11 @@ public class GiveFeedback extends HttpServlet {
             feedbackFacade.edit(fb); 
 
             // 4. 跳转成功页面 
-            response.sendRedirect(request.getContextPath() + "/Customer/ViewHistory?commentmessage=saved");
+            response.sendRedirect(request.getContextPath() + "/ViewHistory?commentmessage=saved");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/Customer/ViewHistory?error=failed");
+            response.sendRedirect(request.getContextPath() + "/ViewHistory?error=failed");
         }
     }
 

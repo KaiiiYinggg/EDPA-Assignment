@@ -205,7 +205,7 @@
                         <i class="fas fa-user-plus me-2"></i> Registration
                     </a>
 
-                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet">
+                    <a href="${pageContext.request.contextPath}/PaymentServlet">
                         <i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments
                     </a>
 
@@ -305,35 +305,45 @@
                                         <table class="table table-sm table-bordered bg-white mb-0 shadow-sm">
                                             <thead class="table-dark">
                                                 <tr>
-                                                    <th>Plate Number (Click to Edit/View)</th>
-                                                    <th>Brand</th>
-                                                    <th class="text-center">Action</th>
+                                                    <th class="text-center" style="width: 80px;"><i class="fas fa-cog"></i></th>
+                                                    <th>Plate Number</th> <th>Brand</th>
+                                                    <th>Car Model</th>
+                                                    <th>Color</th>
+                                                    <th>Year</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <c:choose>
                                                     <c:when test="${not empty u.carList}">
                                                         <c:forEach var="car" items="${u.carList}">
-                                                            <tr>
+                                                            <tr class="align-middle"> 
                                                                 <td class="fw-bold">
-                                                                    <a href="AddVehicle?view=true&carPlate=${car.carPlateNumber}&customerId=${u.user_id}" 
-                                                                       class="text-decoration-none">
-                                                                        <i class="fas fa-external-link-alt me-1"></i>${car.carPlateNumber}
-                                                                    </a>
+                                                                    <span class="text-dark">${car.carPlateNumber}</span>
                                                                 </td>
                                                                 <td>${car.carBrand}</td>
+                                                                <td>${car.carModel}</td>
+                                                                <td>${car.color}</td>
+                                                                <td>${car.year}</td>
+
                                                                 <td class="text-center">
                                                                     <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
-                                                                       class="btn btn-sm btn-outline-danger"
+                                                                       class="btn btn-light btn-sm rounded-circle shadow-sm border" 
+                                                                       style="width: 30px; height: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                                                                       onmouseover="this.style.backgroundColor = '#ffeded'; this.style.color = '#dc3545';"
+                                                                       onmouseout="this.style.backgroundColor = '#f8f9fa'; this.style.color = '#6c757d';"
                                                                        onclick="return confirm('Remove vehicle ${car.carPlateNumber}?')">
-                                                                        <i class="fas fa-trash"></i>
+                                                                        <i class="fas fa-times" style="font-size: 12px;"></i> 
                                                                     </a>
                                                                 </td>
                                                             </tr>
                                                         </c:forEach>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <tr><td colspan="3" class="text-center text-muted">No vehicles registered for this customer.</td></tr>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center text-muted py-4">
+                                                                No vehicles registered for this customer.
+                                                            </td>
+                                                        </tr>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </tbody>

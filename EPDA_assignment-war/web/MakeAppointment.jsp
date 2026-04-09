@@ -165,7 +165,7 @@
                     <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
                     <a href="${pageContext.request.contextPath}/ManageCustomers?action=list" class="active"><i class="fas fa-users me-2"></i> Manage Customers</a>
                     <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
-                    <a href="${pageContext.request.contextPath}/Staff/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+                    <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
                     <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;">
                         <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
@@ -259,7 +259,8 @@
                         </div>
                         <div class="col-6 mb-3">
                             <label class="form-label small fw-bold">Start Time</label>
-                            <input type="time" name="time" id="addTime" class="form-control" required onchange="calculateEndTime('add')">
+                            <input type="time" name="time" id="addTime" class="form-control" 
+                                   min="10:00" max="18:00" required onchange="calculateEndTime('add')">
                         </div>
                     </div>
                     <div class="mb-3 text-muted">
@@ -318,7 +319,8 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold">Time</label>
-                                <input type="time" name="time" id="upTime" class="form-control" onchange="calculateEndTime('up')">
+                                <input type="time" name="time" id="upTime" class="form-control" 
+                                       min="10:00" max="18:00" onchange="calculateEndTime('up')">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -351,6 +353,29 @@
         </div>
 
         <script>
+            // --- 在页面加载时，立即设置“未来5天”的日期限制 ---
+            document.addEventListener("DOMContentLoaded", function () {
+                const today = new Date();
+                const maxDate = new Date();
+                maxDate.setDate(today.getDate() + 5); // 限制只能预约 5 天内
+
+                const minStr = today.toISOString().split("T")[0];
+                const maxStr = maxDate.toISOString().split("T")[0];
+
+                // 这里的 ID 必须确保和 HTML 里的 input id 一致
+                const addDateInput = document.getElementById('addDate');
+                const upDateInput = document.getElementById('upDate');
+
+                if (addDateInput) {
+                    addDateInput.min = minStr;
+                    addDateInput.max = maxStr;
+                }
+                if (upDateInput) {
+                    upDateInput.min = minStr;
+                    upDateInput.max = maxStr;
+                }
+            });
+
             function openAddModal() {
                 document.getElementById('addModal').style.display = 'block';
             }
@@ -401,14 +426,31 @@
                 const endTimeDisplay = document.getElementById(prefix + 'EndTimeDisplay');
                 const dateInput = document.getElementById(prefix + 'Date');
                 const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+
                 if (!selectedOption || !startTimeInput.value || !dateInput.value)
                     return;
 
-                const serviceHours = parseFloat(selectedOption.getAttribute('data-hours'));
+                // --- 💡 这里加入开店时间验证 (10AM - 6PM) ---
                 const [h, m] = startTimeInput.value.split(':').map(Number);
+                if (h < 10) {
+                    alert("Reservation failed: Business hours start at 10:00 AM !");
+                    startTimeInput.value = "";
+                    return;
+                }
+
+                const serviceHours = parseFloat(selectedOption.getAttribute('data-hours'));
                 let d = new Date();
                 d.setHours(h);
                 d.setMinutes(m + Math.round(serviceHours * 60));
+
+                // --- 💡 验证结束时间不能超过 6PM ---
+                if (d.getHours() > 18 || (d.getHours() === 18 && d.getMinutes() > 0)) {
+                    alert("Reservation failed: Service hours have exceeded closing time (6:00 PM)!");
+                    startTimeInput.value = "";
+                    endTimeDisplay.value = "";
+                    return;
+                }
+
                 const endTimeStr = String(d.getHours()).padStart(2, '0') + ":" + String(d.getMinutes()).padStart(2, '0');
                 endTimeDisplay.value = endTimeStr;
                 fetchAvailableTechs(prefix, dateInput.value, startTimeInput.value, endTimeStr);
@@ -433,7 +475,8 @@
                                 loader.style.display = 'none';
                         });
             }
-            document.getElementById('addDate').min = new Date().toISOString().split("T")[0];
+
+            // 这里保留你原本的 window.onclick
             window.onclick = function (e) {
                 if (e.target.className === 'modal')
                     e.target.style.display = "none";
