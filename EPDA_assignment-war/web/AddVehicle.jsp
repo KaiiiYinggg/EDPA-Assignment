@@ -89,6 +89,12 @@
                 margin-bottom: 25px;
                 color: #2c3e50;
             }
+            /* 车牌自动大写显示 */
+            .plate-input {
+                text-transform: uppercase;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
         </style>
 
         <script>
@@ -107,18 +113,16 @@
 
             if (currentUser == null) {
         %>
-        <script>alert("Session user is null. You are not logged in!");</script>
-        <%
-        } else if (userEmail == null) {
-        %>
-        <script>alert("Session email is null!");</script>
+        <script>alert("Session expired. Please log in again."); window.location.href = "../login.jsp";</script>
         <%
             }
 
             String errorMsg = (String) request.getAttribute("errorMessage");
             if (errorMsg != null && !errorMsg.isEmpty()) {
+                // 安全转义处理，防止 XSS
+                String safeMsg = errorMsg.replace("\\", "\\\\").replace("\"", "\\\"");
         %>
-        <script>showAlert("<%=errorMsg.replace("\"", "\\\"")%>");</script>
+        <script>showAlert("<%=safeMsg%>");</script>
         <%
             }
         %>
@@ -157,7 +161,6 @@
                     </div>
                 </div>
             </c:when>
-
             <%-- CUSTOMER --%>
             <c:otherwise>
                 <div class="sidebar bg-customer">
@@ -166,7 +169,7 @@
                     <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp"><i class="fas fa-home me-2"></i> Home Page</a>
                     <a href="${pageContext.request.contextPath}/EditProfile" class="active"><i class="fas fa-id-card me-2"></i> My Profile</a>
                     <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
-                    <a href="ViewFeedback" class="active"><i class="fas fa-star me-2"></i> Feedback</a>
+                    <a href="ViewFeedback"><i class="fas fa-star me-2"></i> Feedback</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
                 </div>
             </c:otherwise>
@@ -177,32 +180,25 @@
                 <h3 class="fw-bold section-title">Add New Vehicle</h3>
                 <p class="text-muted mb-4 small">Please provide the details of your vehicle to register it in our system.</p>
 
-                <c:if test="${not empty errorMessage}">
-                    <div class="alert alert-danger shadow-sm py-2 mb-4">
-                        <i class="fas fa-exclamation-triangle me-2"></i> ${errorMessage}
-                    </div>
-                </c:if>
-
                 <%
-    // 修复 incompatible types 错误
-    Object viewObj = request.getAttribute("viewOnly");
-    boolean viewOnly = (viewObj != null) ? (Boolean) viewObj : false;
-    
-    // 确保 Car 对象不会导致 NullPointerException
-    Entity.Car car = (Entity.Car) request.getAttribute("car");
-%>
+                    Object viewObj = request.getAttribute("viewOnly");
+                    boolean viewOnly = (viewObj != null) ? (Boolean) viewObj : false;
+                    Entity.Car car = (Entity.Car) request.getAttribute("car");
+                %>
 
-                <form action="AddVehicle" method="post">
+                <form action="AddVehicle" method="post" onsubmit="return confirm('Confirm vehicle registration?')">
                     <input type="hidden" name="customerId" value="${customerId}">
 
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Car Plate Number</label>
-                            <input type="text" name="carPlate" class="form-control" 
+                            <input type="text" name="carPlate" class="form-control plate-input" 
                                    value="<%= car != null ? car.getCarPlateNumber() : ""%>" 
                                    placeholder="e.g. ABC 1234" 
-                                   pattern="[A-Za-z0-9 ]+" 
-                                   title="Letters and numbers only"
+                                   pattern="[A-Z0-9 ]{3,15}" 
+                                   title="3-15 characters, letters and numbers only"
+                                   oninput="this.value = this.value.toUpperCase()"
+                                   maxlength="15"
                                    required
                                    <%= viewOnly ? "readonly" : ""%>>
                         </div>
@@ -210,6 +206,8 @@
                             <label class="form-label">Brand</label>
                             <input type="text" name="brand" class="form-control" 
                                    value="<%= car != null ? car.getCarBrand() : ""%>" 
+                                   placeholder="e.g. Toyota"
+                                   maxlength="50"
                                    required
                                    <%= viewOnly ? "readonly" : ""%>>
                         </div>
@@ -217,6 +215,8 @@
                             <label class="form-label">Model</label>
                             <input type="text" name="model" class="form-control" 
                                    value="<%= car != null ? car.getCarModel() : ""%>" 
+                                   placeholder="e.g. Vios"
+                                   maxlength="50"
                                    required
                                    <%= viewOnly ? "readonly" : ""%>>
                         </div>
@@ -224,6 +224,8 @@
                             <label class="form-label">Color</label>
                             <input type="text" name="color" class="form-control" 
                                    value="<%= car != null ? car.getColor() : ""%>" 
+                                   placeholder="e.g. Pearl White"
+                                   maxlength="30"
                                    required
                                    <%= viewOnly ? "readonly" : ""%>>
                         </div>

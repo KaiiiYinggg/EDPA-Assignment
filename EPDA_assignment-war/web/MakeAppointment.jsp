@@ -134,12 +134,29 @@
                 transform: scale(1.1);
                 background: #16a085;
             }
+
+            .status-badge {
+                font-size: 0.8rem;
+                padding: 5px 10px;
+                border-radius: 20px;
+            }
+            .status-pending {
+                background: #e3f2fd;
+                color: #1976d2;
+            }
+            .status-completed {
+                background: #e8f5e9;
+                color: #2e7d32;
+            }
+            .status-paid {
+                background: #fff3e0;
+                color: #ef6c00;
+            }
         </style>
     </head>
     <body>
 
         <c:choose>
-            <%-- MANAGER --%>
             <c:when test="${sessionScope.user.role == 'manager'}">
                 <div class="sidebar bg-manager">
                     <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
@@ -157,7 +174,6 @@
                     </div>
                 </div>
             </c:when>
-            <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
                 <div class="sidebar bg-staff">
                     <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
@@ -181,20 +197,20 @@
                 <form action="AppointmentServlet" method="GET" class="row g-3 mb-4 align-items-end p-3 bg-light rounded shadow-sm">
                     <input type="hidden" name="customerEmail" value="${customer.email}">
                     <div class="col-md-4">
-                        <label class="small fw-bold text-muted">Date</label>
+                        <label class="small fw-bold text-muted">Filter Date</label>
                         <input type="date" name="searchDate" class="form-control" value="${param.searchDate}">
                     </div>
                     <div class="col-md-4">
-                        <label class="small fw-bold text-muted">Appointment ID</label>
-                        <input type="text" name="searchId" class="form-control" placeholder="ID" value="${param.searchId}">
+                        <label class="small fw-bold text-muted">Search ID</label>
+                        <input type="text" name="searchId" class="form-control" placeholder="Appointment ID" value="${param.searchId}" maxlength="15">
                     </div>
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-dark w-100">Search</button>
+                        <button type="submit" class="btn btn-dark w-100"><i class="fas fa-search me-2"></i>Search</button>
                     </div>
                 </form>
 
                 <div class="table-responsive">
-                    <table class="table table-hover border">
+                    <table class="table table-hover border align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>ID</th><th>Car Plate</th><th>Service Type</th><th>Date</th><th>Start Time</th><th>Status</th><th>Technician</th>
@@ -202,7 +218,6 @@
                         </thead>
                         <tbody>
                             <c:forEach var="app" items="${appList}">
-                                <%-- 传递 Status 到 JavaScript 函数 --%>
                                 <tr class="clickable-row" onclick="openUpdateModal('${app.appointment_id}', '${app.car.carPlateNumber}', '${app.service.service_id}', '${app.appointment_date}', '${app.appointment_time}', '${app.technician_email}', '${app.appointment_status}')">
                                     <td class="fw-bold">
                                         <c:if test="${empty app.technician_email}">
@@ -214,8 +229,13 @@
                                     <td>${app.service.serviceType}</td>
                                     <td>${app.appointment_date}</td>
                                     <td>${app.appointment_time}</td>
-                                    <td><span class="badge bg-info">${app.appointment_status}</span></td>
-                                    <td class="small text-muted">${app.technician_email}</td>
+                                    <td>
+                                        <c:set var="statusClass" value="status-pending" />
+                                        <c:if test="${app.appointment_status == 'Completed'}"><c:set var="statusClass" value="status-completed" /></c:if>
+                                        <c:if test="${app.appointment_status == 'Paid'}"><c:set var="statusClass" value="status-paid" /></c:if>
+                                        <span class="status-badge ${statusClass}">${app.appointment_status}</span>
+                                    </td>
+                                    <td class="small text-muted">${empty app.technician_email ? 'Not Assigned' : app.technician_email}</td>
                                 </tr>
                             </c:forEach>
                         </tbody>
@@ -227,17 +247,18 @@
             </div>
         </div>
 
-        <button class="add-btn" onclick="openAddModal()">+</button>
+        <button class="add-btn" onclick="openAddModal()" title="New Appointment">+</button>
 
         <div id="addModal" class="modal">
             <div class="modal-content">
                 <h4 class="fw-bold text-success mb-4"><i class="fas fa-calendar-plus me-2"></i>New Appointment</h4>
-                <form action="AppointmentServlet" method="POST">
+                <form action="AppointmentServlet" method="POST" onsubmit="return validateForm('add')">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="customerEmail" value="${customer.email}">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Car Plate</label>
+                        <label class="form-label small fw-bold">Select Car</label>
                         <select name="carPlateNumber" class="form-select" required>
+                            <option value="">-- Choose registered car --</option>
                             <c:forEach var="car" items="${cars}">
                                 <option value="${car.carPlateNumber}">${car.carPlateNumber}</option>
                             </c:forEach>
@@ -246,7 +267,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Service Type</label>
                         <select name="serviceId" id="addService" class="form-select" required onchange="calculateEndTime('add')">
-                            <option value="">-- Select --</option>
+                            <option value="">-- Select Service --</option>
                             <c:forEach var="svc" items="${services}">
                                 <option value="${svc.service_id}" data-hours="${svc.serviceHour}">${svc.serviceType} (${svc.serviceHour} hrs)</option>
                             </c:forEach>
@@ -259,20 +280,19 @@
                         </div>
                         <div class="col-6 mb-3">
                             <label class="form-label small fw-bold">Start Time</label>
-                            <input type="time" name="time" id="addTime" class="form-control" 
-                                   min="10:00" max="18:00" required onchange="calculateEndTime('add')">
+                            <input type="time" name="time" id="addTime" class="form-control" min="10:00" max="18:00" required onchange="calculateEndTime('add')">
                         </div>
                     </div>
-                    <div class="mb-3 text-muted">
-                        <label class="form-label small fw-bold">Expected End Time</label>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Expected End Time</label>
                         <input type="time" id="addEndTimeDisplay" class="time-display" readonly disabled>
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-primary">Assign Technician</label>
                         <select name="technicianEmail" id="addTechSelect" class="form-select border-primary" required>
-                            <option value="">-- Select Time First --</option>
+                            <option value="">-- Select date/time first --</option>
                         </select>
-                        <small id="addTechLoading" style="display:none;" class="text-primary"><i class="fas fa-spinner fa-spin"></i> Checking...</small>
+                        <small id="addTechLoading" style="display:none;" class="text-primary"><i class="fas fa-spinner fa-spin"></i> Checking availability...</small>
                     </div>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-light" onclick="closeModal('addModal')">Cancel</button>
@@ -285,12 +305,10 @@
         <div id="updateModal" class="modal">
             <div class="modal-content">
                 <h4 class="fw-bold text-primary mb-3"><i class="fas fa-edit me-2"></i>Appointment Details</h4>
-
                 <div id="statusNotice" class="alert alert-warning small py-2 mb-3" style="display:none;">
-                    <i class="fas fa-lock me-2"></i> Completed/Paid appointments cannot be modified.
+                    <i class="fas fa-lock me-2"></i> <b>LOCKED:</b> Completed/Paid records cannot be changed.
                 </div>
-
-                <form action="AppointmentServlet" method="POST" id="updateForm">
+                <form action="AppointmentServlet" method="POST" id="updateForm" onsubmit="return validateForm('up')">
                     <input type="hidden" name="action" id="upAction" value="update">
                     <input type="hidden" name="appointmentId" id="upId">
                     <input type="hidden" name="customerEmail" value="${customer.email}">
@@ -298,7 +316,7 @@
                     <div id="formInputArea">
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Car Plate</label>
-                            <select name="carPlateNumber" id="upPlate" class="form-select">
+                            <select name="carPlateNumber" id="upPlate" class="form-select" required>
                                 <c:forEach var="car" items="${cars}">
                                     <option value="${car.carPlateNumber}">${car.carPlateNumber}</option>
                                 </c:forEach>
@@ -306,7 +324,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Service</label>
-                            <select name="serviceId" id="upService" class="form-select" onchange="calculateEndTime('up')">
+                            <select name="serviceId" id="upService" class="form-select" required onchange="calculateEndTime('up')">
                                 <c:forEach var="svc" items="${services}">
                                     <option value="${svc.service_id}" data-hours="${svc.serviceHour}">${svc.serviceType}</option>
                                 </c:forEach>
@@ -315,16 +333,15 @@
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="form-label small fw-bold">Date</label>
-                                <input type="date" name="date" id="upDate" class="form-control" onchange="calculateEndTime('up')">
+                                <input type="date" name="date" id="upDate" class="form-control" required onchange="calculateEndTime('up')">
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold">Time</label>
-                                <input type="time" name="time" id="upTime" class="form-control" 
-                                       min="10:00" max="18:00" onchange="calculateEndTime('up')">
+                                <input type="time" name="time" id="upTime" class="form-control" min="10:00" max="18:00" required onchange="calculateEndTime('up')">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">End Time</label>
+                            <label class="form-label small fw-bold text-muted">Expected End Time</label>
                             <input type="time" id="upEndTimeDisplay" class="time-display" readonly disabled>
                         </div>
                         <div class="mb-4">
@@ -337,13 +354,12 @@
 
                     <div id="buttonContainer" class="mt-4">
                         <div id="editModeButtons" style="display: none;" class="d-flex gap-2">
-                            <button type="submit" onclick="document.getElementById('upAction').value = 'delete'; return confirm('Delete this record?')" class="btn btn-outline-danger">Delete</button>
+                            <button type="submit" onclick="document.getElementById('upAction').value = 'delete'; return confirm('DANGER: Delete this appointment permanently?')" class="btn btn-outline-danger">Delete</button>
                             <div class="ms-auto">
                                 <button type="button" class="btn btn-light" onclick="closeModal('updateModal')">Cancel</button>
                                 <button type="submit" class="btn btn-primary px-4">Save Update</button>
                             </div>
                         </div>
-
                         <div id="readOnlyModeButtons" style="display: none; text-align: right;">
                             <button type="button" class="btn btn-secondary px-5" onclick="closeModal('updateModal')">Close</button>
                         </div>
@@ -353,16 +369,14 @@
         </div>
 
         <script>
-            // --- 在页面加载时，立即设置“未来5天”的日期限制 ---
             document.addEventListener("DOMContentLoaded", function () {
                 const today = new Date();
                 const maxDate = new Date();
-                maxDate.setDate(today.getDate() + 5); // 限制只能预约 5 天内
+                maxDate.setDate(today.getDate() + 5);
 
                 const minStr = today.toISOString().split("T")[0];
                 const maxStr = maxDate.toISOString().split("T")[0];
 
-                // 这里的 ID 必须确保和 HTML 里的 input id 一致
                 const addDateInput = document.getElementById('addDate');
                 const upDateInput = document.getElementById('upDate');
 
@@ -376,6 +390,26 @@
                 }
             });
 
+            function validateForm(prefix) {
+                const actionInput = document.getElementById('upAction');
+                if (prefix === 'up' && actionInput && actionInput.value === 'delete')
+                    return true;
+
+                const timeInput = document.getElementById(prefix + 'Time');
+                const serviceSelect = document.getElementById(prefix + 'Service');
+                const techSelect = document.getElementById(prefix + 'TechSelect');
+
+                if (timeInput.value < "10:00" || timeInput.value > "18:00") {
+                    alert("Error: Business hours are 10:00 AM to 6:00 PM.");
+                    return false;
+                }
+                if (!techSelect.value) {
+                    alert("Please select a technician.");
+                    return false;
+                }
+                return true;
+            }
+
             function openAddModal() {
                 document.getElementById('addModal').style.display = 'block';
             }
@@ -384,7 +418,6 @@
             }
 
             function openUpdateModal(id, plate, svcId, date, time, currentTech, status) {
-                // 1. 填入基本数据
                 document.getElementById('upId').value = id;
                 document.getElementById('upPlate').value = plate;
                 document.getElementById('upService').value = svcId;
@@ -392,31 +425,25 @@
                 document.getElementById('upTime').value = time;
                 window.currentAssignedTech = currentTech;
 
-                // 2. 获取 UI 元素
                 const editGroup = document.getElementById('editModeButtons');
                 const readOnlyGroup = document.getElementById('readOnlyModeButtons');
                 const notice = document.getElementById('statusNotice');
                 const inputs = document.querySelectorAll('#formInputArea select, #formInputArea input');
 
-                // 3. 💡 强化版判断逻辑 (增加 trim 和 toLowerCase 防止匹配失败)
                 const currentStatus = status ? status.trim().toLowerCase() : "";
 
-                if (currentStatus === 'paid' || currentStatus === 'completed' || currentStatus === 'successful') {
-                    // --- 🔒 进入只读模式 ---
-                    inputs.forEach(i => i.disabled = true);  // 禁用输入
-                    editGroup.setAttribute("style", "display: none !important"); // 强制隐藏编辑按钮
-                    readOnlyGroup.style.display = 'block';   // 只显示 Close
-                    notice.style.display = 'block';          // 显示黄色警告
+                if (currentStatus === 'paid' || currentStatus === 'completed') {
+                    inputs.forEach(i => i.disabled = true);
+                    editGroup.style.setProperty("display", "none", "important");
+                    readOnlyGroup.style.display = 'block';
+                    notice.style.display = 'block';
                 } else {
-                    // --- 🔓 进入编辑模式 ---
-                    inputs.forEach(i => i.disabled = false); // 开启输入
-                    editGroup.setAttribute("style", "display: flex !important"); // 强制显示编辑按钮
-                    readOnlyGroup.style.display = 'none';    // 隐藏 Close
-                    notice.style.display = 'none';           // 隐藏警告
-                    calculateEndTime('up');                  // 运行原本的时间计算逻辑
+                    inputs.forEach(i => i.disabled = false);
+                    editGroup.style.setProperty("display", "flex", "important");
+                    readOnlyGroup.style.display = 'none';
+                    notice.style.display = 'none';
+                    calculateEndTime('up');
                 }
-
-                // 4. 最后显示弹窗
                 document.getElementById('updateModal').style.display = 'block';
             }
 
@@ -430,10 +457,9 @@
                 if (!selectedOption || !startTimeInput.value || !dateInput.value)
                     return;
 
-                // --- 💡 这里加入开店时间验证 (10AM - 6PM) ---
                 const [h, m] = startTimeInput.value.split(':').map(Number);
                 if (h < 10) {
-                    alert("Reservation failed: Business hours start at 10:00 AM !");
+                    alert("Business hours start at 10:00 AM!");
                     startTimeInput.value = "";
                     return;
                 }
@@ -443,9 +469,8 @@
                 d.setHours(h);
                 d.setMinutes(m + Math.round(serviceHours * 60));
 
-                // --- 💡 验证结束时间不能超过 6PM ---
                 if (d.getHours() > 18 || (d.getHours() === 18 && d.getMinutes() > 0)) {
-                    alert("Reservation failed: Service hours have exceeded closing time (6:00 PM)!");
+                    alert("Service exceeds closing time (6:00 PM)! Please choose an earlier time.");
                     startTimeInput.value = "";
                     endTimeDisplay.value = "";
                     return;
@@ -461,6 +486,7 @@
                 const loader = document.getElementById(prefix + 'TechLoading');
                 if (loader)
                     loader.style.display = 'inline';
+
                 fetch("AppointmentServlet?action=getAvailableTechs&date=" + encodeURIComponent(date) + "&startTime=" + encodeURIComponent(start) + "&endTime=" + encodeURIComponent(end))
                         .then(r => r.json())
                         .then(data => {
@@ -473,10 +499,12 @@
                             });
                             if (loader)
                                 loader.style.display = 'none';
-                        });
+                        }).catch(err => {
+                    console.error("Fetch error:", err);
+                    techSelect.innerHTML = '<option value="">Error loading technicians</option>';
+                });
             }
 
-            // 这里保留你原本的 window.onclick
             window.onclick = function (e) {
                 if (e.target.className === 'modal')
                     e.target.style.display = "none";

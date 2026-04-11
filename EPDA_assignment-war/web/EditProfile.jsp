@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心 CSS 布局】 */
             :root {
                 --sidebar-width: 260px;
             }
@@ -48,7 +47,6 @@
                 border-left: 4px solid #1abc9c;
             }
 
-            /* 角色背景色 */
             .bg-manager {
                 background: #1a252f;
             }
@@ -67,7 +65,6 @@
                 padding: 40px;
             }
 
-            /* Profile 页面专用样式 */
             .profile-card {
                 background: white;
                 border-radius: 15px;
@@ -90,10 +87,25 @@
                 font-size: 0.9rem;
             }
         </style>
+
+        <script>
+            function showAlert(msg) {
+                if (msg && msg.trim() !== "") {
+                    alert(msg);
+                }
+            }
+        </script>
     </head>
     <body>
+        <%
+            String errorMsg = (String) request.getAttribute("errorMessage");
+            if (errorMsg != null && !errorMsg.isEmpty()) {
+                String safeMsg = errorMsg.replace("\\", "\\\\").replace("\"", "\\\"");
+        %>
+        <script>showAlert("<%=safeMsg%>");</script>
+        <% }%>
+
         <c:choose>
-            <%-- MANAGER --%>
             <c:when test="${sessionScope.user.role == 'manager'}">
                 <div class="sidebar bg-manager">
                     <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
@@ -112,7 +124,6 @@
                 </div>
             </c:when>
 
-            <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
                 <div class="sidebar bg-staff">
                     <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
@@ -128,7 +139,6 @@
                 </div>
             </c:when>
 
-            <%-- TECHNICIAN --%>
             <c:when test="${sessionScope.user.role == 'technician'}">
                 <div class="sidebar bg-tech">
                     <div class="text-center mb-4"><i class="fas fa-tools fa-3x mb-2 text-secondary"></i><h5 class="fw-bold">TECHNICIAN</h5></div>
@@ -143,13 +153,12 @@
                 </div>
             </c:when>
 
-            <%-- CUSTOMER --%>
             <c:otherwise>
                 <div class="sidebar bg-customer">
                     <div class="text-center mb-4"><i class="fas fa-user-circle fa-3x mb-2 text-success"></i><h5 class="fw-bold">CUSTOMER</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp"><i class="fas fa-home me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile" class="active"><i class="fas fa-id-card me-22"></i> My Profile</a>
+                    <a href="${pageContext.request.contextPath}/EditProfile" class="active"><i class="fas fa-id-card me-2"></i> My Profile</a>
                     <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
                     <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-star me-2"></i> Feedback</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;">
@@ -169,7 +178,7 @@
                     <c:if test="${not empty message}"><div class="alert alert-success py-2">${message}</div></c:if>
                     </div>
 
-                    <form action="${pageContext.request.contextPath}/EditProfile" method="post" enctype="multipart/form-data">
+                    <form action="${pageContext.request.contextPath}/EditProfile" method="post" enctype="multipart/form-data" onsubmit="return confirm('Update your profile details?')">
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Profile Photo</label>
@@ -180,6 +189,7 @@
                             <input type="text" name="username" class="form-control" 
                                    value="${sessionScope.user.username}" 
                                    required 
+                                   maxlength="50"
                                    pattern="[A-Za-z ]{3,50}" 
                                    title="Username can only contain letters and spaces (3-50 chars)">
                         </div>
@@ -192,6 +202,7 @@
                             <input type="text" name="phoneNumber" class="form-control" 
                                    value="${sessionScope.user.phoneNumber}" 
                                    required
+                                   maxlength="15"
                                    pattern="\d{6,15}" 
                                    title="Phone number must be 6-15 digits">
                         </div>
@@ -203,7 +214,7 @@
                             <label class="form-label">Update Password</label>
                             <input type="password" name="password" class="form-control" 
                                    placeholder="Leave blank to keep current password" 
-                                   pattern=".{4,}" 
+                                   minlength="4"
                                    title="Password must be at least 4 characters if you want to change it">
                         </div>
                     </div>
@@ -215,18 +226,23 @@
 
                 <c:if test="${sessionScope.user.role == 'customer' || not empty carList}">
                     <hr class="my-4">
-                    <h5 class="fw-bold mb-3"><i class="fas fa-car me-2 text-primary"></i>My Registered Vehicles</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="fas fa-car me-2 text-primary"></i>My Registered Vehicles</h5>
+                        <a href="${pageContext.request.contextPath}/AddVehicle.jsp" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>Add New
+                        </a>
+                    </div>
 
                     <c:choose>
                         <c:when test="${empty carList}">
-                            <div class="alert alert-light border small text-center">No vehicles found.</div>
+                            <div class="alert alert-light border small text-center">No vehicles registered yet.</div>
                         </c:when>
                         <c:otherwise>
                             <table class="table table-sm border align-middle">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Plate Number</th>
-                                        <th class="text-center" style="width: 80px;">Action</th>
+                                        <th class="text-center" style="width: 100px;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -235,26 +251,24 @@
                                             <td class="fw-bold">
                                                 ${car.carPlateNumber}
                                                 <br>
-                                                <button class="btn btn-sm btn-outline-secondary mt-1" 
+                                                <button class="btn btn-sm btn-link p-0 text-decoration-none small text-muted" 
                                                         data-bs-toggle="collapse" 
-                                                        data-bs-target="#carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}" 
-                                                        aria-expanded="false" 
-                                                        aria-controls="carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}">
-                                                    View Info
+                                                        data-bs-target="#carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}">
+                                                    View Details
                                                 </button>
                                                 <div class="collapse mt-1" id="carInfo${car.carPlateNumber.replaceAll('[^a-zA-Z0-9]', '')}">
-                                                    <div class="card card-body p-2">
-                                                        <p class="mb-1"><strong>Brand:</strong> ${car.carBrand}</p>
-                                                        <p class="mb-1"><strong>Model:</strong> ${car.carModel}</p>
-                                                        <p class="mb-1"><strong>Color:</strong> ${car.color}</p>
-                                                        <p class="mb-0"><strong>Year:</strong> ${car.year}</p>
+                                                    <div class="card card-body p-2 bg-light border-0 small">
+                                                        <strong>Brand:</strong> ${car.carBrand}<br>
+                                                        <strong>Model:</strong> ${car.carModel}<br>
+                                                        <strong>Color:</strong> ${car.color}<br>
+                                                        <strong>Year:</strong> ${car.year}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="text-center">
                                                 <a href="${pageContext.request.contextPath}/DeleteVehicle?plate=${car.carPlateNumber}" 
-                                                   class="btn btn-sm btn-outline-danger border-0"
-                                                   onclick="return confirm('Are you sure you want to remove vehicle ${car.carPlateNumber}?')">
+                                                   class="btn btn-sm text-danger"
+                                                   onclick="return confirm('Remove vehicle ${car.carPlateNumber}?')">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </a>
                                             </td>
@@ -264,16 +278,10 @@
                             </table>
                         </c:otherwise>
                     </c:choose>
-
-                    <a href="${pageContext.request.contextPath}/AddVehicle.jsp" class="btn btn-sm btn-outline-primary mt-2">
-                        <i class="fas fa-plus me-1"></i>Add New Vehicle
-                    </a>
                 </c:if>
             </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
     </body>
 </html>

@@ -1,5 +1,8 @@
+
 import Entity.Appointment;
 import Entity.AppointmentFacade;
+import Entity.Feedback;
+import Entity.FeedbackFacade;
 import Entity.Payment;
 import Entity.PaymentFacade;
 import Entity.Services; // 确保导入 Service 实体
@@ -7,6 +10,7 @@ import Entity.ServicesFacade; // 确保导入 ServiceFacade
 import Entity.User;
 import Entity.UserFacade;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -30,11 +34,13 @@ public class ViewHistory extends HttpServlet {
     private PaymentFacade paymentFacade;
     @EJB
     private ServicesFacade serviceFacade; // 1. 注入 ServiceFacade
+    @EJB
+    private FeedbackFacade feedbackFacade;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         // 1. Get the current user from the session
         User user = (User) request.getSession().getAttribute("user");
 
@@ -42,7 +48,7 @@ public class ViewHistory extends HttpServlet {
             response.sendRedirect("login.jsp");
             return;
         }
-        
+
         // 根据 ID 重新获取一个“活跃”的 User 对象
         User activeUser = userFacade.find(user.getUser_id());
 
@@ -50,7 +56,7 @@ public class ViewHistory extends HttpServlet {
             response.sendRedirect("login.jsp");
             return;
         }
-        
+
         String role = activeUser.getRole().toLowerCase();
         String searchDate = request.getParameter("searchDate");
         String searchName = request.getParameter("searchName");
@@ -69,9 +75,13 @@ public class ViewHistory extends HttpServlet {
 
         // ⚡ 强制加载 feedbacks，避免 Hibernate 延迟加载导致第一次 redirect 看不到最新反馈
         for (Appointment app : appointmentData) {
-            if (app.getFeedbacks() != null) {
-                app.getFeedbacks().size(); 
+
+            Feedback fb = feedbackFacade.findByAppointmentId(app.getAppointment_id());
+
+            if (fb != null) {
+                app.setFeedbacks(Arrays.asList(fb));
             }
+
         }
 
         // 4. 获取 payment 列表（仅客户）

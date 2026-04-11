@@ -20,8 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', sans-serif;
             }
-
-            /* 侧边栏基础样式 */
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -29,7 +27,7 @@
                 color: white;
                 padding-top: 20px;
                 z-index: 1000;
-                transition: all 0.3s;
+                transition: 0.3s;
             }
             .sidebar a {
                 padding: 15px 25px;
@@ -48,27 +46,16 @@
                 color: white !important;
                 border-left: 4px solid #1abc9c;
             }
-
-            /* 角色背景色 */
             .bg-manager {
                 background: #1a252f;
             }
             .bg-staff {
                 background: #2c3e50;
             }
-            .bg-tech {
-                background: #273746;
-            }
-            .bg-customer {
-                background: #1e272e;
-            }
-
             .main-content {
                 margin-left: var(--sidebar-width);
                 padding: 40px;
             }
-
-            /* 注册表单卡片样式 */
             .register-card {
                 background: white;
                 border-radius: 15px;
@@ -93,7 +80,6 @@
     <body>
 
         <c:choose>
-            <%-- MANAGER --%>
             <c:when test="${sessionScope.user.role == 'manager'}">
                 <div class="sidebar bg-manager">
                     <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
@@ -109,8 +95,6 @@
                     <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
                 </div>
             </c:when>
-
-            <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
                 <div class="sidebar bg-staff">
                     <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
@@ -125,39 +109,39 @@
             </c:when>
         </c:choose>
 
-
         <div class="main-content">
             <div class="register-card">
                 <h3 class="fw-bold section-title">User Registration</h3>
                 <p class="text-muted mb-4">Create a new account for staff or customers.</p>
 
                 <c:if test="${not empty error}">
-                    <div class="alert alert-danger py-2"><i class="fas fa-exclamation-circle me-2"></i>${error}</div>
+                    <div class="alert alert-danger py-2 mb-4"><i class="fas fa-exclamation-circle me-2"></i><c:out value="${error}"/></div>
                     </c:if>
 
-                <form action="Register" method="post" enctype="multipart/form-data">
+                <form action="Register" method="post" enctype="multipart/form-data" onsubmit="return confirm('Confirm new account registration?')">
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="form-label">Username</label>
-                            <input type="text" name="username" class="form-control" placeholder="e.g. John Doe" required>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. John Doe" required minlength="3" maxlength="50">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-control" placeholder="example@mail.com" required>
+                            <input type="email" name="email" class="form-control" placeholder="example@mail.com" required maxlength="100">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <input type="password" name="password" class="form-control" required minlength="4">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">IC Number (12 Digits)</label>
-                            <input type="text" name="userIC" class="form-control" maxlength="12" pattern="[0-9]{12}" 
-                                   inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                            <input type="text" name="userIC" class="form-control" maxlength="12" minlength="12" pattern="[0-9]{12}" 
+                                   inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required placeholder="990101101234">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="phoneNumber" class="form-control" placeholder="0123456789" required>
+                            <input type="text" name="phoneNumber" class="form-control" placeholder="0123456789" required 
+                                   pattern="[0-9]{10,11}" title="Please enter 10-11 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Gender</label>
@@ -168,7 +152,7 @@
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Home Address</label>
-                            <input type="text" name="address" class="form-control" placeholder="Full residential address" required>
+                            <input type="text" name="address" class="form-control" placeholder="Full residential address" required maxlength="255">
                         </div>
 
                         <div class="col-md-6">
@@ -185,7 +169,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </select>
-                            <small class="text-muted">Manager can register staff; Staff can register customers.</small>
+                            <small class="text-muted">Managers manage staff; Staff manage customers.</small>
                         </div>
 
                         <div class="col-md-6">
@@ -207,13 +191,12 @@
         <%
             String successMsg = (String) request.getAttribute("loginSuccessMessage");
             if (successMsg != null) {
+                String safeMsg = successMsg.replace("\"", "\\\"");
         %>
         <script type="text/javascript">
-            alert("<%= successMsg%>");
+            alert("<%= safeMsg%>");
         </script>
-        <%
-            }
-        %>
+        <% }%>
 
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>

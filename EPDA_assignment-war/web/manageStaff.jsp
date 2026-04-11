@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心布局 CSS】 */
             :root {
                 --sidebar-width: 260px;
             }
@@ -21,7 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', sans-serif;
             }
-
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -29,7 +27,6 @@
                 color: white;
                 padding-top: 20px;
                 z-index: 1000;
-                transition: 0.3s;
             }
             .sidebar a {
                 padding: 15px 25px;
@@ -48,26 +45,14 @@
                 color: white !important;
                 border-left: 4px solid #1abc9c;
             }
-
             .bg-manager {
                 background: #1a252f;
             }
-            .bg-staff {
-                background: #2c3e50;
-            }
-            .bg-tech {
-                background: #273746;
-            }
-            .bg-customer {
-                background: #1e272e;
-            }
-
             .main-content {
                 margin-left: var(--sidebar-width);
                 padding: 40px;
             }
 
-            /* 列表专用卡片样式 */
             .table-card {
                 background: white;
                 border-radius: 15px;
@@ -75,28 +60,23 @@
                 padding: 30px;
             }
             .search-bar {
-                max-width: 400px;
+                max-width: 450px;
                 margin-bottom: 25px;
             }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
             th {
                 background-color: #f8f9fa;
                 padding: 15px;
-                text-align: left;
-                border-bottom: 2px solid #dee2e6;
                 color: #495057;
                 font-size: 0.85rem;
                 text-transform: uppercase;
+                border-bottom: 2px solid #dee2e6;
             }
             td {
                 padding: 15px;
-                border-bottom: 1px solid #eee;
                 vertical-align: middle;
                 font-size: 0.9rem;
+                border-bottom: 1px solid #eee;
             }
 
             .role-badge {
@@ -114,6 +94,14 @@
                 background: #fef3c7;
                 color: #92400e;
             }
+
+            .text-truncate-custom {
+                max-width: 180px;
+                display: inline-block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         </style>
     </head>
     <body>
@@ -128,29 +116,33 @@
             <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
             <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
             <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
-            <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
+            <div style="position: absolute; bottom: 20px; width: 100%;">
+                <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+            </div>
         </div>
-
 
         <div class="main-content">
             <div class="table-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1" style="color: #2c3e50;">Staff Management</h3>
-                        <p class="text-muted small">View, search, and manage all your employees here.</p>
+                        <p class="text-muted small">Search and manage permissions for all employees.</p>
                     </div>
-                    <a href="${pageContext.request.contextPath}/register.jsp" class="btn btn-primary btn-sm rounded-pill px-3">
-                        <i class="fas fa-plus me-1"></i>Add New Staff
+                    <a href="${pageContext.request.contextPath}/register.jsp" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
+                        <i class="fas fa-plus me-1"></i>Add Staff
                     </a>
                 </div>
 
                 <div class="search-bar">
                     <form action="ManageStaff" method="get">
-                        <div class="input-group shadow-sm">
+                        <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
                             <input type="text" name="searchQuery" class="form-control border-start-0 ps-0" 
-                                   placeholder="Search by username..." value="${param.searchQuery}">
+                                   placeholder="Search by username..." value="${param.searchQuery}" maxlength="50">
                             <button type="submit" class="btn btn-dark px-4">Search</button>
+                            <c:if test="${not empty param.searchQuery}">
+                                <a href="ManageStaff" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+                                </c:if>
                         </div>
                     </form>
                 </div>
@@ -161,8 +153,8 @@
                             <tr>
                                 <th>Username</th>
                                 <th>IC Number</th>
-                                <th>Email Address</th>
-                                <th>Phone (+60)</th>
+                                <th>Email</th>
+                                <th>Phone</th>
                                 <th>Address</th>
                                 <th>Role</th>
                                 <th class="text-center">Actions</th>
@@ -171,13 +163,11 @@
                         <tbody>
                             <c:forEach items="${staffList}" var="staff">
                                 <tr>
-                                    <td class="fw-bold">${staff.username}</td>
+                                    <td class="fw-bold text-dark">${staff.username}</td>
                                     <td class="text-muted small">${staff.userIC}</td>
                                     <td>${staff.email}</td>
-                                    <td>${staff.phoneNumber}</td>
-                                    <td class="small" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        ${staff.address}
-                                    </td>
+                                    <td>+60 ${staff.phoneNumber}</td>
+                                    <td><span class="text-truncate-custom" title="${staff.address}">${staff.address}</span></td>
                                     <td>
                                         <span class="role-badge ${staff.role == 'technician' ? 'badge-tech' : 'badge-staff'}">
                                             ${staff.role}
@@ -185,13 +175,13 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group">
-                                            <a href="UpdateStaff?email=${staff.email}" class="btn btn-sm btn-outline-info me-1">
-                                                <i class="fas fa-edit"></i>
+                                            <a href="UpdateStaff?email=${staff.email}" class="btn btn-sm btn-outline-primary" title="Edit Profile">
+                                                <i class="fas fa-user-edit"></i>
                                             </a>
                                             <a href="DeleteUser?email=${staff.email}" 
                                                class="btn btn-sm btn-outline-danger"
-                                               onclick="return confirm('Delete staff member: ${staff.username}?')">
-                                                <i class="fas fa-trash"></i>
+                                               onclick="return confirm('WARNING: Are you sure you want to delete staff member [${staff.username}]?')">
+                                                <i class="fas fa-trash-alt"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -203,8 +193,9 @@
 
                 <c:if test="${empty staffList}">
                     <div class="text-center p-5">
-                        <i class="fas fa-users-slash fa-3x mb-3 text-muted opacity-25"></i>
-                        <p class="text-muted">No staff members found matching your search.</p>
+                        <i class="fas fa-search-minus fa-3x mb-3 text-muted opacity-25"></i>
+                        <h5 class="text-muted">No staff members found.</h5>
+                        <p class="text-muted small">Try adjusting your search criteria or register a new staff member.</p>
                     </div>
                 </c:if>
             </div>

@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
@@ -25,7 +25,7 @@ import javax.servlet.http.Part;
 @WebServlet(urlPatterns = {"/Register"})
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024, // 1MB
-        maxFileSize = 1024 * 1024 * 5,   // 5MB
+        maxFileSize = 1024 * 1024 * 5, // 5MB
         maxRequestSize = 1024 * 1024 * 10 // 10MB
 )
 public class Register extends HttpServlet {
@@ -61,7 +61,7 @@ public class Register extends HttpServlet {
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
-            
+
             // Check if null, check length, and check if it's numeric
             if (userICStr == null || userICStr.trim().length() != 12 || !userICStr.matches("^[0-9]+$")) {
                 request.setAttribute("error", "IC must be exactly 12 numeric digits!");
@@ -73,7 +73,7 @@ public class Register extends HttpServlet {
             int phoneNumber;
             try {
                 phoneNumber = Integer.parseInt(phoneStr.replaceAll("[^0-9]", ""));
-                
+
                 if (phoneNumber < 0 || phoneNumber > 2147483647) {
                     throw new NumberFormatException("Phone number out of range");
                 }
@@ -102,6 +102,18 @@ public class Register extends HttpServlet {
             User newUser = new User(name, password, userICStr, address, phoneNumber, gender, role, email);
             newUser.setProfilePic(defaultPic);
             userFacade.create(newUser);
+            // ⭐ 新增代码：注册成功后异步发送邮件
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        EmailUtils.sendWelcomeEmail(email, name);
+                    } catch (Exception e) {
+                        System.out.println("Email sending failed: " + e.getMessage());
+                    }
+                }
+            }).start();
+            // ⭐ 新增代码结束
 
             // 7. Handle file upload
             Part filePart = request.getPart("profilePic");
@@ -115,8 +127,7 @@ public class Register extends HttpServlet {
                 }
 
                 File file = new File(uploadDir, submittedFileName);
-                try (FileOutputStream fos = new FileOutputStream(file);
-                     InputStream input = filePart.getInputStream()) {
+                try (FileOutputStream fos = new FileOutputStream(file); InputStream input = filePart.getInputStream()) {
 
                     byte[] buffer = new byte[1024];
                     int bytesRead;

@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心布局 CSS】 */
             :root {
                 --sidebar-width: 260px;
             }
@@ -21,7 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', sans-serif;
             }
-
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -29,7 +27,6 @@
                 color: white;
                 padding-top: 20px;
                 z-index: 1000;
-                transition: 0.3s;
             }
             .sidebar a {
                 padding: 15px 25px;
@@ -48,7 +45,6 @@
                 color: white !important;
                 border-left: 4px solid #1abc9c;
             }
-
             .bg-manager {
                 background: #1a252f;
             }
@@ -57,7 +53,6 @@
                 padding: 40px;
             }
 
-            /* 设置价格专用卡片样式 */
             .price-card {
                 background: white;
                 border-radius: 15px;
@@ -73,28 +68,33 @@
                 color: #2c3e50;
             }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
             th {
                 background-color: #f8f9fa;
                 padding: 15px;
-                text-align: left;
-                border-bottom: 2px solid #dee2e6;
                 color: #495057;
+                border-bottom: 2px solid #dee2e6;
+                font-size: 0.85rem;
+                text-transform: uppercase;
             }
             td {
                 padding: 15px;
-                border-bottom: 1px solid #eee;
                 vertical-align: middle;
+                border-bottom: 1px solid #eee;
             }
 
             .price-input {
                 max-width: 150px;
                 font-weight: bold;
                 color: #2e7d32;
+                border-left: none;
+            }
+            .input-group-text {
+                border-right: none;
+            }
+            .form-control:focus {
+                border-color: #ced4da;
+                box-shadow: none;
+                background-color: #fffdec;
             }
         </style>
     </head>
@@ -114,29 +114,28 @@
             <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
         </div>
 
-
         <div class="main-content">
             <div class="price-card">
-                <h3 class="fw-bold section-title">Set Service Price</h3>
-                <p class="text-muted mb-4 small">Update the standard pricing for all automotive services offered.</p>
+                <h3 class="fw-bold section-title">Service Pricing Management</h3>
+                <p class="text-muted mb-4 small">Update the standard rates for car services. These changes will reflect immediately on new appointments.</p>
 
-                <form action="SetPrice" method="post">
+                <form action="SetPrice" method="post" onsubmit="return confirm('Are you sure you want to update all service prices? This will affect all new bookings.')">
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th><i class="fas fa-tools me-2"></i>Service Type</th>
-                                    <th><i class="fas fa-hand-holding-usd me-2"></i>Price (RM)</th>
+                                    <th><i class="fas fa-wrench me-2 text-muted"></i>Service Category</th>
+                                    <th><i class="fas fa-tag me-2 text-muted"></i>Unit Price (RM)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:forEach var="s" items="${serviceList}" varStatus="status">
                                     <tr>
-                                        <td class="fw-bold text-secondary">${s.serviceType}</td>
+                                        <td class="fw-bold text-dark">${s.serviceType}</td>
                                         <td>
                                             <div class="input-group">
                                                 <span class="input-group-text bg-light text-success fw-bold">RM</span>
-                                                <input type="number" step="0.01" name="price_${status.index}" 
+                                                <input type="number" step="0.01" min="0" name="price_${status.index}" 
                                                        value="${s.price}" class="form-control price-input" required>
                                             </div>
                                         </td>
@@ -148,11 +147,11 @@
 
                     <div class="mt-4 d-flex justify-content-between align-items-center">
                         <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard" class="text-decoration-none text-muted small">
-                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                            <i class="fas fa-chevron-left me-1"></i> Return to Dashboard
                         </a>
                         <input type="hidden" name="totalCount" value="${serviceList.size()}">
-                        <button type="submit" name="updateAll" value="Update All" class="btn btn-success px-5 py-2 fw-bold shadow-sm">
-                            <i class="fas fa-save me-2"></i>Update All Prices
+                        <button type="submit" name="updateAll" value="Update All" class="btn btn-warning px-5 py-2 fw-bold shadow-sm">
+                            <i class="fas fa-check-circle me-2"></i>Apply Changes
                         </button>
                     </div>
                 </form>

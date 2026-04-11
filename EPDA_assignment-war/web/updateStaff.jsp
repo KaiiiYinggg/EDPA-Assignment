@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心布局 CSS】 */
             :root {
                 --sidebar-width: 260px;
             }
@@ -21,7 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', sans-serif;
             }
-
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -48,7 +46,6 @@
                 color: white !important;
                 border-left: 4px solid #1abc9c;
             }
-
             .bg-manager {
                 background: #1a252f;
             }
@@ -57,7 +54,6 @@
                 padding: 40px;
             }
 
-            /* Update Form 专用样式 */
             .update-card {
                 background: white;
                 border-radius: 15px;
@@ -91,35 +87,30 @@
         </style>
     </head>
     <body>
-
-        <c:choose>
-            <c:when test="${sessionScope.user.role == 'manager'}">
-                <div class="sidebar bg-manager">
-                    <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
-                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
-                    <a href="${pageContext.request.contextPath}/ManageStaff" class="active"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
-                    <a href="${pageContext.request.contextPath}/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
-                    <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
-                    <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
-                    <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
-                    <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
-                </div>
-            </c:when>
-        </c:choose>
+        <div class="sidebar bg-manager">
+            <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
+            <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
+            <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
+            <a href="${pageContext.request.contextPath}/ManageStaff" class="active"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
+            <a href="${pageContext.request.contextPath}/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
+            <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
+            <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
+            <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
+            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+            <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
+        </div>
 
         <div class="main-content">
             <div class="update-card">
                 <h3 class="fw-bold section-title">Update Staff Member</h3>
-                <p class="text-muted mb-4 small">Modifying account details for <strong>${staff.username}</strong>.</p>
+                <p class="text-muted mb-4 small">Modifying account details for <strong><c:out value="${staff.username}"/></strong>.</p>
 
                 <c:if test="${not empty error}">
-                    <div class="alert alert-danger py-2 small shadow-sm mb-4"><i class="fas fa-exclamation-circle me-2"></i>${error}</div>
+                    <div class="alert alert-danger py-2 small shadow-sm mb-4"><i class="fas fa-exclamation-circle me-2"></i><c:out value="${error}"/></div>
                     </c:if>
 
-                <form action="UpdateStaff" method="post" enctype="multipart/form-data">
+                <form action="UpdateStaff" method="post" enctype="multipart/form-data" id="updateStaffForm">
                     <input type="hidden" name="oldEmail" value="${staff.email}">
                     <input type="hidden" name="profilePic" value="${staff.profilePic}">
 
@@ -128,25 +119,26 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label text-primary">Username</label>
-                                    <input type="text" name="username" class="form-control" value="${staff.username}" required>
+                                    <input type="text" name="username" class="form-control" value="${staff.username}" required minlength="3" maxlength="50">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Password</label>
-                                    <input type="text" name="password" class="form-control" value="${staff.password}" required>
+                                    <input type="text" name="password" class="form-control" value="${staff.password}" required minlength="4">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">IC Number</label>
                                     <input type="text" name="userIC" class="form-control" value="${staff.userIC}" 
-                                           maxlength="12" pattern="[0-9]{12}" inputmode="numeric" 
+                                           maxlength="12" minlength="12" pattern="[0-9]{12}" inputmode="numeric" 
                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Email Address</label>
-                                    <input type="email" name="newEmail" class="form-control" value="${staff.email}" required>
+                                    <input type="email" name="newEmail" class="form-control" value="${staff.email}" required maxlength="100">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Phone Number</label>
-                                    <input type="text" name="phoneNumber" class="form-control" value="${staff.phoneNumber}" required>
+                                    <input type="text" name="phoneNumber" class="form-control" value="${staff.phoneNumber}" 
+                                           required pattern="[0-9]{10,11}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Gender</label>
@@ -157,7 +149,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label">Home Address</label>
-                                    <input type="text" name="address" class="form-control" value="${staff.address}" required>
+                                    <input type="text" name="address" class="form-control" value="${staff.address}" required maxlength="255">
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label text-warning">Assign Role</label>
@@ -176,19 +168,19 @@
                                  class="staff-img-preview" id="previewImg">
                             <div class="mt-3">
                                 <input type="file" name="newProfilePic" id="fileInput" class="form-control form-control-sm" accept="image/*">
-                                <small class="text-muted mt-2 d-block">Recommended: Square PNG/JPG</small>
+                                <small class="text-muted mt-2 d-block">Recommended: Square JPG/PNG</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-5 d-flex gap-2">
                         <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm" onclick="disableWarning()">
-                            <i class="fas fa-save me-2"></i>Save Changes
+                            <i class="fas fa-save me-2"></i>Update Staff Info
                         </button>
                         <button type="button" class="btn btn-light border px-4" onclick="disableWarning(); confirmCancel();">
                             Cancel
                         </button>
-                        <button type="reset" class="btn btn-outline-secondary ms-auto">Reset Form</button>
+                        <button type="reset" class="btn btn-outline-secondary ms-auto">Reset Changes</button>
                     </div>
                 </form>
             </div>
@@ -198,18 +190,19 @@
             let formChanged = false;
 
             window.onload = function () {
-                const form = document.querySelector("form");
+                const form = document.getElementById("updateStaffForm");
                 const inputs = form.querySelectorAll("input, select");
+
                 inputs.forEach(input => {
-                    input.addEventListener("change", () => {
+                    input.addEventListener("input", () => {
                         formChanged = true;
                     });
                 });
 
-                // 照片预览功能
                 document.getElementById('fileInput').onchange = evt => {
                     const [file] = document.getElementById('fileInput').files;
                     if (file) {
+                        formChanged = true;
                         document.getElementById('previewImg').src = URL.createObjectURL(file);
                     }
                 };
@@ -217,7 +210,7 @@
                 window.addEventListener("beforeunload", (e) => {
                     if (formChanged) {
                         e.preventDefault();
-                        e.returnValue = "Are you sure not to save change?";
+                        e.returnValue = "You have unsaved changes. Are you sure you want to exit?";
                     }
                 });
             };
@@ -227,7 +220,11 @@
             }
 
             function confirmCancel() {
-                if (confirm("Discard all unsaved changes and return to staff list?")) {
+                if (formChanged) {
+                    if (confirm("Discard all unsaved changes and return to staff list?")) {
+                        window.location.href = "ManageStaff";
+                    }
+                } else {
                     window.location.href = "ManageStaff";
                 }
             }

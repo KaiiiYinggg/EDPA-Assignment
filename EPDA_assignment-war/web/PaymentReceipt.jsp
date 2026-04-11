@@ -20,7 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
-
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -47,12 +46,10 @@
                 color: white;
                 border-left: 4px solid #1abc9c;
             }
-
             .main-content {
                 margin-left: var(--sidebar-width);
                 padding: 30px;
             }
-
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -74,7 +71,6 @@
                 border-bottom: 1px solid #eee;
                 color: #444;
             }
-
             .modal {
                 display: none;
                 position: fixed;
@@ -84,16 +80,17 @@
                 width: 100%;
                 height: 100%;
                 background-color: rgba(0,0,0,0.5);
+                backdrop-filter: blur(2px);
             }
             .modal-content {
                 background-color: white;
                 margin: 10% auto;
                 padding: 25px;
-                border-radius: 10px;
+                border-radius: 15px;
                 width: 400px;
                 box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                border: none;
             }
-
             .pay-btn {
                 background: #FF9800;
                 color: white;
@@ -109,12 +106,9 @@
             }
 
             @media print {
-                /* 1. 强制隐藏所有不需要的东西 */
-                .no-print, .sidebar, .sidebar *, .navbar, .btn, hr:not(.receipt-hr) {
+                .no-print, .sidebar, .navbar, .btn {
                     display: none !important;
                 }
-
-                /* 2. 彻底清除主内容的边距和偏移 */
                 .main-content {
                     margin: 0 !important;
                     padding: 0 !important;
@@ -123,28 +117,24 @@
                     top: 0 !important;
                     width: 100% !important;
                 }
-
-                /* 3. 强制收据在纸张顶部居中 */
                 .receipt-mode {
                     box-shadow: none !important;
-                    border: 1px solid #000 !important; /* 打印时可以留个细边框 */
+                    border: 1px solid #000 !important;
                     margin: 0 auto !important;
-                    width: 80mm !important; /* 标准小票宽度大约是 80mm */
+                    width: 80mm !important;
                     display: block !important;
                 }
-
                 @page {
                     size: auto;
-                    margin: 5mm; /* 留一点边距防止切到字 */
+                    margin: 5mm;
                 }
             }
         </style>
     </head>
     <body>
         <c:choose>
-            <%-- MANAGER --%>
             <c:when test="${sessionScope.user.role == 'manager'}">
-                <div class="sidebar bg-manager">
+                <div class="sidebar">
                     <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
@@ -160,9 +150,8 @@
                     </div>
                 </div>
             </c:when>
-            <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
-                <div class="sidebar bg-staff">
+                <div class="sidebar">
                     <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>
@@ -178,7 +167,6 @@
         </c:choose>
 
         <div class="main-content">
-
             <div class="d-flex justify-content-between align-items-center mb-4 no-print">
                 <h2 class="fw-bold" style="color: #2c3e50;">
                     <i class="fas fa-cash-register me-2 text-primary"></i>
@@ -195,18 +183,22 @@
             </div>
 
             <c:choose>
-                <%-- ================= VIEW: TRANSACTION HISTORY ================= --%>
                 <c:when test="${view == 'history'}">
+                    <div class="search-box no-print mb-4 p-3 bg-white rounded shadow-sm border">
+                        <form action="PaymentServlet" method="GET" class="d-flex align-items-center gap-3">
+                            <input type="hidden" name="action" value="viewHistory"> 
+                            <input type="hidden" name="subAction" value="searchHistory"> 
+                            <span class="fw-bold text-muted">Search History:</span>
+                            <input type="text" name="query" class="form-control w-25" placeholder="Receipt ID or Name..." value="${param.query}" maxlength="30">
+                            <button type="submit" class="btn btn-dark px-4">Search</button>
+                            <a href="PaymentServlet?action=viewHistory" class="text-decoration-none small text-muted"><i class="fas fa-sync"></i> Reset</a>
+                        </form>
+                    </div>
                     <div class="no-print">
-                        <table>
+                        <table class="table align-middle">
                             <thead>
                                 <tr>
-                                    <th>Receipt ID</th>
-                                    <th>Date</th>
-                                    <th>Customer</th>
-                                    <th>Service</th>
-                                    <th>Method</th>
-                                    <th>Amount</th>
+                                    <th>Receipt ID</th><th>Date</th><th>Customer</th><th>Service</th><th>Method</th><th>Amount</th><th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -218,23 +210,28 @@
                                         <td>${pay.appointment.service.serviceType}</td>
                                         <td><span class="badge bg-light text-dark border">${pay.payment_method}</span></td>
                                         <td><strong class="text-success">RM ${pay.total_price}</strong></td>
+                                        <td>
+                                            <a href="PaymentServlet?action=exportPDF&id=${pay.receipt_id}&cust=${pay.appointment.customer.username}&svc=${pay.appointment.service.serviceType}&price=${pay.total_price}&method=${pay.payment_method}" 
+                                               class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-file-pdf me-1"></i> PDF
+                                            </a>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                                 <c:if test="${empty paymentHistory}">
-                                    <tr><td colspan="6" class="text-center p-5 text-muted">No transaction records found.</td></tr>
+                                    <tr><td colspan="7" class="text-center p-5 text-muted">No transaction records found.</td></tr>
                                 </c:if>
                             </tbody>
                         </table>
                     </div>
                 </c:when>
 
-                <%-- ================= VIEW: PENDING PAYMENTS (CASHIER) ================= --%>
                 <c:otherwise>
                     <div class="search-box no-print mb-4 p-3 bg-white rounded shadow-sm border">
                         <form action="PaymentServlet" method="GET" class="d-flex align-items-center gap-3">
                             <input type="hidden" name="action" value="search">
-                            <span class="fw-bold text-muted">Search Appointment:</span>
-                            <input type="text" name="query" class="form-control w-25" placeholder="ID or Email..." value="${param.query}" required>
+                            <span class="fw-bold text-muted">Find Appointment:</span>
+                            <input type="text" name="query" class="form-control w-25" placeholder="ID or Email..." value="${param.query}" required maxlength="50">
                             <button type="submit" class="btn btn-primary px-4">Search</button>
                             <a href="PaymentServlet" class="text-decoration-none small text-muted"><i class="fas fa-sync"></i> Refresh</a>
                         </form>
@@ -242,15 +239,10 @@
 
                     <h4 class="fw-bold mb-3 no-print" style="color: #34495e;">Pending Bills</h4>
                     <div class="no-print">
-                        <table>
+                        <table class="table align-middle">
                             <thead>
                                 <tr>
-                                    <th>Appt ID</th>
-                                    <th>Customer Name</th>
-                                    <th>Car Plate</th>
-                                    <th>Service Type</th>
-                                    <th>Amount Due</th>
-                                    <th>Action</th>
+                                    <th>Appt ID</th><th>Customer Name</th><th>Car Plate</th><th>Service Type</th><th>Amount Due</th><th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -262,8 +254,7 @@
                                         <td>${app.service.serviceType}</td>
                                         <td class="fw-bold text-danger">RM ${app.service.price}</td>
                                         <td>
-                                            <button type="button" class="pay-btn" 
-                                                    onclick="openPaymentModal('${app.appointment_id}', '${app.customer.username}', '${app.service.serviceType}', '${app.service.price}')">
+                                            <button type="button" class="pay-btn" onclick="openPaymentModal('${app.appointment_id}', '${app.customer.username}', '${app.service.serviceType}', '${app.service.price}')">
                                                 <i class="fas fa-wallet me-2"></i>Collect RM
                                             </button>
                                         </td>
@@ -278,12 +269,11 @@
                 </c:otherwise>
             </c:choose>
 
-            <%-- Receipt 打印预览区域 (只有付钱成功后才显示) --%>
             <c:if test="${not empty price}">
                 <div class="receipt-mode shadow-lg p-4 bg-white" style="width: 350px; margin: 20px auto; border: 1px solid #ddd; font-family: monospace;">
                     <h3 class="text-center mb-1">APU AUTOMOTIVE</h3>
                     <p class="text-center small text-muted">Official Receipt</p>
-                    <hr class="receipt-hr" style="border-top: 1px dashed #000;">
+                    <hr style="border-top: 1px dashed #000;">
                     <p><strong>ID:</strong> ${transactionId}</p>
                     <p><strong>Date:</strong> ${java.time.LocalDate.now()}</p>
                     <p><strong>Cust:</strong> ${custName}</p>
@@ -296,9 +286,9 @@
                     <hr style="border-top: 1px dashed #000;">
                     <h4 class="text-end fw-bold">TOTAL: RM ${price}</h4>
                     <p class="text-center mt-4 small">*** PAID ***</p>
-
                     <div class="no-print text-center mt-3 d-grid gap-2">
                         <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Receipt</button>
+                        <a class="btn btn-danger" href="PaymentServlet?action=exportPDF&id=${transactionId}&cust=${custName}&svc=${serviceType}&price=${price}&method=${method}">Export PDF</a>
                         <button class="btn btn-outline-secondary" onclick="location.href = 'PaymentServlet'">Close</button>
                     </div>
                 </div>
@@ -306,25 +296,22 @@
         </div>
 
         <div id="payModal" class="modal no-print">
-            <div class="modal-content border-0 shadow-lg">
+            <div class="modal-content">
                 <h3 class="fw-bold mb-3">Finalize Bill</h3>
                 <div class="bg-light p-3 rounded mb-3">
                     <p class="mb-1 small">Appt: #<span id="displayId"></span></p>
                     <p class="mb-1 small">Cust: <span id="displayCust"></span></p>
                     <h2 class="text-center text-danger fw-bold my-2">RM <span id="displayPrice"></span></h2>
                 </div>
-
-                <form action="PaymentServlet" method="POST">
+                <form action="PaymentServlet" method="POST" onsubmit="return confirm('Confirm payment collection?')">
                     <input type="hidden" name="action" value="confirmPayment">
                     <input type="hidden" name="appointmentId" id="inputAppId">
-
                     <label class="small fw-bold text-muted mb-1">Select Method:</label>
                     <select name="paymentMethod" class="form-select mb-4" required>
                         <option value="Cash">Cash</option>
                         <option value="Credit/Debit Card">Credit/Debit Card</option>
                         <option value="TNG / QR Pay">TNG / QR Pay</option>
                     </select>
-
                     <button type="submit" class="btn btn-success w-100 py-2 fw-bold mb-2">CONFIRM & PAID</button>
                     <button type="button" class="btn btn-light w-100" onclick="closeModal()">Cancel</button>
                 </form>

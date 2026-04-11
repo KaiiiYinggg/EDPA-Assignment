@@ -1,5 +1,0 @@
-INSERT INTO USERS_LIST (USER_ID, EMAIL, GENDER, PASSWORD, PHONENUMBER, PROFILEPIC, ROLE, USERNAME) 
-VALUES (1, 'kaiyingx12@example.com', 'Male', '1111', 123456789, NULL, 'counter staff', 'Kai Ying');
-
-INSERT INTO USERS_LIST (USER_ID, EMAIL, GENDER, PASSWORD, PHONENUMBER, PROFILEPIC, ROLE, USERNAME) 
-VALUES (2, 'customer1@example.com', 'Female', 'password', 123475621, NULL, 'customer', 'Ching Ying');

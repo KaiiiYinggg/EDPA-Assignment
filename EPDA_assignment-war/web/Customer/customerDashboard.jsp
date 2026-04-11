@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            /* 【2. 统一核心布局 CSS】 */
             :root {
                 --sidebar-width: 260px;
             }
@@ -21,7 +20,6 @@
                 padding: 0;
                 font-family: 'Segoe UI', sans-serif;
             }
-
             .sidebar {
                 width: var(--sidebar-width);
                 height: 100vh;
@@ -48,64 +46,40 @@
                 color: white !important;
                 border-left: 4px solid #1abc9c;
             }
-
-            /* 角色背景色 */
-            .bg-manager {
-                background: #1a252f;
-            }
-            .bg-staff {
-                background: #2c3e50;
-            }
-            .bg-tech {
-                background: #273746;
-            }
             .bg-customer {
                 background: #1e272e;
             }
-
             .main-content {
                 margin-left: var(--sidebar-width);
                 padding: 30px;
             }
 
-            /* Customer Dashboard 专用样式 */
             .car-card {
                 background: white;
                 border: none;
                 border-radius: 12px;
                 box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-                transition: 0.3s;
-            }
-            .car-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            }
-            .status-pending {
-                color: #d97706;
-                font-weight: bold;
-                background: #fffbeb;
-                padding: 4px 10px;
-                border-radius: 20px;
-                font-size: 0.85rem;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                background: white;
-                border-radius: 10px;
-                overflow: hidden;
             }
             th {
                 background-color: #f8f9fa;
                 padding: 15px;
                 color: #2c3e50;
                 border-bottom: 2px solid #eee;
+                font-size: 0.85rem;
+                text-transform: uppercase;
             }
             td {
                 padding: 15px;
                 border-bottom: 1px solid #eee;
                 vertical-align: middle;
+                font-size: 0.9rem;
+            }
+
+            .status-badge {
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: bold;
             }
         </style>
     </head>
@@ -114,7 +88,7 @@
             <div class="text-center mb-4"><i class="fas fa-user-circle fa-3x mb-2 text-success"></i><h5 class="fw-bold">CUSTOMER</h5></div>
             <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
             <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp" class="active"><i class="fas fa-home me-2"></i> Home Page</a>
-            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-id-card me-22"></i> My Profile</a>
+            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-id-card me-2"></i> My Profile</a>
             <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
             <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-star me-2"></i> Feedback</a>
             <div style="position: absolute; bottom: 20px; width: 100%;">
@@ -122,59 +96,69 @@
             </div>
         </div>
 
-
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold" style="color: #2c3e50;">Welcome back, ${sessionScope.user.username}!</h2>
-                <a href="${pageContext.request.contextPath}/EditProfile" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                    <i class="fas fa-cog me-1"></i>Settings
+                <h2 class="fw-bold" style="color: #2c3e50;">Welcome back, <c:out value="${sessionScope.user.username}"/>!</h2>
+                <a href="${pageContext.request.contextPath}/EditProfile" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                    <i class="fas fa-user-cog me-1"></i>Edit Profile
                 </a>
             </div>
 
-            <h4 class="fw-bold mb-3 text-muted"><i class="fas fa-tools me-2"></i>Active Service Requests</h4>
-            <div class="card shadow-sm border-0">
+            <h5 class="fw-bold mb-3 text-secondary"><i class="fas fa-tools me-2"></i>Active Service Requests</h5>
+            <div class="card car-card overflow-hidden">
                 <c:choose>
                     <c:when test="${empty serviceSummary}">
                         <div class="p-5 text-center text-muted">
-                            <i class="fas fa-check-circle fa-3x mb-3 text-success opacity-25"></i>
-                            <p>No pending service requests at the moment.</p>
+                            <i class="fas fa-clipboard-list fa-3x mb-3 opacity-25"></i>
+                            <p>You have no active service requests at the moment.</p>
+                            <a href="${pageContext.request.contextPath}/AddVehicle.jsp" class="btn btn-sm btn-primary">Add vehicle to start</a>
                         </div>
                     </c:when>
                     <c:otherwise>
                         <div class="table-responsive">
-                            <table>
+                            <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Time</th>
+                                        <th>Service Date</th>
+                                        <th>Time Slot</th>
                                         <th>Car Plate</th>
                                         <th>Service Details</th>
-                                        <th>Status</th>
+                                        <th class="text-center">Current Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="row" items="${serviceSummary}">
                                         <tr>
-                                            <td><i class="far fa-calendar-alt me-2 text-muted"></i>${row[0]}</td>
-                                            <td><i class="far fa-clock me-2 text-muted"></i>${row[3]}</td>
-                                            <td><span class="badge bg-light text-dark border">${empty row[4] ? 'N/A' : row[4]}</span></td>
+                                            <td><i class="far fa-calendar-alt me-2 text-primary"></i>${row[0]}</td>
+                                            <td><i class="far fa-clock me-2 text-info"></i>${row[3]}</td>
+                                            <td><span class="badge bg-dark px-2 py-2">${empty row[4] ? 'N/A' : row[4]}</span></td>
                                             <td>
-                                                <div class="fw-bold text-primary">${row[1]}</div>
-                                                <small class="text-muted">Type: ${row[5]}</small>
+                                                <div class="fw-bold text-dark">${row[1]}</div>
+                                                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Category: ${row[5]}</small>
                                             </td>
-                                            <td>
-                                                <%-- 只处理 Approved 状态，使用绿色打勾 Logo --%>
-                                                <c:if test="${row[2] == 'Approved'}">
-                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
-                                                        <i class="fas fa-check-circle me-1"></i> Approved
-                                                    </span>
-                                                </c:if>
-                                                <%-- 如果有其他状态但你不想给特殊颜色，可以直接显示文本 --%>
-                                                <c:if test="${row[2] != 'Approved'}">
-                                                    <span class="badge bg-light text-secondary border rounded-pill px-3">
-                                                        ${row[2]}
-                                                    </span>
-                                                </c:if>
+                                            <td class="text-center">
+                                                <c:choose>
+                                                    <c:when test="${row[2] == 'Approved'}">
+                                                        <span class="status-badge bg-success-subtle text-success border border-success-subtle">
+                                                            <i class="fas fa-check-circle me-1"></i> Approved
+                                                        </span>
+                                                    </c:when>
+                                                    <c:when test="${row[2] == 'Pending'}">
+                                                        <span class="status-badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                            <i class="fas fa-hourglass-half me-1"></i> Pending
+                                                        </span>
+                                                    </c:when>
+                                                    <c:when test="${row[2] == 'Completed' || row[2] == 'Paid'}">
+                                                        <span class="status-badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                            <i class="fas fa-flag-checkered me-1"></i> Finished
+                                                        </span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="status-badge bg-light text-secondary border">
+                                                            ${row[2]}
+                                                        </span>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -185,12 +169,14 @@
                 </c:choose>
             </div>
 
-            <div class="mt-4 p-3 bg-white rounded border-start border-warning border-4 shadow-sm">
-                <p class="mb-0 small text-muted">
-                    <i class="fas fa-info-circle me-1 text-warning"></i>
-                    Need a full report? You can view your complete service and payment history in the 
-                    <a href="${pageContext.request.contextPath}/ViewHistory" class="fw-bold text-decoration-none">View History</a> section.
-                </p>
+            <div class="mt-4 p-3 bg-white rounded border-start border-info border-4 shadow-sm d-flex align-items-center">
+                <div class="me-3 text-info"><i class="fas fa-lightbulb fa-2x"></i></div>
+                <div>
+                    <p class="mb-0 small text-muted">
+                        <strong>Quick Tip:</strong> You can track your past invoices and technician feedback in the 
+                        <a href="${pageContext.request.contextPath}/ViewHistory" class="text-info fw-bold">View History</a> page.
+                    </p>
+                </div>
             </div>
         </div>
 
