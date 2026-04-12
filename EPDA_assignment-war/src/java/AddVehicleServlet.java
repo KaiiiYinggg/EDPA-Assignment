@@ -32,7 +32,6 @@ public class AddVehicleServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
-
         response.setContentType("text/html;charset=UTF-8");
 
         if (currentUser == null) {
@@ -41,95 +40,62 @@ public class AddVehicleServlet extends HttpServlet {
         }
 
         try {
+            // 1. 获取并【深度规范化】车牌号：去掉前后空格、去掉中间空格、转大写
+            String rawPlate = request.getParameter("carPlate");
+            if (rawPlate == null || rawPlate.trim().isEmpty()) {
+                throw new Exception("Car plate number is required.");
+            }
+            String carPlate = rawPlate.trim().replace(" ", "").toUpperCase();
 
-            String carPlate = request.getParameter("carPlate").trim().toUpperCase();
             String brand = request.getParameter("brand").trim();
             String model = request.getParameter("model").trim();
             String color = request.getParameter("color").trim();
             String yearStr = request.getParameter("year");
 
-            // 检查空值
-            if (carPlate.isEmpty() || brand.isEmpty() || model.isEmpty()) {
-                throw new Exception("Please fill in all required fields.");
-            }
-
-            // 检查重复车牌
+            // 2. 【严格查重】
             Car existingCar = carFacade.find(carPlate);
             if (existingCar != null) {
-
+                // 只要数据库里有这个车牌，不管是哪个用户的，直接拦截
                 request.setAttribute("errorMessage",
-                        "Error: Car plate number '" + carPlate + "' already exists in our system.");
+                        "Error: Vehicle [" + carPlate + "] is already registered under "
+                        + (existingCar.getUser().getEmail().equals(currentUser.getEmail()) ? "your account." : "another user."));
 
-                request.getRequestDispatcher("AddVehicle.jsp")
-                        .forward(request, response);
-                return;
+                request.setAttribute("customerId", request.getParameter("customerId"));
+                request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
+                return; // ✋ 关键：立刻停止，不要执行下面的 create
             }
 
-            int year = 0;
-            if (yearStr != null && !yearStr.isEmpty()) {
-                year = Integer.parseInt(yearStr);
-            }
-
-            /*
-            ------------------------------------------------
-            关键逻辑：判断车是属于谁
-            ------------------------------------------------
-             */
+            // 3. 确定真正的 Owner 对象
             String customerIdStr = request.getParameter("customerId");
             User owner;
-
             if (customerIdStr != null && !customerIdStr.isEmpty()) {
-
+                // Staff/Manager 为 Customer 添加
                 Long customerId = Long.parseLong(customerIdStr);
-                owner = userFacade.find(customerId); // staff / manager 帮 customer 加
-
-                if (owner == null) {
-                    throw new Exception("Customer not found.");
-                }
-
+                owner = userFacade.find(customerId);
             } else {
-
-                owner = currentUser; // customer 自己加
-
+                // Customer 自己添加，建议重新从 DB 抓取以确保 Persistence Context 正常
+                owner = userFacade.find(currentUser.getUser_id());
             }
 
-            // 创建 Car
-            Car car = new Car(carPlate, brand, model, color, year, owner);
+            if (owner == null) {
+                throw new Exception("Customer data integrity error.");
+            }
 
+            // 4. 执行创建
+            int year = (yearStr != null && !yearStr.isEmpty()) ? Integer.parseInt(yearStr) : 0;
+            Car car = new Car(carPlate, brand, model, color, year, owner);
             carFacade.create(car);
 
-            /*
-            ------------------------------------------------
-            根据角色 redirect
-            ------------------------------------------------
-             */
+            // 5. 跳转
             if ("customer".equalsIgnoreCase(currentUser.getRole())) {
-
-                response.sendRedirect(request.getContextPath()
-                        + "/EditProfile?vehicleAdded=true");
-
+                response.sendRedirect(request.getContextPath() + "/EditProfile?vehicleAdded=true");
             } else {
-
-                response.sendRedirect(request.getContextPath()
-                        + "/ManageCustomers?action=list");
-
+                response.sendRedirect(request.getContextPath() + "/ManageCustomers?action=list&success=vehicleAdded");
             }
 
-        } catch (NumberFormatException e) {
-
-            request.setAttribute("errorMessage", "Invalid Year format.");
-
-            request.getRequestDispatcher("AddVehicle.jsp")
-                    .forward(request, response);
-
         } catch (Exception e) {
-
-            e.printStackTrace();
-
             request.setAttribute("errorMessage", e.getMessage());
-
-            request.getRequestDispatcher("AddVehicle.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher("AddVehicle.jsp").forward(request, response);
         }
     }
 
@@ -150,8 +116,6 @@ public class AddVehicleServlet extends HttpServlet {
 
         // 默认是 false
         boolean isViewOnly = false;
-
-        
 
         // 统一设置，确保 JSP 拿到的永远不是 null
         request.setAttribute("viewOnly", isViewOnly);

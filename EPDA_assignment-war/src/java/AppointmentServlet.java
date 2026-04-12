@@ -1,3 +1,4 @@
+package Servlet;
 
 import Entity.Appointment;
 import Entity.AppointmentFacade;
@@ -39,23 +40,18 @@ public class AppointmentServlet extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        // --- 1. AJAX 请求：获取可用技师 ---
+        // --- 1. AJAX 请求：获取可用技师 (保持不变) ---
         if ("getAvailableTechs".equals(action)) {
             try {
                 String dateStr = request.getParameter("date");
                 String startStr = request.getParameter("startTime");
                 String endStr = request.getParameter("endTime");
 
-                System.out.println("DEBUG: date=" + dateStr + ", start=" + startStr + ", end=" + endStr);
-
                 LocalDate date = LocalDate.parse(dateStr);
-
-                // 时间解析容错：先尝试 HH:mm，再尝试 HH:mm:ss
                 LocalTime startTime = parseTime(startStr);
                 LocalTime endTime = parseTime(endStr);
 
                 List<User> techs = userFacade.findAvailableTechnicians(date, startTime, endTime);
-                System.out.println("DEBUG: found " + techs.size() + " technicians");
 
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -77,7 +73,7 @@ public class AppointmentServlet extends HttpServlet {
             return;
         }
 
-        // --- 2. 正常页面加载 (包含搜索逻辑) ---
+        // --- 2. 页面加载与搜索重置逻辑 ---
         String custEmail = request.getParameter("customerEmail");
         if (custEmail != null && !custEmail.isEmpty()) {
             User customer = userFacade.findByEmail(custEmail);
@@ -88,12 +84,16 @@ public class AppointmentServlet extends HttpServlet {
 
                 List<Appointment> appList;
 
-                // --- 核心：根据是否有搜索条件来调用不同的方法 ---
-                if ((searchDate != null && !searchDate.isEmpty()) || (searchId != null && !searchId.isEmpty())) {
-                    // 如果有搜索条件，调用搜索方法
+                // 【核心：Reset 逻辑就体现在这里】
+                // 只有当 searchDate 或 searchId 真正有值时，才调用搜索方法
+                // 如果这两个值都为空（比如用户点击了重置链接），则加载该用户的所有预约
+                boolean isSearching = (searchDate != null && !searchDate.trim().isEmpty())
+                        || (searchId != null && !searchId.trim().isEmpty());
+
+                if (isSearching) {
                     appList = appFacade.searchAppointments(custEmail, searchDate, searchId);
                 } else {
-                    // 默认显示该客户的所有预约
+                    // 重置状态或初次进入，显示全部记录
                     appList = appFacade.findByCustomerEmail(custEmail);
                 }
 
@@ -112,15 +112,6 @@ public class AppointmentServlet extends HttpServlet {
         response.sendRedirect("StaffDashboard.jsp");
     }
 
-    // 辅助方法：容错解析时间
-    private LocalTime parseTime(String timeStr) {
-        try {
-            return LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"));
-        } catch (Exception e) {
-            return LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm:ss"));
-        }
-    }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -134,27 +125,22 @@ public class AppointmentServlet extends HttpServlet {
                 app.setCustomer(userFacade.findByEmail(custEmail));
                 app.setCar(carFacade.find(request.getParameter("carPlateNumber")));
 
-                // 1. 获取 Service 并设置
                 Services svc = servicesFacade.find(Long.parseLong(request.getParameter("serviceId")));
                 app.setService(svc);
-
                 app.setAppointment_date(LocalDate.parse(request.getParameter("date")));
 
-                // 2. 解析开始时间并设置
                 LocalTime startTime = parseTime(request.getParameter("time"));
                 app.setAppointment_time(startTime);
 
-                // 3. --- 核心逻辑：计算并保存 Expected End Time ---
+                // 计算预计结束时间
                 if (svc != null && startTime != null) {
-                    // 将 serviceHour (double) 转为分钟并相加
                     long minutesToAdd = Math.round(svc.getServiceHour() * 60);
                     LocalTime endTime = startTime.plusMinutes(minutesToAdd);
-                    app.setExpected_end_time(endTime); // 确保你的 Entity 里有这个 Setter
+                    app.setExpected_end_time(endTime);
                 }
 
                 String techEmail = request.getParameter("technicianEmail");
                 app.setTechnician_email(techEmail);
-
                 String staffEmail = (String) request.getSession().getAttribute("email");
                 app.setStaff_email(staffEmail);
 
@@ -171,11 +157,8 @@ public class AppointmentServlet extends HttpServlet {
                 Appointment app = appFacade.find(id);
                 if (app != null) {
                     app.setCar(carFacade.find(request.getParameter("carPlateNumber")));
-
-                    // 同理，更新时也要重新计算结束时间
                     Services svc = servicesFacade.find(Long.parseLong(request.getParameter("serviceId")));
                     app.setService(svc);
-
                     app.setAppointment_date(LocalDate.parse(request.getParameter("date")));
 
                     LocalTime startTime = parseTime(request.getParameter("time"));
@@ -183,13 +166,10 @@ public class AppointmentServlet extends HttpServlet {
 
                     if (svc != null && startTime != null) {
                         long minutesToAdd = Math.round(svc.getServiceHour() * 60);
-                        LocalTime endTime = startTime.plusMinutes(minutesToAdd);
-                        app.setExpected_end_time(endTime);
+                        app.setExpected_end_time(startTime.plusMinutes(minutesToAdd));
                     }
 
-                    String techEmail = request.getParameter("technicianEmail");
-                    app.setTechnician_email(techEmail);
-
+                    app.setTechnician_email(request.getParameter("technicianEmail"));
                     appFacade.edit(app);
                 }
 
@@ -200,10 +180,21 @@ public class AppointmentServlet extends HttpServlet {
                     appFacade.remove(app);
                 }
             }
+
+            // 操作完成后跳转回该客户的预约列表（此时不带搜索参数，等同于重置列表）
             response.sendRedirect("AppointmentServlet?customerEmail=" + custEmail);
+
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("error.jsp");
+        }
+    }
+
+    private LocalTime parseTime(String timeStr) {
+        try {
+            return LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"));
+        } catch (Exception e) {
+            return LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm:ss"));
         }
     }
 }

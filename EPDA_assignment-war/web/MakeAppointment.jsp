@@ -152,6 +152,11 @@
                 background: #fff3e0;
                 color: #ef6c00;
             }
+            .status-badge {
+                min-width: 90px;
+                display: inline-block;
+                text-align: center;
+            }
         </style>
     </head>
     <body>
@@ -194,18 +199,32 @@
             <div class="appt-card">
                 <h3 class="fw-bold mb-4" style="color: #2c3e50;">Manage Appointments: ${customer.username}</h3>
 
-                <form action="AppointmentServlet" method="GET" class="row g-3 mb-4 align-items-end p-3 bg-light rounded shadow-sm">
+                <form action="AppointmentServlet" method="GET" class="row g-3 mb-4 align-items-end p-3 bg-light rounded shadow-sm border">
                     <input type="hidden" name="customerEmail" value="${customer.email}">
-                    <div class="col-md-4">
-                        <label class="small fw-bold text-muted">Filter Date</label>
-                        <input type="date" name="searchDate" class="form-control" value="${param.searchDate}">
+
+                    <div class="col-md-3">
+                        <label class="small fw-bold text-muted mb-2">
+                            <i class="fas fa-calendar-alt me-1"></i> Filter Date
+                        </label>
+                        <input type="date" name="searchDate" class="form-control shadow-sm" value="${param.searchDate}">
                     </div>
-                    <div class="col-md-4">
-                        <label class="small fw-bold text-muted">Search ID</label>
-                        <input type="text" name="searchId" class="form-control" placeholder="Appointment ID" value="${param.searchId}" maxlength="15">
+
+                    <div class="col-md-3">
+                        <label class="small fw-bold text-muted mb-2">
+                            <i class="fas fa-hashtag me-1"></i> Search ID
+                        </label>
+                        <input type="text" name="searchId" class="form-control shadow-sm" placeholder="Appointment ID" value="${param.searchId}" maxlength="15">
                     </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-dark w-100"><i class="fas fa-search me-2"></i>Search</button>
+
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-dark px-4 shadow-sm flex-grow-1">
+                                <i class="fas fa-search me-2"></i>Apply Search
+                            </button>
+                            <a href="AppointmentServlet?customerEmail=${customer.email}" class="btn btn-outline-secondary px-4 shadow-sm">
+                                <i class="fas fa-sync-alt me-2"></i>Reset
+                            </a>
+                        </div>
                     </div>
                 </form>
 
