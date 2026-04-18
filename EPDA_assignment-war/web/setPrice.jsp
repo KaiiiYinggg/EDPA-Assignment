@@ -1,13 +1,13 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Set Service Price | Car Service Center</title>
 
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css" />
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Service Management</title>
+
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
@@ -52,54 +52,29 @@
                 margin-left: var(--sidebar-width);
                 padding: 40px;
             }
-
-            .price-card {
+            .card-custom {
                 background: white;
                 border-radius: 15px;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.08);
                 padding: 30px;
-                max-width: 800px;
-                margin: auto;
+                margin-bottom: 30px;
             }
-            .section-title {
-                border-left: 5px solid #f1c40f;
-                padding-left: 15px;
-                margin-bottom: 25px;
+            .form-label {
+                font-weight: bold;
                 color: #2c3e50;
             }
-
-            th {
+            .table thead th {
                 background-color: #f8f9fa;
-                padding: 15px;
-                color: #495057;
-                border-bottom: 2px solid #dee2e6;
-                font-size: 0.85rem;
                 text-transform: uppercase;
-            }
-            td {
-                padding: 15px;
-                vertical-align: middle;
-                border-bottom: 1px solid #eee;
-            }
-
-            .price-input {
-                max-width: 150px;
-                font-weight: bold;
-                color: #2e7d32;
-                border-left: none;
-            }
-            .input-group-text {
-                border-right: none;
-            }
-            .form-control:focus {
-                border-color: #ced4da;
-                box-shadow: none;
-                background-color: #fffdec;
+                font-size: 0.85rem;
+                color: #6c757d;
             }
         </style>
     </head>
+
     <body>
 
+        <!-- SIDEBAR -->
         <div class="sidebar bg-manager">
             <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
             <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
@@ -111,53 +86,107 @@
             <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
             <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
             <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+            <a href="${pageContext.request.contextPath}/Manager/BusinessHourServlet"><i class="fas fa-user-edit me-2"></i> Business Hour</a>
             <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
         </div>
 
+        <!-- MAIN -->
         <div class="main-content">
-            <div class="price-card">
-                <h3 class="fw-bold section-title">Service Pricing Management</h3>
-                <p class="text-muted mb-4 small">Update the standard rates for car services. These changes will reflect immediately on new appointments.</p>
 
-                <form action="SetPrice" method="post" onsubmit="return confirm('Are you sure you want to update all service prices? This will affect all new bookings.')">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-wrench me-2 text-muted"></i>Service Category</th>
-                                    <th><i class="fas fa-tag me-2 text-muted"></i>Unit Price (RM)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="s" items="${serviceList}" varStatus="status">
-                                    <tr>
-                                        <td class="fw-bold text-dark">${s.serviceType}</td>
-                                        <td>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-light text-success fw-bold">RM</span>
-                                                <input type="number" step="0.01" min="0" name="price_${status.index}" 
-                                                       value="${s.price}" class="form-control price-input" required>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
+            <div class="card-box">
+
+                <h3 class="mb-3">Service Management</h3>
+
+                <!-- ================= ADD SERVICE ================= -->
+                <form action="SetPrice" method="post" class="row g-2 mb-4">
+
+                    <input type="hidden" name="action" value="add">
+
+                    <div class="col-md-3">
+                        <input type="text" name="serviceType" class="form-control"
+                               placeholder="Service Name" required>
                     </div>
 
-                    <div class="mt-4 d-flex justify-content-between align-items-center">
-                        <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard" class="text-decoration-none text-muted small">
-                            <i class="fas fa-chevron-left me-1"></i> Return to Dashboard
-                        </a>
-                        <input type="hidden" name="totalCount" value="${serviceList.size()}">
-                        <button type="submit" name="updateAll" value="Update All" class="btn btn-warning px-5 py-2 fw-bold shadow-sm">
-                            <i class="fas fa-check-circle me-2"></i>Apply Changes
+                    <div class="col-md-2">
+                        <input type="number" name="serviceHour" class="form-control"
+                               placeholder="Hours" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="price" class="form-control"
+                               placeholder="Price (RM)" required>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-success w-100">
+                            <i class="fas fa-plus"></i> Add
                         </button>
                     </div>
+
                 </form>
+
+                <!-- ================= TABLE ================= -->
+                <form action="SetPrice" method="post">
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Hour</th>
+                                <th>Price (RM)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <c:forEach var="s" items="${serviceList}" varStatus="status">
+
+                                <tr>
+                                    <td>
+                                        ${s.serviceType}
+                                        <input type="hidden" name="serviceId_${status.index}" value="${s.service_id}">
+                                    </td>
+
+                                    <td>${s.serviceHour} hr</td>
+
+                                    <td>
+                                        <input type="number"
+                                               step="0.01"
+                                               name="price_${status.index}"
+                                               value="${s.price}"
+                                               class="form-control">
+                                    </td>
+
+                                    <!-- ✅ DELETE BUTTON -->
+                                    <td>
+                                        <form action="SetPrice" method="post"
+                                              onsubmit="return confirm('Delete this service?')">
+
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" value="${s.service_id}">
+
+                                            <button class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+
+                                        </form>
+                                    </td>
+                                </tr>
+
+                            </c:forEach>
+                        </tbody>
+                    </table>
+
+                    <input type="hidden" name="totalCount" value="${serviceList.size()}">
+
+                    <button class="btn btn-warning mt-3" name="updateAll" value="1">
+                        Update All
+                    </button>
+
+                </form>
+
             </div>
+
         </div>
 
-        <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

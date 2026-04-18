@@ -45,16 +45,10 @@ public class EmailUtils {
                     + "<div style='padding: 30px; line-height: 1.6; color: #333;'>"
                     + "<h3>Hi " + userName + ",</h3>"
                     + "<p>Congratulations! Your account has been successfully created at <b>APU Automotive Service Center</b>.</p>"
-                    + "<p>We are excited to help you keep your vehicle in top condition. You can now use our portal to:</p>"
-                    + "<ul>"
-                    + "<li>Book Service Appointments</li>"
-                    + "<li>Track your Car Status</li>"
-                    + "<li>View Digital Receipts</li>"
-                    + "</ul>"
                     + "</div>"
                     + "<div style='background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #777;'>"
                     + "<p>© 2026 APU Automotive Service Center. All Rights Reserved.</p>"
-                    + "<p>Asia Pacific University, Bukit Jalil, KL</p>"
+                    + "<p>Bukit Jalil, KL</p>"
                     + "</div>"
                     + "</div>";
 

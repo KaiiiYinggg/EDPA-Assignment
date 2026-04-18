@@ -113,7 +113,7 @@
         <div class="sidebar bg-manager">
             <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
             <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-            <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard" class="active"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
+            <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard" class="active"><i class="fas fa-chart-line me-2"></i> Home Page</a>
             <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
             <a href="${pageContext.request.contextPath}/ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
             <a href="${pageContext.request.contextPath}/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
@@ -121,6 +121,7 @@
             <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
             <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
             <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+            <a href="${pageContext.request.contextPath}/Manager/BusinessHourServlet"><i class="fas fa-user-edit me-2"></i> Business Hour</a>
             <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
         </div>
 
@@ -131,7 +132,6 @@
                         <h2 class="fw-bold mb-1" style="color: #2c3e50;">Business Analytics</h2>
                         <p class="text-muted">Welcome back, <strong><c:out value="${sessionScope.user.username}"/></strong>. Summary of center operations.</p>
                     </div>
-                    <button class="btn btn-outline-dark btn-sm" onclick="window.print()"><i class="fas fa-print me-1"></i> Export Report</button>
                 </div>
 
                 <div class="row g-4">

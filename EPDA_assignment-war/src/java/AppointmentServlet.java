@@ -8,6 +8,8 @@ import Entity.Car;
 import Entity.CarFacade;
 import Entity.Services;
 import Entity.ServicesFacade;
+import Entity.BusinessHour;
+import Entity.BusinessHourFacade;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -33,6 +35,8 @@ public class AppointmentServlet extends HttpServlet {
     private CarFacade carFacade;
     @EJB
     private ServicesFacade servicesFacade;
+    @EJB
+    private BusinessHourFacade bhFacade;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -40,7 +44,6 @@ public class AppointmentServlet extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        // --- 1. AJAX 请求：获取可用技师 (保持不变) ---
         if ("getAvailableTechs".equals(action)) {
             try {
                 String dateStr = request.getParameter("date");
@@ -73,32 +76,41 @@ public class AppointmentServlet extends HttpServlet {
             return;
         }
 
-        // --- 2. 页面加载与搜索重置逻辑 ---
         String custEmail = request.getParameter("customerEmail");
         if (custEmail != null && !custEmail.isEmpty()) {
             User customer = userFacade.findByEmail(custEmail);
             if (customer != null) {
-                // 获取搜索参数
                 String searchDate = request.getParameter("searchDate");
                 String searchId = request.getParameter("searchId");
 
                 List<Appointment> appList;
-
-                // 【核心：Reset 逻辑就体现在这里】
-                // 只有当 searchDate 或 searchId 真正有值时，才调用搜索方法
-                // 如果这两个值都为空（比如用户点击了重置链接），则加载该用户的所有预约
                 boolean isSearching = (searchDate != null && !searchDate.trim().isEmpty())
                         || (searchId != null && !searchId.trim().isEmpty());
 
                 if (isSearching) {
                     appList = appFacade.searchAppointments(custEmail, searchDate, searchId);
                 } else {
-                    // 重置状态或初次进入，显示全部记录
                     appList = appFacade.findByCustomerEmail(custEmail);
                 }
 
                 List<Car> cars = carFacade.findByUserEmail(custEmail);
                 List<Services> services = servicesFacade.findAll();
+
+                // ✨ 新增：获取未来 30 天的特殊营业时间（用于 Notice Box 显示）
+                // --- 找到这段代码并替换 ---
+                LocalDate today = LocalDate.now();
+                LocalDate oneMonthLater = today.plusMonths(1); // 准确的一个月后
+
+// 获取所有记录
+                List<BusinessHour> allHours = bhFacade.findAll();
+
+// ✨ 使用 Java Stream 过滤：只保留 [今天] 到 [一个月后] 之间的日期
+                List<BusinessHour> specialHours = allHours.stream()
+                        .filter(bh -> !bh.getBusinessDate().isBefore(today) && !bh.getBusinessDate().isAfter(oneMonthLater))
+                        .sorted((a, b) -> a.getBusinessDate().compareTo(b.getBusinessDate())) // 按日期排序
+                        .collect(java.util.stream.Collectors.toList());
+
+                request.setAttribute("specialHours", specialHours);
 
                 request.setAttribute("customer", customer);
                 request.setAttribute("appList", appList);
@@ -120,6 +132,29 @@ public class AppointmentServlet extends HttpServlet {
         String custEmail = request.getParameter("customerEmail");
 
         try {
+            if ("add".equals(action) || "update".equals(action)) {
+                String dateStr = request.getParameter("date");
+                LocalDate appDate = LocalDate.parse(dateStr);
+                LocalTime startTime = parseTime(request.getParameter("time"));
+
+                BusinessHour bh = bhFacade.findByDate(appDate);
+
+                // 1. 拦截：如果是假期
+                if (bh != null && bh.isIsClosed()) {
+                    response.sendRedirect("AppointmentServlet?customerEmail=" + custEmail + "&error=holiday");
+                    return;
+                }
+
+                // 2. 拦截：如果超出当天营业时间
+                LocalTime openT = (bh != null) ? bh.getOpenTime() : LocalTime.of(10, 0);
+                LocalTime closeT = (bh != null) ? bh.getCloseTime() : LocalTime.of(18, 0);
+
+                if (startTime.isBefore(openT) || startTime.isAfter(closeT)) {
+                    response.sendRedirect("AppointmentServlet?customerEmail=" + custEmail + "&error=outOfRange");
+                    return;
+                }
+            }
+
             if ("add".equals(action)) {
                 Appointment app = new Appointment();
                 app.setCustomer(userFacade.findByEmail(custEmail));
@@ -132,7 +167,6 @@ public class AppointmentServlet extends HttpServlet {
                 LocalTime startTime = parseTime(request.getParameter("time"));
                 app.setAppointment_time(startTime);
 
-                // 计算预计结束时间
                 if (svc != null && startTime != null) {
                     long minutesToAdd = Math.round(svc.getServiceHour() * 60);
                     LocalTime endTime = startTime.plusMinutes(minutesToAdd);
@@ -181,7 +215,6 @@ public class AppointmentServlet extends HttpServlet {
                 }
             }
 
-            // 操作完成后跳转回该客户的预约列表（此时不带搜索参数，等同于重置列表）
             response.sendRedirect("AppointmentServlet?customerEmail=" + custEmail);
 
         } catch (Exception e) {

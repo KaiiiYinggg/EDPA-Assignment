@@ -27,23 +27,19 @@ public class PaymentServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         String query = request.getParameter("query");
-        // 新增：用来区分是 Pending 搜索还是 History 搜索
+        
         String subAction = request.getParameter("subAction");
 
         try {
-            // ⭐ Export PDF (保持不变)
             if ("exportPDF".equals(action)) {
                 exportPDF(request, response);
                 return;
             }
 
             if ("viewHistory".equals(action)) {
-                // --- 修改部分：Payment History 搜索逻辑 ---
                 List<Payment> history;
 
-                // 如果 subAction 是 searchHistory，调用搜索方法
                 if ("searchHistory".equals(subAction) && query != null && !query.isEmpty()) {
-                    // 你需要在 PaymentFacade 里面建这个 searchHistory 方法
                     history = paymentFacade.searchHistory(query);
                 } else {
                     history = paymentFacade.findAll();
@@ -53,7 +49,6 @@ public class PaymentServlet extends HttpServlet {
                 request.setAttribute("view", "history");
 
             } else {
-                // Pending Payment List (保持不变)
                 List<Appointment> list;
                 if ("search".equals(action) && query != null && !query.isEmpty()) {
                     list = appFacade.searchUnpaid(query);
@@ -221,4 +216,5 @@ public class PaymentServlet extends HttpServlet {
         cell2.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
         table.addCell(cell2);
     }
+    
 }

@@ -46,6 +46,16 @@
                 color: white;
                 border-left: 4px solid #1abc9c;
             }
+
+            /* ✨ 修正 Manager 角色的背景色 ✨ */
+            .bg-manager {
+                background: #1a252f;
+            }
+
+            /* Staff Portal 依然可以保留之前的颜色做区分，或者统一改掉 */
+            .bg-staff {
+                background: #2c3e50;
+            }
             .main-content {
                 margin-left: var(--sidebar-width);
                 padding: 30px;
@@ -134,7 +144,7 @@
     <body>
         <c:choose>
             <c:when test="${sessionScope.user.role == 'manager'}">
-                <div class="sidebar">
+                <div class="sidebar bg-manager">
                     <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
@@ -145,13 +155,14 @@
                     <a href="${pageContext.request.contextPath}/PaymentServlet" class="active"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
                     <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
                     <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+                    <a href="${pageContext.request.contextPath}/Manager/BusinessHourServlet"><i class="fas fa-user-edit me-2"></i> Business Hour</a>
                     <div style="position: absolute; bottom: 20px; width: 100%;">
                         <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
                     </div>
                 </div>
             </c:when>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
-                <div class="sidebar">
+                <div class="sidebar bg-staff">
                     <div class="text-center mb-4"><i class="fas fa-car-side fa-3x mb-2 text-info"></i><h5 class="fw-bold">STAFF PORTAL</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
                     <a href="${pageContext.request.contextPath}/Staff/StaffDashboardServlet"><i class="fas fa-tachometer-alt me-2"></i> Home Page</a>

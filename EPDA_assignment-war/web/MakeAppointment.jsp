@@ -271,6 +271,29 @@
         <div id="addModal" class="modal">
             <div class="modal-content">
                 <h4 class="fw-bold text-success mb-4"><i class="fas fa-calendar-plus me-2"></i>New Appointment</h4>
+                <div class="alert alert-info py-2 shadow-sm mb-4" style="max-height: 150px; overflow-y: auto;">
+                    <h6 class="fw-bold mb-1"><i class="fas fa-bullhorn me-1"></i> Business Hour Notices:</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <c:forEach var="bh" items="${specialHours}">
+                            <li class="mb-1 border-bottom pb-1">
+                                <span class="badge ${bh.isIsClosed() ? 'bg-danger' : 'bg-warning text-dark'} me-1">
+                                    ${bh.businessDate}
+                                </span>
+                                <c:choose>
+                                    <c:when test="${bh.isIsClosed()}">
+                                        <b>CLOSED</b> - ${bh.note}
+                                    </c:when>
+                                    <c:otherwise>
+                                        <b>Open: ${bh.openTime} - ${bh.closeTime}</b>
+                                    </c:otherwise>
+                                </c:choose>
+                            </li>
+                        </c:forEach>
+                        <c:if test="${empty specialHours}">
+                            <li class="text-muted">No special changes for the next 30 days.</li>
+                            </c:if>
+                    </ul>
+                </div>
                 <form action="AppointmentServlet" method="POST" onsubmit="return validateForm('add')">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="customerEmail" value="${customer.email}">
@@ -373,7 +396,12 @@
 
                     <div id="buttonContainer" class="mt-4">
                         <div id="editModeButtons" style="display: none;" class="d-flex gap-2">
-                            <button type="submit" onclick="document.getElementById('upAction').value = 'delete'; return confirm('DANGER: Delete this appointment permanently?')" class="btn btn-outline-danger">Delete</button>
+                            <button type="submit"
+                                    formnovalidate
+                                    onclick="document.getElementById('upAction').value = 'delete'; return confirm('DANGER: Delete this appointment permanently?')"
+                                    class="btn btn-outline-danger">
+                                Delete
+                            </button>
                             <div class="ms-auto">
                                 <button type="button" class="btn btn-light" onclick="closeModal('updateModal')">Cancel</button>
                                 <button type="submit" class="btn btn-primary px-4">Save Update</button>
@@ -388,10 +416,31 @@
         </div>
 
         <script>
+
             document.addEventListener("DOMContentLoaded", function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                const error = urlParams.get('error');
+                const custEmail = urlParams.get('customerEmail');
+
+                if (error) {
+                    let msg = "";
+                    if (error === "holiday") {
+                        msg = "❌ REGISTRATION FAILED!\n\nReason: The shop is CLOSED on the selected date. Please check the 'Business Hour Notices' box above the form.";
+                    } else if (error === "outOfRange") {
+                        msg = "❌ REGISTRATION FAILED!\n\nReason: The selected time is outside the business hours for that day. Please check the special opening/closing times.";
+                    }
+
+                    if (msg) {
+                        alert(msg)
+
+                        const cleanUrl = window.location.pathname + "?customerEmail=" + encodeURIComponent(custEmail);
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    }
+                }
+
                 const today = new Date();
                 const maxDate = new Date();
-                maxDate.setDate(today.getDate() + 5);
+                maxDate.setDate(today.getDate() + 30);
 
                 const minStr = today.toISOString().split("T")[0];
                 const maxStr = maxDate.toISOString().split("T")[0];
@@ -409,97 +458,103 @@
                 }
             });
 
-            function validateForm(prefix) {
-                const actionInput = document.getElementById('upAction');
-                if (prefix === 'up' && actionInput && actionInput.value === 'delete')
-                    return true;
-
-                const timeInput = document.getElementById(prefix + 'Time');
-                const serviceSelect = document.getElementById(prefix + 'Service');
-                const techSelect = document.getElementById(prefix + 'TechSelect');
-
-                if (timeInput.value < "10:00" || timeInput.value > "18:00") {
-                    alert("Error: Business hours are 10:00 AM to 6:00 PM.");
-                    return false;
-                }
-                if (!techSelect.value) {
-                    alert("Please select a technician.");
-                    return false;
-                }
-                return true;
-            }
-
+            // 弹窗控制逻辑
             function openAddModal() {
                 document.getElementById('addModal').style.display = 'block';
             }
+
             function closeModal(m) {
                 document.getElementById(m).style.display = 'none';
             }
 
-            function openUpdateModal(id, plate, svcId, date, time, currentTech, status) {
-                document.getElementById('upId').value = id;
-                document.getElementById('upPlate').value = plate;
-                document.getElementById('upService').value = svcId;
-                document.getElementById('upDate').value = date;
-                document.getElementById('upTime').value = time;
-                window.currentAssignedTech = currentTech;
+            // 核心：检查营业时间的异步函数 (由 calculateEndTime 调用)
+            async function checkBusinessHour(prefix, selectedDate) {
+                const timeInput = document.getElementById(prefix + 'Time');
+                const endTimeDisplay = document.getElementById(prefix + 'EndTimeDisplay');
+                const techSelect = document.getElementById(prefix + 'TechSelect');
 
-                const editGroup = document.getElementById('editModeButtons');
-                const readOnlyGroup = document.getElementById('readOnlyModeButtons');
-                const notice = document.getElementById('statusNotice');
-                const inputs = document.querySelectorAll('#formInputArea select, #formInputArea input');
+                try {
+                    // 调用后端 Servlet 获取当天营业规则
+                    const response = await fetch("BusinessHourServlet?date=" + encodeURIComponent(selectedDate));
+                    const data = await response.json();
 
-                const currentStatus = status ? status.trim().toLowerCase() : "";
-
-                if (currentStatus === 'paid' || currentStatus === 'completed') {
-                    inputs.forEach(i => i.disabled = true);
-                    editGroup.style.setProperty("display", "none", "important");
-                    readOnlyGroup.style.display = 'block';
-                    notice.style.display = 'block';
-                } else {
-                    inputs.forEach(i => i.disabled = false);
-                    editGroup.style.setProperty("display", "flex", "important");
-                    readOnlyGroup.style.display = 'none';
-                    notice.style.display = 'none';
-                    calculateEndTime('up');
+                    if (data.type === "holiday") {
+                        alert("Sorry, we are CLOSED on " + selectedDate + ". \nReason: " + (data.message || "Public Holiday"));
+                        timeInput.value = "";
+                        timeInput.disabled = true; // 休息日直接禁止选择时间
+                        endTimeDisplay.value = "CLOSED";
+                        techSelect.innerHTML = '<option value="">-- Shop Closed --</option>';
+                        return null;
+                    } else {
+                        timeInput.disabled = false;
+                        // 关键点：动态更新 HTML5 原生的 min 和 max 限制
+                        timeInput.min = data.openTime; // 比如 "10:00"
+                        timeInput.max = data.closeTime; // 比如 "13:00" (如果是自定义短程营业)
+                        return data;
+                    }
+                } catch (err) {
+                    console.error("Error fetching business hours:", err);
+                    // 容错处理：报错则默认 10:00 - 18:00
+                    timeInput.disabled = false;
+                    timeInput.min = "10:00";
+                    timeInput.max = "18:00";
+                    return {openTime: "10:00", closeTime: "18:00"};
                 }
-                document.getElementById('updateModal').style.display = 'block';
             }
 
-            function calculateEndTime(prefix) {
-                const serviceSelect = document.getElementById(prefix + 'Service');
+            // 计算结束时间并校验时间合法性
+            async function calculateEndTime(prefix) {
+                const dateInput = document.getElementById(prefix + 'Date');
                 const startTimeInput = document.getElementById(prefix + 'Time');
                 const endTimeDisplay = document.getElementById(prefix + 'EndTimeDisplay');
-                const dateInput = document.getElementById(prefix + 'Date');
-                const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+                const serviceSelect = document.getElementById(prefix + 'Service');
 
-                if (!selectedOption || !startTimeInput.value || !dateInput.value)
+                if (!dateInput.value)
                     return;
 
-                const [h, m] = startTimeInput.value.split(':').map(Number);
-                if (h < 10) {
-                    alert("Business hours start at 10:00 AM!");
+                // 1. 先异步等待营业时间配置
+                const businessConfig = await checkBusinessHour(prefix, dateInput.value);
+
+                // 2. 如果不开门或数据不全，停止逻辑
+                if (!businessConfig || !startTimeInput.value || !serviceSelect.value)
+                    return;
+
+                // 3. 校验开始时间是否在范围内
+                const selectedStartTime = startTimeInput.value;
+                if (selectedStartTime < businessConfig.openTime || selectedStartTime > businessConfig.closeTime) {
+                    alert("Invalid Time! Business hours for this day are " + businessConfig.openTime + " to " + businessConfig.closeTime);
                     startTimeInput.value = "";
                     return;
                 }
 
+                // 4. 计算结束时间
+                const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
                 const serviceHours = parseFloat(selectedOption.getAttribute('data-hours'));
+                const [h, m] = startTimeInput.value.split(':').map(Number);
+
                 let d = new Date();
                 d.setHours(h);
                 d.setMinutes(m + Math.round(serviceHours * 60));
 
-                if (d.getHours() > 18 || (d.getHours() === 18 && d.getMinutes() > 0)) {
-                    alert("Service exceeds closing time (6:00 PM)! Please choose an earlier time.");
+                // 5. 校验结束时间是否会超过当天的关门时间
+                const [closeH, closeM] = businessConfig.closeTime.split(':').map(Number);
+                const endTotalMinutes = d.getHours() * 60 + d.getMinutes();
+                const closeTotalMinutes = closeH * 60 + closeM;
+
+                if (endTotalMinutes > closeTotalMinutes) {
+                    alert("This service takes " + serviceHours + " hour(s) and will exceed closing time (" + businessConfig.closeTime + ")!");
                     startTimeInput.value = "";
                     endTimeDisplay.value = "";
                     return;
                 }
 
+                // 6. 成功通过所有校验，显示预计结束时间并加载技师
                 const endTimeStr = String(d.getHours()).padStart(2, '0') + ":" + String(d.getMinutes()).padStart(2, '0');
                 endTimeDisplay.value = endTimeStr;
                 fetchAvailableTechs(prefix, dateInput.value, startTimeInput.value, endTimeStr);
             }
 
+            // 获取可用技师逻辑
             function fetchAvailableTechs(prefix, date, start, end) {
                 const techSelect = document.getElementById(prefix + 'TechSelect');
                 const loader = document.getElementById(prefix + 'TechLoading');
@@ -518,12 +573,70 @@
                             });
                             if (loader)
                                 loader.style.display = 'none';
-                        }).catch(err => {
-                    console.error("Fetch error:", err);
-                    techSelect.innerHTML = '<option value="">Error loading technicians</option>';
-                });
+                        })
+                        .catch(err => {
+                            console.error("Fetch error:", err);
+                            techSelect.innerHTML = '<option value="">Error loading technicians</option>';
+                        });
             }
 
+            // 提交表单前的最终校验
+            function validateForm(prefix) {
+                const actionInput = document.getElementById('upAction');
+                if (prefix === 'up' && actionInput && actionInput.value === 'delete')
+                    return true;
+
+                const timeInput = document.getElementById(prefix + 'Time');
+                const techSelect = document.getElementById(prefix + 'TechSelect');
+
+                // 改为读取动态设置的 min/max 属性
+                const minVal = timeInput.getAttribute('min') || "10:00";
+                const maxVal = timeInput.getAttribute('max') || "18:00";
+
+                if (timeInput.value < minVal || timeInput.value > maxVal) {
+                    alert("Error: Selected time must be between " + minVal + " and " + maxVal + ".");
+                    return false;
+                }
+                if (!techSelect.value || techSelect.value === "") {
+                    alert("Please select a technician.");
+                    return false;
+                }
+                return true;
+            }
+
+            // 更新弹窗初始化
+            function openUpdateModal(id, plate, svcId, date, time, currentTech, status) {
+                document.getElementById('upId').value = id;
+                document.getElementById('upPlate').value = plate;
+                document.getElementById('upService').value = svcId;
+                document.getElementById('upDate').value = date;
+                document.getElementById('upTime').value = time;
+                window.currentAssignedTech = currentTech;
+
+                const editGroup = document.getElementById('editModeButtons');
+                const readOnlyGroup = document.getElementById('readOnlyModeButtons');
+                const notice = document.getElementById('statusNotice');
+                const inputs = document.querySelectorAll('#formInputArea select, #formInputArea input');
+
+                const currentStatus = (status || "").trim().toLowerCase();
+
+                if (currentStatus === 'paid' || currentStatus === 'completed') {
+                    inputs.forEach(i => i.disabled = true);
+                    editGroup.style.setProperty("display", "none", "important");
+                    readOnlyGroup.style.display = 'block';
+                    notice.style.display = 'block';
+                } else {
+                    inputs.forEach(i => i.disabled = false);
+                    editGroup.style.setProperty("display", "flex", "important");
+                    readOnlyGroup.style.display = 'none';
+                    notice.style.display = 'none';
+                    // 打开弹窗时，先执行一次营业时间同步检查
+                    calculateEndTime('up');
+                }
+                document.getElementById('updateModal').style.display = 'block';
+            }
+
+            // 点击背景关闭弹窗
             window.onclick = function (e) {
                 if (e.target.className === 'modal')
                     e.target.style.display = "none";

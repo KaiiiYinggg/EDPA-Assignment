@@ -26,8 +26,8 @@ public class ServicesFacade extends AbstractFacade<Services> {
     public ServicesFacade() {
         super(Services.class);
     }
-    
- //method//   
+
+    //method//   
     public void updatePrice(Long service_id, double newPrice) {
         Services s = em.find(Services.class, service_id);
         if (s != null) {
@@ -36,5 +36,12 @@ public class ServicesFacade extends AbstractFacade<Services> {
             em.flush();
         }
     }
-    
+
+    public void delete(Long id) {
+        Services s = em.find(Services.class, id);
+        if (s != null) {
+            em.remove(s);
+        }
+    }
+
 }
