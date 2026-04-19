@@ -6,6 +6,7 @@ package Entity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -224,11 +225,28 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
 
 // 根据 ID 或 Email 搜索这些已经修好的预约
     public List<Appointment> searchUnpaid(String query) {
-        return em.createQuery("SELECT a FROM Appointment a WHERE "
-                + "(a.customer.email LIKE :q OR CAST(a.appointment_id AS CHAR) LIKE :q) "
-                + "AND a.appointment_status = 'Completed'", Appointment.class)
-                .setParameter("q", "%" + query + "%")
-                .getResultList();
+        try {
+            // 如果是数字 → search by ID
+            if (query.matches("\\d+")) {
+                Long id = Long.parseLong(query);
+
+                return em.createQuery(
+                        "SELECT a FROM Appointment a WHERE a.appointment_id = :id AND a.appointment_status = 'Completed'",
+                        Appointment.class)
+                        .setParameter("id", id)
+                        .getResultList();
+            } else {
+                // 否则 → search by email
+                return em.createQuery(
+                        "SELECT a FROM Appointment a WHERE a.customer.email LIKE :q AND a.appointment_status = 'Completed'",
+                        Appointment.class)
+                        .setParameter("q", "%" + query + "%")
+                        .getResultList();
+            }
+
+        } catch (Exception e) {
+            return new ArrayList<>(); // ❗ 不要 throw error
+        }
     }
 
     public List<Appointment> findByTechnicianEmail(String email) {

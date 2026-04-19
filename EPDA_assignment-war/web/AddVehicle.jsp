@@ -259,7 +259,7 @@
             </div>
 
             <div class="text-center mt-4">
-                <small class="text-muted">Logged in as: <strong><%= currentUser != null ? currentUser.getUsername() : "Guest"%></strong></small>
+                <small class="text-muted">Logged in as (operator):<strong><%= currentUser != null ? currentUser.getUsername() : "Guest"%></strong></small>
             </div>
         </div>
 

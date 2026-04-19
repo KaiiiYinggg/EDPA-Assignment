@@ -182,18 +182,17 @@
                                 <td class="text-muted">#${row[0].feedback_id}<br><small>Appt #${row[0].appointment.appointment_id}</small></td>
 
                                 <c:if test="${sessionScope.user.role == 'manager'}">
-                                    <td class="fw-bold"><c:out value="${row[8]}"/></td>
+                                    <td class="fw-bold"><c:out value="${row[7]}"/></td>
                                 </c:if>
 
                                 <td>
-                                    <span class="badge bg-secondary mb-1">${empty row[7] ? 'N/A' : row[7]}</span><br>
                                     <span class="fw-bold text-dark">${row[1]}</span>
                                 </td>
 
                                 <td>
                                     <div class="small">
-                                        <i class="fas fa-user-tie me-1 text-muted"></i> Staff: ${empty row[5] ? '-' : row[5]}<br>
-                                        <i class="fas fa-wrench me-1 text-muted"></i> Tech: ${empty row[6] ? '-' : row[6]}
+                                        <i class="fas fa-user-tie me-1 text-muted"></i> Staff: ${empty row[4] ? '-' : row[4]}<br>
+                                        <i class="fas fa-wrench me-1 text-muted"></i> Tech: ${empty row[5] ? '-' : row[5]}
                                     </div>
                                 </td>
 

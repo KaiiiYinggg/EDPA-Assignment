@@ -4,6 +4,7 @@ import Entity.AppointmentFacade;
 import Entity.Payment;
 import Entity.PaymentFacade;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -27,7 +28,7 @@ public class PaymentServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         String query = request.getParameter("query");
-        
+
         String subAction = request.getParameter("subAction");
 
         try {
@@ -64,7 +65,12 @@ public class PaymentServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("../error.jsp");
+
+            request.setAttribute("errorMessage", "Invalid search input.");
+            request.setAttribute("appList", new ArrayList<>());
+            request.setAttribute("view", "pending");
+
+            request.getRequestDispatcher("PaymentReceipt.jsp").forward(request, response);
         }
     }
 
@@ -119,7 +125,12 @@ public class PaymentServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("../error.jsp");
+
+            request.setAttribute("errorMessage", "Invalid search input.");
+            request.setAttribute("appList", new ArrayList<>());
+            request.setAttribute("view", "pending");
+
+            request.getRequestDispatcher("PaymentReceipt.jsp").forward(request, response);
         }
     }
 
@@ -216,5 +227,5 @@ public class PaymentServlet extends HttpServlet {
         cell2.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
         table.addCell(cell2);
     }
-    
+
 }

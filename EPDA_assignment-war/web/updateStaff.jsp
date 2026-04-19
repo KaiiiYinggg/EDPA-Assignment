@@ -143,10 +143,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Gender</label>
-                                    <select name="gender" class="form-select">
+
+                                    <select class="form-select" disabled>
                                         <option value="Male" ${staff.gender == 'Male' ? 'selected' : ''}>Male</option>
                                         <option value="Female" ${staff.gender == 'Female' ? 'selected' : ''}>Female</option>
                                     </select>
+                                    <input type="hidden" name="gender" value="${staff.gender}">
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label">Home Address</label>

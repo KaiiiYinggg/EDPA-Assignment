@@ -162,7 +162,7 @@
                                 <td>${u.email}</td>
                                 <td onclick="event.stopPropagation();">
                                     <div class="d-flex gap-1">
-                                        <a class="btn btn-sm btn-success" title="Add Vehicle" href="${pageContext.request.contextPath}/AddVehicle.jsp?customerId=${u.user_id}">
+                                        <a class="btn btn-sm btn-success" title="Add Vehicle" href="${pageContext.request.contextPath}/AddVehicle?customerId=${u.user_id}">
                                             <i class="fas fa-plus"></i>
                                         </a>
                                         <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#vehicleDetails-${u.user_id}">

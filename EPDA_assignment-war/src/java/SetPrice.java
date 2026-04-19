@@ -31,6 +31,18 @@ public class SetPrice extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
+
+        // ================= DELETE（放最前面！）=================
+        String deleteId = request.getParameter("deleteId");
+
+        if (deleteId != null) {
+            Long id = Long.parseLong(deleteId);
+            servicesFacade.delete(id);
+
+            response.sendRedirect("SetPrice");
+            return;
+        }
+
         String action = request.getParameter("action");
 
         // ================= ADD SERVICE =================
@@ -49,7 +61,7 @@ public class SetPrice extends HttpServlet {
                 Services s = new Services();
                 s.setServiceType(serviceType);
                 s.setPrice(price);
-                s.setServiceHour(hour); // ✅ IMPORTANT
+                s.setServiceHour(hour);
 
                 servicesFacade.create(s);
             }
@@ -80,20 +92,6 @@ public class SetPrice extends HttpServlet {
             response.getWriter().println(
                     "<script>alert('Updated Successfully!'); location='SetPrice';</script>"
             );
-        }
-
-        // ================= DELETE SERVICE =================
-        if ("delete".equals(action)) {
-
-            String idStr = request.getParameter("id");
-
-            if (idStr != null) {
-                Long id = Long.parseLong(idStr);
-                servicesFacade.delete(id);
-            }
-
-            response.sendRedirect("SetPrice");
-            return;
         }
     }
 }

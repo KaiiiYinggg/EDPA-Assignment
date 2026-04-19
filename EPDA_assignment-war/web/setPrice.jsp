@@ -134,6 +134,7 @@
                                 <th>Service</th>
                                 <th>Hour</th>
                                 <th>Price (RM)</th>
+                                <th>Action</th> <!-- ✅ 加这个 -->
                             </tr>
                         </thead>
 
@@ -156,19 +157,15 @@
                                                class="form-control">
                                     </td>
 
-                                    <!-- ✅ DELETE BUTTON -->
+                                    <!-- ✅ FIXED DELETE (没有 form inside form) -->
                                     <td>
-                                        <form action="SetPrice" method="post"
-                                              onsubmit="return confirm('Delete this service?')">
-
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="id" value="${s.service_id}">
-
-                                            <button class="btn btn-danger btn-sm">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-
-                                        </form>
+                                        <button type="submit"
+                                                name="deleteId"
+                                                value="${s.service_id}"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Delete this service?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
 
@@ -178,6 +175,7 @@
 
                     <input type="hidden" name="totalCount" value="${serviceList.size()}">
 
+                    <!-- ✅ UPDATE BUTTON -->
                     <button class="btn btn-warning mt-3" name="updateAll" value="1">
                         Update All
                     </button>
