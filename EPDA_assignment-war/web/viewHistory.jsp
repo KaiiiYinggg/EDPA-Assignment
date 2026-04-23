@@ -11,26 +11,97 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
         <style>
-            :root { --sidebar-width: 260px; }
-            body { background-color: #f4f7f6; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-            .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; color: white; padding-top: 20px; z-index: 1000; transition: 0.3s; }
-            .sidebar a { padding: 15px 25px; display: block; color: #bdc3c7; text-decoration: none; transition: 0.3s; }
-            .sidebar a:hover { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid #1abc9c; }
-            .sidebar .active { background: #1abc9c !important; color: white !important; border-left: 4px solid #1abc9c; }
-            .bg-tech { background: #273746; }
-            .bg-customer { background: #1e272e; }
-            .main-content { margin-left: var(--sidebar-width); padding: 30px; }
+            :root {
+                --sidebar-width: 260px;
+            }
+            body {
+                background-color: #f4f7f6;
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            .sidebar {
+                width: var(--sidebar-width);
+                height: 100vh;
+                position: fixed;
+                color: white;
+                padding-top: 20px;
+                z-index: 1000;
+                transition: 0.3s;
+            }
+            .sidebar a {
+                padding: 15px 25px;
+                display: block;
+                color: #bdc3c7;
+                text-decoration: none;
+                transition: 0.3s;
+            }
+            .sidebar a:hover {
+                background: rgba(255,255,255,0.1);
+                color: white;
+                border-left: 4px solid #1abc9c;
+            }
+            .sidebar .active {
+                background: #1abc9c !important;
+                color: white !important;
+                border-left: 4px solid #1abc9c;
+            }
+            .bg-tech {
+                background: #273746;
+            }
+            .bg-customer {
+                background: #1e272e;
+            }
+            .main-content {
+                margin-left: var(--sidebar-width);
+                padding: 30px;
+            }
 
-            .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: white; }
-            th { background-color: #f8f9fa; padding: 15px; color: #2c3e50; border-bottom: 2px solid #eee; font-size: 0.85rem; text-transform: uppercase; }
-            td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 0.9rem; }
+            .card {
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                background: white;
+            }
+            th {
+                background-color: #f8f9fa;
+                padding: 15px;
+                color: #2c3e50;
+                border-bottom: 2px solid #eee;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+            }
+            td {
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+                vertical-align: middle;
+                font-size: 0.9rem;
+            }
 
-            .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
-            .tag-done { background: #e8f5e9; color: #2e7d32; }
-            .tag-progress { background: #e3f2fd; color: #1565c0; }
-            .tag-waiting { background: #fff3e0; color: #ef6c00; }
-            
-            .feedback-done { font-size: 0.75rem; color: #1abc9c; font-weight: 600; }
+            .status-tag {
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: bold;
+            }
+            .tag-done {
+                background: #e8f5e9;
+                color: #2e7d32;
+            }
+            .tag-progress {
+                background: #e3f2fd;
+                color: #1565c0;
+            }
+            .tag-waiting {
+                background: #fff3e0;
+                color: #ef6c00;
+            }
+
+            .feedback-done {
+                font-size: 0.75rem;
+                color: #1abc9c;
+                font-weight: 600;
+            }
         </style>
     </head>
     <body>
@@ -135,10 +206,18 @@
                                     <td class="text-center">
                                         <c:choose>
                                             <c:when test="${sessionScope.user.role == 'technician' && app.appointment_status == 'Approved'}">
-                                                <a href="UpdateAppointmentStatus?id=${app.appointment_id}&status=Completed" 
-                                                   class="btn btn-sm btn-success shadow-sm" onclick="return confirm('Confirm completion of this task?')">
-                                                   <i class="fas fa-check me-1"></i>Finish
-                                                </a>
+                                                <span class="badge bg-light text-dark border">
+                                                    <i class="fas fa-hourglass-half me-1"></i>
+                                                    Pending Completion<br>
+                                                    <small>Update on Dashboard</small>
+                                                </span>
+                                            </c:when>
+
+                                            <c:when test="${sessionScope.user.role == 'customer' && app.appointment_status == 'Approved'}">
+                                                <span class="badge bg-info-soft text-info border border-info">
+                                                    <i class="fas fa-tools me-1"></i>
+                                                    Service in Progress...<br>
+                                                </span>
                                             </c:when>
 
                                             <c:when test="${app.appointment_status == 'Paid' || app.appointment_status == 'Completed'}">
@@ -151,7 +230,17 @@
 
                                                 <c:choose>
                                                     <c:when test="${isFbDone}">
-                                                        <span class="feedback-done"><i class="fas fa-check-circle me-1"></i>Processed</span>
+                                                        <span class="feedback-done">
+                                                            <i class="fas fa-check-circle me-1"></i>
+                                                            <c:choose>
+                                                                <c:when test="${sessionScope.user.role == 'technician'}">
+                                                                    Notes Submitted
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    Feedback Submitted
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </span>
                                                     </c:when>
                                                     <c:otherwise>
                                                         <a href="${pageContext.request.contextPath}/GiveFeedback?appointmentId=${app.appointment_id}" class="btn btn-sm btn-outline-primary px-3">
@@ -204,8 +293,10 @@
 
         <script>
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('commentmessage') === 'saved') alert("Feedback has been successfully recorded.");
-            if (urlParams.get('error') === 'already_commented') alert("Note: Feedback for this service has already been submitted.");
+            if (urlParams.get('commentmessage') === 'saved')
+                alert("Feedback has been successfully recorded.");
+            if (urlParams.get('error') === 'already_commented')
+                alert("Note: Feedback for this service has already been submitted.");
         </script>
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>

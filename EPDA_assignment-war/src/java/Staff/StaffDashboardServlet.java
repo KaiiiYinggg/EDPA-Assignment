@@ -6,6 +6,8 @@ package Staff;
  */
 import Entity.Appointment;
 import Entity.AppointmentFacade;
+import Entity.Services;
+import Entity.ServicesFacade;
 import Entity.User;
 import Entity.UserFacade;
 import java.io.IOException;
@@ -28,6 +30,8 @@ public class StaffDashboardServlet extends HttpServlet {
     private AppointmentFacade appointmentFacade;
     @EJB
     private UserFacade userFacade;
+    @EJB
+    private ServicesFacade serviceFacade;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -59,6 +63,9 @@ public class StaffDashboardServlet extends HttpServlet {
         request.setAttribute("todayApps", todayApps);
         request.setAttribute("unpaidApps", unpaidApps);
         request.setAttribute("totalCust", totalCust);
+
+        List<Services> services = serviceFacade.findAll();
+        request.setAttribute("services", services);
 
         // 5. 根据角色转发到正确的页面
         String role = user.getRole().toLowerCase();

@@ -47,14 +47,23 @@ public class SetPrice extends HttpServlet {
 
         // ================= ADD SERVICE =================
         if ("add".equals(action)) {
-
-            String serviceType = request.getParameter("serviceType");
+            String serviceType = request.getParameter("serviceType").trim(); // 去掉前后空格
             String priceStr = request.getParameter("price");
             String hourStr = request.getParameter("serviceHour");
 
-            if (serviceType != null && priceStr != null && hourStr != null
-                    && !serviceType.isEmpty()) {
+            if (serviceType != null && !serviceType.isEmpty()) {
 
+                Services existing = servicesFacade.findByType(serviceType);
+
+                if (existing != null) {
+                    response.setContentType("text/html;charset=UTF-8");
+                    response.getWriter().println(
+                            "<script>alert('Error: Service [" + serviceType + "] already exists!'); history.back();</script>"
+                    );
+                    return;
+                }
+
+                // --- 如果不存在，才执行创建 ---
                 double price = Double.parseDouble(priceStr);
                 int hour = Integer.parseInt(hourStr);
 

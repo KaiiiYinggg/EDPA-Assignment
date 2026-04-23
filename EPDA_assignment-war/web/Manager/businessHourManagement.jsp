@@ -61,12 +61,6 @@
                 font-weight: bold;
                 color: #2c3e50;
             }
-            .table thead th {
-                background-color: #f8f9fa;
-                text-transform: uppercase;
-                font-size: 0.85rem;
-                color: #6c757d;
-            }
         </style>
     </head>
     <body>
@@ -76,9 +70,7 @@
             <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
             <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
             <a href="${pageContext.request.contextPath}/ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
-            <a href="${pageContext.request.contextPath}/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
             <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
-            <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
             <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
             <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
             <a href="${pageContext.request.contextPath}/Manager/BusinessHourServlet" class="active"><i class="fas fa-clock me-2"></i> Business Hour</a>
@@ -87,21 +79,31 @@
 
         <div class="main-content">
             <div class="card-custom">
-                <h2 class="fw-bold mb-4" style="color: #2c3e50;"><i class="fas fa-calendar-day me-2 text-primary"></i>Business Hour Control</h2>
+                <h2 class="fw-bold mb-4"><i class="fas fa-calendar-day me-2 text-primary"></i>Business Hour Control</h2>
 
-                <c:if test="${param.success != null}">
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <i class="fas fa-check-circle me-2"></i> Operation successful!
-                    </div>
-                </c:if>
+                <c:choose>
+                    <c:when test="${param.success == 'added'}">
+                        <div class="alert alert-success alert-dismissible fade show"><i class="fas fa-plus-circle me-2"></i> New setting added successfully! <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                        </c:when>
+                        <c:when test="${param.success == 'updated'}">
+                        <div class="alert alert-info alert-dismissible fade show"><i class="fas fa-check-circle me-2"></i> Settings updated! <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                        </c:when>
+                        <c:when test="${param.success == 'deleted'}">
+                        <div class="alert alert-warning alert-dismissible fade show"><i class="fas fa-trash-alt me-2"></i> Setting removed. <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                        </c:when>
+                    </c:choose>
 
                 <form id="bhForm" action="BusinessHourServlet" method="post" class="row g-3">
                     <input type="hidden" name="action" id="formAction" value="save">
 
                     <div class="col-md-6">
                         <label class="form-label">Select Date</label>
-                        <input type="date" name="date" id="datePicker" class="form-control" required onchange="loadDateSettings(this.value)">
-                        <div id="statusInfo" class="mt-2 small fw-bold text-primary"></div>
+                        <input type="date" name="date" id="datePicker" class="form-control" required onchange="onDateChange(this.value)">
+                        <div id="statusInfo" class="mt-2 p-2 rounded small fw-bold"></div>
+                        <div id="conflictAlert" class="mt-2 alert alert-danger d-none">
+                            <i class="fas fa-exclamation-triangle me-2"></i> <strong>Conflict!</strong> This day has <span id="apptNum">0</span> bookings.
+                            <br><small id="customerEmails"></small>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -138,47 +140,18 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Hours</th>
-                                <th>Note</th>
-                                <th>Action</th>
-                            </tr>
+                            <tr><th>Date</th><th>Status</th><th>Hours</th><th>Note</th><th>Action</th></tr>
                         </thead>
                         <tbody>
                             <c:forEach var="bh" items="${allSettings}">
                                 <tr>
                                     <td class="fw-bold">${bh.businessDate}</td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${bh.isIsClosed()}">
-                                                <span class="badge bg-danger">CLOSED</span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="badge bg-warning text-dark">CUSTOM</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${bh.isIsClosed()}">---</c:when>
-                                            <c:otherwise>${bh.openTime} - ${bh.closeTime}</c:otherwise>
-                                        </c:choose>
-                                    </td>
+                                    <td><span class="badge ${bh.isIsClosed() ? 'bg-danger' : 'bg-warning text-dark'}">${bh.isIsClosed() ? 'CLOSED' : 'CUSTOM'}</span></td>
+                                    <td>${bh.isIsClosed() ? '---' : bh.openTime.toString().concat(' - ').concat(bh.closeTime)}</td>
                                     <td class="text-muted">${bh.note}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="editSetting('${bh.businessDate}')">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-                                    </td>
+                                    <td><button class="btn btn-sm btn-outline-primary" onclick="editSetting('${bh.businessDate}')"><i class="fas fa-edit"></i> Edit</button></td>
                                 </tr>
                             </c:forEach>
-                            <c:if test="${empty allSettings}">
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">No special settings found. All dates using default 10:00-18:00.</td>
-                                </tr>
-                            </c:if>
                         </tbody>
                     </table>
                 </div>
@@ -186,78 +159,106 @@
         </div>
 
         <script>
-            // 页面加载时的初始化
             document.addEventListener("DOMContentLoaded", function () {
                 const todayStr = new Date().toISOString().split("T")[0];
                 const datePicker = document.getElementById('datePicker');
-
-                // ✨ 设置日历：只能选今天及以后的日期
-                if (datePicker) {
+                if (datePicker)
                     datePicker.min = todayStr;
-                }
 
-                // 处理错误弹窗
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('error') === 'pastDate') {
-                    alert("❌ Operation Failed: You cannot modify business hours for past dates.");
+                if (window.history.replaceState) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('success');
+                    url.searchParams.delete('error');
+                    window.history.replaceState({path: url.href}, '', url.href);
                 }
             });
 
-            // 切换时间输入框状态
+            function checkSubmitButtonStatus() {
+                const datePicker = document.getElementById('datePicker');
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const apptCount = parseInt(datePicker.dataset.apptCount || "0");
+
+                if (apptCount > 0) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = "<i class='fas fa-ban me-2'></i> Cannot Modify (Bookings Exist)";
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-secondary');
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = "<i class='fas fa-save me-2'></i> Save Changes";
+                    submitBtn.classList.remove('btn-secondary');
+                    submitBtn.classList.add('btn-primary');
+                }
+            }
+
             function toggleTimeInputs(isClosed) {
                 document.getElementById('openInput').disabled = isClosed;
                 document.getElementById('closeInput').disabled = isClosed;
+                checkSubmitButtonStatus();
             }
 
-            // 自动加载已存设置
+            function onDateChange(date) {
+                document.getElementById('formAction').value = "save";
+                loadDateSettings(date);
+            }
+
             function loadDateSettings(date) {
                 if (!date)
                     return;
-
                 fetch('BusinessHourServlet?date=' + date)
                         .then(r => r.json())
                         .then(data => {
                             const statusInfo = document.getElementById('statusInfo');
-                            const deleteBtn = document.getElementById('deleteBtn');
+                            const conflictAlert = document.getElementById('conflictAlert');
+                            const datePicker = document.getElementById('datePicker');
+
+                            datePicker.dataset.apptCount = data.apptCount || 0;
+                            if (data.apptCount > 0) {
+                                conflictAlert.classList.remove('d-none');
+                                document.getElementById('apptNum').innerText = data.apptCount;
+                                document.getElementById('customerEmails').innerText = "Customers: " + data.customerList;
+                            } else {
+                                conflictAlert.classList.add('d-none');
+                            }
 
                             if (data.type === 'normal') {
-                                statusInfo.innerText = "✨ Currently using DEFAULT (10am-6pm)";
+                                statusInfo.className = "mt-2 p-2 rounded small fw-bold bg-light text-success";
+                                statusInfo.innerHTML = "Default Hours Available";
                                 document.getElementById('noteInput').value = "";
                                 document.getElementById('openInput').value = "10:00";
                                 document.getElementById('closeInput').value = "18:00";
                                 document.getElementById('isClosedCheck').checked = false;
-                                deleteBtn.style.display = "none";
+                                document.getElementById('deleteBtn').style.display = "none";
                             } else {
-                                statusInfo.innerText = "📌 Current Status: CUSTOM SETTING";
+                                statusInfo.className = "mt-2 p-2 rounded small fw-bold bg-light text-warning";
+                                statusInfo.innerHTML = "Custom Setting Exists";
                                 document.getElementById('noteInput').value = data.message || "";
                                 document.getElementById('isClosedCheck').checked = (data.type === 'holiday');
                                 if (data.type !== 'holiday') {
                                     document.getElementById('openInput').value = data.openTime;
                                     document.getElementById('closeInput').value = data.closeTime;
                                 }
-                                deleteBtn.style.display = "inline-block";
+                                document.getElementById('deleteBtn').style.display = "inline-block";
                             }
                             toggleTimeInputs(document.getElementById('isClosedCheck').checked);
+                            checkSubmitButtonStatus();
                         });
             }
 
-            // ✨ 修改 Edit 函数：增加过去日期拦截
             function editSetting(date) {
                 const todayStr = new Date().toISOString().split("T")[0];
-
-                // 如果点击的是过去的日期，弹出警告并拦截
                 if (date < todayStr) {
-                    alert("⚠️ Archived Record: Business hours for past dates cannot be modified.");
+                    alert("Cannot modify past records.");
                     return;
                 }
-
+                document.getElementById('formAction').value = "update";
                 document.getElementById('datePicker').value = date;
                 loadDateSettings(date);
                 window.scrollTo({top: 0, behavior: 'smooth'});
             }
 
             function deleteSetting() {
-                if (confirm("Are you sure you want to remove this setting? The date will revert to default hours.")) {
+                if (confirm("Remove this setting?")) {
                     document.getElementById('formAction').value = "delete";
                     document.getElementById('bhForm').submit();
                 }

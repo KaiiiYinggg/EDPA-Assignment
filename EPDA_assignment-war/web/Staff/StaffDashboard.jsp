@@ -92,7 +92,7 @@
             <a href="${pageContext.request.contextPath}/ManageCustomers?action=list"><i class="fas fa-users me-2"></i> Manage Customers</a>
             <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Registration</a>
             <a href="${pageContext.request.contextPath}/PaymentServlet"><i class="fas fa-file-invoice-dollar me-2"></i> Collect Payments</a>
-            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+            <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> Edit Profile</a>
             <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
         </div>
 
@@ -113,24 +113,42 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <div class="card stat-card border-0 shadow-sm bg-white border-start border-info border-5">
-                                <div class="card-body p-4">
-                                    <h6 class="text-uppercase text-muted small fw-bold">Service Type A</h6>
-                                    <h5 class="fw-bold mb-1">Normal Maintenance</h5>
-                                    <span class="badge rounded-pill bg-info-subtle text-info px-3">Est: 1.0 Hour</span>
+                        <c:forEach var="svc" items="${services}">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card stat-card border-0 shadow-sm bg-white h-100 border-start border-4 
+                                     ${svc.serviceHour <= 1 ? 'border-success' : svc.serviceHour <= 2 ? 'border-info' : 'border-danger'}">
+
+                                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+
+                                        <div>
+                                            <h6 class="text-uppercase text-muted small fw-bold">
+                                                Service ID: ${svc.service_id}
+                                            </h6>
+
+                                            <h5 class="fw-bold mb-2 text-dark">
+                                                ${svc.serviceType}
+                                            </h5>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                                            <span class="badge rounded-pill px-3 py-2 
+                                                  ${svc.serviceHour <= 1 ? 'bg-success-subtle text-success' : 
+                                                    svc.serviceHour <= 2 ? 'bg-info-subtle text-info' : 
+                                                    'bg-danger-subtle text-danger'}">
+
+                                                <i class="fas fa-clock me-1"></i>
+                                                ${svc.serviceHour} Hour(s)
+                                            </span>
+
+                                            <span class="fw-bold text-primary">
+                                                RM ${svc.price}
+                                            </span>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card stat-card border-0 shadow-sm bg-white border-start border-danger border-5">
-                                <div class="card-body p-4">
-                                    <h6 class="text-uppercase text-muted small fw-bold">Service Type B</h6>
-                                    <h5 class="fw-bold mb-1">Major Inspection</h5>
-                                    <span class="badge rounded-pill bg-danger-subtle text-danger px-3">Est: 3.0 Hours</span>
-                                </div>
-                            </div>
-                        </div>
+                        </c:forEach>
                     </div>
 
                     <div class="card shadow-sm border-0 rounded-3 mb-4">

@@ -13,12 +13,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.annotation.security.PermitAll;
 
 /**
  *
  * @author teech
  */
 @Stateless
+@PermitAll
 public class AppointmentFacade extends AbstractFacade<Appointment> {
 
     @PersistenceContext(unitName = "EPDA_assignment-ejbPU")
@@ -33,52 +35,6 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         super(Appointment.class);
     }
 
-//    public List<Object[]> findFilteredAppointments(String email, String role, String date, String name) {
-//        // 1. 基础 SELECT 保持不变
-//        StringBuilder queryStr = new StringBuilder(
-//                "SELECT a, s.serviceType, a.appointment_time, "
-//                + "a.staff_email, a.technician_email, c.carPlateNumber "
-//                + "FROM Appointment a "
-//                + "JOIN a.service s "
-//                + "LEFT JOIN a.car c "
-//        );
-//
-//        // 2. 根据角色过滤用户
-//        if ("technician".equals(role)) {
-//            queryStr.append(" WHERE a.technician_email = :email");
-//        } else {
-//            queryStr.append(" WHERE a.customer.email = :email");
-//        }
-//
-//        // 🔥 关键修改：删掉原本那行 AND a.appointment_status = 'Done' 或 'Completed'
-//        // 这样不管是 Pending, Approved, Completed 还是 Paid，全部都会显示出来。
-//        // 3. 动态过滤（日期和名字搜索）
-//        if (date != null && !date.isEmpty()) {
-//            queryStr.append(" AND a.appointment_date = :date");
-//        }
-//        if (name != null && !name.isEmpty()) {
-//            queryStr.append(" AND UPPER(s.serviceType) LIKE :name");
-//        }
-//
-//        // 4. 排序：最新的排上面
-//        queryStr.append(" ORDER BY a.appointment_date DESC, a.appointment_time DESC");
-//
-//        Query query = em.createQuery(queryStr.toString());
-//        query.setParameter("email", email);
-//
-//        if (date != null && !date.isEmpty()) {
-//            try {
-//                query.setParameter("date", java.time.LocalDate.parse(date));
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (name != null && !name.isEmpty()) {
-//            query.setParameter("name", "%" + name.toUpperCase() + "%");
-//        }
-//
-//        return query.getResultList();
-//    }
     public List<Appointment> findFilteredAppointments(String email, String role, String date, String name) {
         StringBuilder queryStr = new StringBuilder(
                 "SELECT DISTINCT a FROM Appointment a "
@@ -205,7 +161,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     public List<Object[]> getTechnicianPerformance() {
         return em.createQuery(
                 "SELECT a.technician_email, COUNT(a) FROM Appointment a "
-                + "WHERE a.appointment_status = 'Completed' "
+                + "WHERE a.appointment_status = 'Completed' OR a.appointment_status='Paid'"
                 + "GROUP BY a.technician_email ORDER BY COUNT(a) DESC",
                 Object[].class).getResultList();
     }
@@ -213,7 +169,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     public List<Object[]> getStaffPerformance() {
         return em.createQuery(
                 "SELECT a.staff_email, COUNT(a) FROM Appointment a "
-                + "WHERE a.appointment_status = 'Completed' "
+                + "WHERE a.appointment_status = 'Completed' OR a.appointment_status='Paid'"
                 + "GROUP BY a.staff_email ORDER BY COUNT(a) DESC",
                 Object[].class).getResultList();
     }
@@ -272,6 +228,12 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
     public List<Appointment> findUnpaidAppointments() {
         // 假设你的状态字段叫 appointment_status
         return em.createQuery("SELECT a FROM Appointment a WHERE a.appointment_status = 'Completed'", Appointment.class)
+                .getResultList();
+    }
+
+    public List<Appointment> findByDate(LocalDate date) {
+        return em.createQuery("SELECT a FROM Appointment a WHERE a.appointment_date = :date", Appointment.class)
+                .setParameter("date", date)
                 .getResultList();
     }
 

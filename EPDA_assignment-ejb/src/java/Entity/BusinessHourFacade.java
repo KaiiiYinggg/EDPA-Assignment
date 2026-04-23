@@ -5,6 +5,7 @@
 package Entity;
 
 import java.time.LocalDate;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.*;
 
@@ -33,5 +34,10 @@ public class BusinessHourFacade extends AbstractFacade<BusinessHour> {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public List<BusinessHour> findAllOrderedByDate() {
+        return em.createQuery("SELECT b FROM BusinessHour b ORDER BY b.businessDate ASC", BusinessHour.class)
+                .getResultList();
     }
 }

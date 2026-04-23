@@ -2,6 +2,8 @@ package Manager;
 
 import Entity.BusinessHour;
 import Entity.BusinessHourFacade;
+import Entity.Appointment;
+import Entity.AppointmentFacade;
 import java.io.IOException;
 import java.time.LocalDate;
 import javax.ejb.EJB;
@@ -10,12 +12,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import com.google.gson.Gson;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet("/Manager/BusinessHourServlet")
 public class BusinessHourServlet extends HttpServlet {
 
     @EJB
     private BusinessHourFacade bhFacade;
+
+    @EJB
+    private AppointmentFacade appointmentFacade;
 
     private Gson gson = new Gson();
 
@@ -25,31 +31,38 @@ public class BusinessHourServlet extends HttpServlet {
 
         String dateStr = request.getParameter("date");
 
-        // ✨ 如果没有日期参数，说明是“打开页面”，直接查全表显示列表
         if (dateStr == null || dateStr.isEmpty()) {
-            List<BusinessHour> allSettings = bhFacade.findAll();
+            List<BusinessHour> allSettings = bhFacade.findAllOrderedByDate();
             request.setAttribute("allSettings", allSettings);
             request.getRequestDispatcher("businessHourManagement.jsp").forward(request, response);
             return;
         }
 
-        // ✨ 如果有日期参数，说明是 AJAX 在查询特定某天，返回 JSON (保持原来的逻辑)
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try {
             LocalDate date = LocalDate.parse(dateStr);
             BusinessHour bh = bhFacade.findByDate(date);
+            List<Appointment> appts = appointmentFacade.findByDate(date);
+            String customerEmails = appts.stream()
+                    .map(a -> a.getCustomer().getEmail())
+                    .collect(Collectors.joining(", "));
+
+            ApiResponse apiRes;
             if (bh == null) {
-                response.getWriter().write(gson.toJson(new ApiResponse("normal", null, "10:00", "18:00")));
+                apiRes = new ApiResponse("normal", null, "10:00", "18:00");
             } else {
-                // 注意：这里要把 note 传给 message 字段显示在前端
-                response.getWriter().write(gson.toJson(new ApiResponse(
+                apiRes = new ApiResponse(
                         bh.isIsClosed() ? "holiday" : "custom",
                         bh.getNote(),
                         bh.getOpenTime() != null ? bh.getOpenTime().toString() : "10:00",
                         bh.getCloseTime() != null ? bh.getCloseTime().toString() : "18:00"
-                )));
+                );
             }
+            apiRes.apptCount = appts.size();
+            apiRes.customerList = customerEmails;
+
+            response.getWriter().write(gson.toJson(apiRes));
         } catch (Exception e) {
             response.getWriter().write(gson.toJson(new ApiResponse("error", "Invalid date", null, null)));
         }
@@ -59,6 +72,7 @@ public class BusinessHourServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         String dateStr = request.getParameter("date");
 
@@ -66,7 +80,6 @@ public class BusinessHourServlet extends HttpServlet {
             LocalDate selectedDate = LocalDate.parse(dateStr);
             LocalDate today = LocalDate.now();
 
-            // ✨ 双重保险：拦截任何尝试修改过去日期的 POST 请求
             if (selectedDate.isBefore(today)) {
                 response.sendRedirect("BusinessHourServlet?error=pastDate");
                 return;
@@ -74,7 +87,6 @@ public class BusinessHourServlet extends HttpServlet {
 
             BusinessHour bh = bhFacade.findByDate(selectedDate);
 
-            // 执行删除逻辑
             if ("delete".equals(action)) {
                 if (bh != null) {
                     bhFacade.remove(bh);
@@ -83,16 +95,38 @@ public class BusinessHourServlet extends HttpServlet {
                 return;
             }
 
-            // 执行保存或更新逻辑
-            if (bh == null) {
-                bh = new BusinessHour();
-                bh.setBusinessDate(selectedDate);
+            if (bh != null && "save".equals(action)) {
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().println("<script>alert('Error: Settings for [" + dateStr + "] already exist.'); history.back();</script>");
+                return;
             }
 
             boolean isClosed = request.getParameter("isClosed") != null;
+
+            if (isClosed) {
+                List<Appointment> conflictAppts = appointmentFacade.findByDate(selectedDate);
+                if (!conflictAppts.isEmpty()) {
+                    response.setContentType("text/html;charset=UTF-8");
+                    String emails = conflictAppts.stream().map(a -> a.getCustomer().getEmail()).collect(Collectors.joining("\\n"));
+                    response.getWriter().println(
+                            "<script>"
+                            + "alert('CANNOT CLOSE: There are " + conflictAppts.size() + " appointments on " + dateStr + "!\\n\\nCustomers:\\n" + emails + "\\n\\nPlease reschedule them first.');"
+                            + "history.back();"
+                            + "</script>"
+                    );
+                    return;
+                }
+            }
+
+            String successMsg = "updated";
+            if (bh == null) {
+                bh = new BusinessHour();
+                bh.setBusinessDate(selectedDate);
+                successMsg = "added";
+            }
+
             bh.setIsClosed(isClosed);
             bh.setNote(request.getParameter("note"));
-
             if (!isClosed) {
                 bh.setOpenTime(java.time.LocalTime.parse(request.getParameter("openTime")));
                 bh.setCloseTime(java.time.LocalTime.parse(request.getParameter("closeTime")));
@@ -107,22 +141,21 @@ public class BusinessHourServlet extends HttpServlet {
                 bhFacade.edit(bh);
             }
 
-            // 重定向回 Servlet 路径以刷新表格
-            response.sendRedirect("BusinessHourServlet?success=saved");
+            response.sendRedirect("BusinessHourServlet?success=" + successMsg);
 
         } catch (Exception e) {
-            e.printStackTrace();
             response.sendRedirect("BusinessHourServlet?error=true");
         }
     }
 
-    // ✅ 更清楚的结构
     static class ApiResponse {
 
-        String type;     // normal / holiday / custom / error
-        String message;  // optional message
+        String type;
+        String message;
         String openTime;
         String closeTime;
+        int apptCount;
+        String customerList;
 
         public ApiResponse(String type, String message, String openTime, String closeTime) {
             this.type = type;

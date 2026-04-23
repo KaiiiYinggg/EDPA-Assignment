@@ -44,4 +44,14 @@ public class ServicesFacade extends AbstractFacade<Services> {
         }
     }
 
+    public Services findByType(String type) {
+        try {
+            return (Services) em.createQuery("SELECT s FROM Services s WHERE s.serviceType = :type")
+                    .setParameter("type", type)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
