@@ -64,14 +64,15 @@ public class Login extends HttpServlet {
                     response.sendRedirect("Technician/TechnicianServlet");
                     break;
                 case "customer":
+
                     List<Car> customerCars = carFacade.findByUserEmail(user.getEmail());
                     session.setAttribute("customerCars", customerCars);
 
-                    // 2. 获取服务摘要
                     List<Object[]> serviceSummary = appointmentFacade.findServiceSummary(user.getEmail());
                     session.setAttribute("serviceSummary", serviceSummary);
 
-                    request.getRequestDispatcher("/Customer/customerDashboard.jsp").forward(request, response);
+                    // ⭐ redirect to servlet (NOT JSP)
+                    response.sendRedirect(request.getContextPath() + "/CustomerDashboardServlet");
                     break;
                 default:
                     response.sendRedirect("index.jsp");

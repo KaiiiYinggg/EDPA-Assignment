@@ -6,12 +6,16 @@ package Staff;
  */
 import Entity.Appointment;
 import Entity.AppointmentFacade;
+import Entity.BusinessHour;
+import Entity.BusinessHourFacade;
 import Entity.Services;
 import Entity.ServicesFacade;
 import Entity.User;
 import Entity.UserFacade;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -32,6 +36,8 @@ public class StaffDashboardServlet extends HttpServlet {
     private UserFacade userFacade;
     @EJB
     private ServicesFacade serviceFacade;
+    @EJB
+    private BusinessHourFacade businessHourFacade;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -52,6 +58,19 @@ public class StaffDashboardServlet extends HttpServlet {
         // 3. 调用 Facade 获取数据
         // 获取今日预约列表
         List<Appointment> todayApps = appointmentFacade.findAppointmentsByDate(today);
+
+        LocalDate oneMonthLater = today.plusMonths(1);
+
+        List<BusinessHour> businessHours = businessHourFacade.findAllOrderedByDate()
+                .stream()
+                .filter(b -> b.getBusinessDate() != null)
+                .filter(b -> {
+                    LocalDate d = b.getBusinessDate();
+                    return !d.isBefore(today) && !d.isAfter(oneMonthLater);
+                })
+                .collect(Collectors.toList());
+
+        request.setAttribute("businessHours", businessHours);
 
         // 获取已完成但未支付的预约
         List<Appointment> unpaidApps = appointmentFacade.findUnpaidAppointments();

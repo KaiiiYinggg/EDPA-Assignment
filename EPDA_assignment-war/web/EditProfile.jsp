@@ -157,7 +157,7 @@
                 <div class="sidebar bg-customer">
                     <div class="text-center mb-4"><i class="fas fa-user-circle fa-3x mb-2 text-success"></i><h5 class="fw-bold">CUSTOMER</h5></div>
                     <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Customer/customerDashboard.jsp"><i class="fas fa-home me-2"></i> Home Page</a>
+                    <a href="${pageContext.request.contextPath}/Customer/CustomerDashboardServlet"><i class="fas fa-home me-2"></i> Home Page</a>
                     <a href="${pageContext.request.contextPath}/EditProfile" class="active"><i class="fas fa-id-card me-2"></i> My Profile</a>
                     <a href="${pageContext.request.contextPath}/ViewHistory"><i class="fas fa-file-alt me-2"></i> View History</a>
                     <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-star me-2"></i> Feedback</a>

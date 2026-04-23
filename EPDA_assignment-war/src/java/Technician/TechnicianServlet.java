@@ -6,8 +6,12 @@ package Technician;
 
 import Entity.Appointment;
 import Entity.AppointmentFacade; // 确保导入了这个
+import Entity.BusinessHour;
+import Entity.BusinessHourFacade;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.ejb.EJB; // 必须导入这个
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,6 +30,8 @@ public class TechnicianServlet extends HttpServlet {
 
     @EJB
     private AppointmentFacade appFacade; // 刚才你漏了这一行！
+    @EJB
+    private BusinessHourFacade businessHourFacade;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -46,8 +52,23 @@ public class TechnicianServlet extends HttpServlet {
 
         // 获取分配给他的任务
         List<Appointment> myTasks = appFacade.findByTechnicianEmail(techEmail);
-
         request.setAttribute("taskList", myTasks);
+
+// ⭐ HERE（替换原本 businessHour 那一行）
+        LocalDate today = LocalDate.now();
+        LocalDate oneMonthLater = today.plusMonths(1);
+
+        List<BusinessHour> all = businessHourFacade.findAllOrderedByDate();
+
+        List<BusinessHour> businessHours = all.stream()
+                .filter(b -> b.getBusinessDate() != null)
+                .filter(b
+                        -> !b.getBusinessDate().isBefore(today)
+                && !b.getBusinessDate().isAfter(oneMonthLater)
+                )
+                .collect(Collectors.toList());
+
+        request.setAttribute("businessHours", businessHours);
         // 转发回 Dashboard
         request.getRequestDispatcher("TechDashboard.jsp").forward(request, response);
     }

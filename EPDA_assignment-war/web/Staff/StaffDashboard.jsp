@@ -79,6 +79,37 @@
                 background-color: #fff8e1 !important;
                 border-left: 4px solid #ff9800 !important;
             }
+
+            .ticker-wrapper {
+                background: #d3e1f0;
+                overflow: hidden;
+                white-space: nowrap;
+                position: relative;
+            }
+
+            .ticker {
+                display: flex;
+                width: max-content;
+                animation: scroll-left 25s linear infinite;
+            }
+
+            .ticker:hover {
+                animation-play-state: paused;
+            }
+
+            .ticker-content {
+                display: flex;
+                white-space: nowrap;
+            }
+
+            @keyframes scroll-left {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
         </style>
         <meta http-equiv="refresh" content="60">
     </head>
@@ -109,6 +140,69 @@
                     <span class="fw-bold text-primary"><c:out value="${sessionScope.user.username}"/></span>
                 </div>
             </div>
+                
+                <c:if test="${not empty businessHours}">
+                <div class="notice-bar shadow-sm mb-4">
+
+                    <div class="notice-label">
+                        <i class="fas fa-bullhorn me-2"></i> Notice
+                    </div>
+
+                    <div class="ticker-wrapper">
+
+                        <div class="ticker">
+                            <!-- 第一轮 -->
+                            <c:forEach var="b" items="${businessHours}">
+                                <span class="ticker-item me-5 px-3">
+                                    <i class="far fa-calendar-alt me-1"></i>
+                                    ${b.businessDate} :
+
+                                    <c:choose>
+                                        <c:when test="${b.isClosed}">
+                                            <span class="text-danger fw-bold">Closed (Holiday)</span>
+                                        </c:when>
+
+                                        <c:otherwise>
+                                            <span class="text-info">
+                                                Open ${b.openTime} - ${b.closeTime}
+                                            </span>
+
+                                            <c:if test="${not empty b.note}">
+                                                <span class="text-muted"> - ${b.note}</span>
+                                            </c:if>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </c:forEach>
+
+                            <!-- 第二轮（无缝滚动关键） -->
+                            <c:forEach var="b" items="${businessHours}">
+                                <span class="ticker-item me-5 px-3">
+                                    <i class="far fa-calendar-alt me-1"></i>
+                                    ${b.businessDate} :
+
+                                    <c:choose>
+                                        <c:when test="${b.isClosed}">
+                                            <span class="text-danger fw-bold">Closed (Holiday)</span>
+                                        </c:when>
+
+                                        <c:otherwise>
+                                            <span class="text-info">
+                                                Open ${b.openTime} - ${b.closeTime}
+                                            </span>
+
+                                            <c:if test="${not empty b.note}">
+                                                <span class="text-muted"> - ${b.note}</span>
+                                            </c:if>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </c:forEach>
+
+                        </div>
+                    </div>
+                </div>
+            </c:if>
 
             <div class="row">
                 <div class="col-md-8">
