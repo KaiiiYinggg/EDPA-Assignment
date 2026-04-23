@@ -118,7 +118,7 @@
                     <div class="alert alert-danger py-2 mb-4"><i class="fas fa-exclamation-circle me-2"></i><c:out value="${error}"/></div>
                     </c:if>
 
-                <form action="Register" method="post" enctype="multipart/form-data" onsubmit="return confirm('Confirm new account registration?')">
+                <form action="Register" method="post" enctype="multipart/form-data" onsubmit="return validateRegistration()">
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="form-label">Username</label>
@@ -197,7 +197,30 @@
             alert("<%= safeMsg%>");
         </script>
         <% }%>
+        <script>
+            function validateRegistration() {
+                const ic = document.getElementsByName("userIC")[0].value;
 
+                if (ic.length !== 12) {
+                    alert("IC Number must be exactly 12 digits.");
+                    return false;
+                }
+
+                // 获取 IC 前两位计算年龄
+                const yearPart = parseInt(ic.substring(0, 2));
+                const currentYear = new Date().getFullYear();
+                const birthYear = (yearPart <= (currentYear % 100)) ? (2000 + yearPart) : (1900 + yearPart);
+
+                const age = currentYear - birthYear;
+
+                if (age < 17) {
+                    alert("Validation Error: User must be at least 17 years old (Current age: " + age + ").");
+                    return false;
+                }
+
+                return confirm('Confirm new account registration?');
+            }
+        </script>
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

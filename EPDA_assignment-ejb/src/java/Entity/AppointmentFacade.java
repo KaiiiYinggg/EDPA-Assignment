@@ -15,10 +15,6 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.annotation.security.PermitAll;
 
-/**
- *
- * @author teech
- */
 @Stateless
 @PermitAll
 public class AppointmentFacade extends AbstractFacade<Appointment> {
@@ -35,6 +31,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         super(Appointment.class);
     }
 
+    // Use in View History
     public List<Appointment> findFilteredAppointments(String email, String role, String date, String name, String status) {
         StringBuilder queryStr = new StringBuilder(
                 "SELECT DISTINCT a FROM Appointment a "
@@ -45,7 +42,6 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
 
         boolean hasWhere = false;
 
-        // 只有非 manager 才过滤 email
         if (!"manager".equals(role) && email != null) {
             if ("technician".equals(role)) {
                 queryStr.append(" WHERE a.technician_email = :email");
@@ -67,7 +63,6 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
             hasWhere = true;
         }
 
-        // ✅ 添加 status 筛选条件
         if (status != null && !status.isEmpty()) {
             queryStr.append(hasWhere ? " AND" : " WHERE");
             queryStr.append(" a.appointment_status = :status");
@@ -95,11 +90,12 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         return query.getResultList();
     }
 
+    // Use in Appointment Servlet
     public List<Appointment> searchAppointments(String custEmail, String dateStr, String idStr) {
-        // 基础查询：先锁定这个 Customer 的所有预约
+        // lock all appointments for this customer
         StringBuilder jpql = new StringBuilder("SELECT a FROM Appointment a WHERE a.customer.email = :email");
 
-        // 动态拼接条件：如果有日期就加日期，有 ID 就加 ID
+        // Add the date if it exists then add the ID if it exists
         if (dateStr != null && !dateStr.isEmpty()) {
             jpql.append(" AND a.appointment_date = :date");
         }
@@ -107,13 +103,12 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
             jpql.append(" AND a.appointment_id = :id");
         }
 
-        // 按照 ID 倒序排列，让最新的在上面
+        // sort by ID in descending order
         jpql.append(" ORDER BY a.appointment_id DESC");
 
         javax.persistence.TypedQuery<Appointment> query = em.createQuery(jpql.toString(), Appointment.class);
         query.setParameter("email", custEmail);
 
-        // 设置参数（记得转换类型，DB 里的 Date 是 LocalDate，ID 是 Long）
         if (dateStr != null && !dateStr.isEmpty()) {
             query.setParameter("date", java.time.LocalDate.parse(dateStr));
         }
@@ -121,7 +116,6 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
             try {
                 query.setParameter("id", Long.parseLong(idStr));
             } catch (NumberFormatException e) {
-                // 如果用户乱填 ID（比如填了字母），这里可以设一个不存在的 ID
                 query.setParameter("id", -1L);
             }
         }
@@ -129,13 +123,20 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         return query.getResultList();
     }
 
+    public List<Appointment> findByCustomerEmail(String email) {
+        return em.createQuery(
+                "SELECT a FROM Appointment a WHERE a.customer.email = :email",
+                Appointment.class)
+                .setParameter("email", email)
+                .getResultList();
+    }
+
+    // Use in Customer Dashboard & Login
     public List<Object[]> findServiceSummary(String email) {
         try {
-            // 更新 SELECT 语句：增加 s.serviceType
             String jpql = "SELECT a.appointment_date, s.serviceType, a.appointment_status, "
                     + "a.appointment_time, c.carPlateNumber, s.serviceType "
-                    + // s.serviceType 现在是索引 [5]
-                    "FROM Appointment a "
+                    + "FROM Appointment a "
                     + "JOIN a.service s "
                     + "LEFT JOIN a.car c "
                     + "WHERE a.customer.email = :email "
@@ -152,18 +153,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         }
     }
 
-    public List<Appointment> findByCustomerEmail(String email) {
-        return em.createQuery(
-                "SELECT a FROM Appointment a WHERE a.customer.email = :email",
-                Appointment.class)
-                .setParameter("email", email)
-                .getResultList();
-    }
-
     public List<User> findAvailableTechnicians(LocalDate date, LocalTime startTime, LocalTime endTime) {
-        // 逻辑：排除在该时间段内已有预约的技术员
-        // 冲突条件：(现有开始 < 目标结束) AND (现有结束 > 目标开始)
-        // 注意：我们需要通过 serviceHour 动态计算现有预约的结束时间
 
         String busyTechsQuery = "SELECT DISTINCT a.technician_email FROM Appointment a "
                 + "WHERE a.appointment_date = :date "
@@ -173,7 +163,6 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
                 + "AND FUNC('TIMESTAMPADD', FUNC('SQL_TSI_HOUR'), a.service.serviceHour, "
                 + "CAST(a.appointment_time AS TIMESTAMP)) > :targetStart";
 
-        // 注意：上述 FUNC 是特定于 Derby 的写法。如果 JPQL 不支持，建议查询出列表后在 Java 中 filter
         return em.createQuery("SELECT u FROM User u WHERE u.role = 'technician' "
                 + "AND u.email NOT IN (" + busyTechsQuery + ")", User.class)
                 .setParameter("date", date)
@@ -181,7 +170,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
                 .setParameter("targetEnd", endTime)
                 .getResultList();
     }
-
+    // Use in Load Manager Dashboard
     public List<Object[]> getTechnicianPerformance() {
         return em.createQuery(
                 "SELECT a.technician_email, COUNT(a) FROM Appointment a "
@@ -198,15 +187,14 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
                 Object[].class).getResultList();
     }
 
+    // Use in Payment Servlet
     public List<Appointment> findAllCompleted() {
         return em.createQuery("SELECT a FROM Appointment a WHERE a.appointment_status = 'Completed'", Appointment.class)
                 .getResultList();
     }
 
-// 根据 ID 或 Email 搜索这些已经修好的预约
     public List<Appointment> searchUnpaid(String query) {
         try {
-            // 如果是数字 → search by ID
             if (query.matches("\\d+")) {
                 Long id = Long.parseLong(query);
 
@@ -216,7 +204,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
                         .setParameter("id", id)
                         .getResultList();
             } else {
-                // 否则 → search by email
+                // search by email
                 return em.createQuery(
                         "SELECT a FROM Appointment a WHERE a.customer.email LIKE :q AND a.appointment_status = 'Completed'",
                         Appointment.class)
@@ -225,36 +213,31 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
             }
 
         } catch (Exception e) {
-            return new ArrayList<>(); // ❗ 不要 throw error
+            return new ArrayList<>();
         }
     }
-
+    
+    // Use in Technician Servlet
     public List<Appointment> findByTechnicianEmail(String email) {
-        // 只查 Approved，因为一旦变成 Completed 就不该出现在待办里了
+        // only check "Approved" because once it become "Completed" it not in the todo list
         return em.createQuery("SELECT a FROM Appointment a WHERE a.technician_email = :email AND a.appointment_status = 'Approved'", Appointment.class)
                 .setParameter("email", email)
                 .getResultList();
     }
 
-    /**
-     * 功能：查询指定日期的所有预约
-     */
+    // Use in Staff Dashboard
     public List<Appointment> findAppointmentsByDate(LocalDate date) {
         return em.createQuery("SELECT a FROM Appointment a WHERE a.appointment_date = :date", Appointment.class)
                 .setParameter("date", date)
                 .getResultList();
     }
 
-    /**
-     * 功能：查询所有已完成但未支付的预约 (Requirement 2.7 相关) 逻辑：状态是 'Completed' 且不在 Payment
-     * 表中的预约
-     */
     public List<Appointment> findUnpaidAppointments() {
-        // 假设你的状态字段叫 appointment_status
         return em.createQuery("SELECT a FROM Appointment a WHERE a.appointment_status = 'Completed'", Appointment.class)
                 .getResultList();
     }
 
+    // Use in Business Hour
     public List<Appointment> findByDate(LocalDate date) {
         return em.createQuery("SELECT a FROM Appointment a WHERE a.appointment_date = :date", Appointment.class)
                 .setParameter("date", date)
@@ -265,27 +248,26 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
 
         StringBuilder jpql = new StringBuilder("SELECT a FROM Appointment a WHERE 1=1");
 
-        // 🔍 Date filter
+        // date filter
         if (date != null && !date.isEmpty()) {
             jpql.append(" AND a.appointment_date = :date");
         }
 
-        // 🔍 Service filter
+        // service filter
         if (service != null && !service.isEmpty()) {
             jpql.append(" AND a.service.serviceType = :service");
         }
 
-        // 🔥 NEW: Status filter
+        // status filter
         if (status != null && !status.isEmpty()) {
             jpql.append(" AND a.appointment_status = :status");
         }
 
-        // ⭐ 加这个很加分（排序）
         jpql.append(" ORDER BY a.appointment_date DESC, a.appointment_time DESC");
 
         TypedQuery<Appointment> query = em.createQuery(jpql.toString(), Appointment.class);
 
-        // set parameters
+        // set parameter
         if (date != null && !date.isEmpty()) {
             query.setParameter("date", java.time.LocalDate.parse(date));
         }

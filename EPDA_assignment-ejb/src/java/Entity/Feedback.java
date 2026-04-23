@@ -86,29 +86,5 @@ public class Feedback implements Serializable {
         this.technician_feedback = technician_feedback;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (feedback_id != null ? feedback_id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Feedback)) {
-            return false;
-        }
-        Feedback other = (Feedback) object;
-        if ((this.feedback_id == null && other.feedback_id != null) || (this.feedback_id != null && !this.feedback_id.equals(other.feedback_id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.Feedback[ id=" + feedback_id + " ]";
-    }
     
 }

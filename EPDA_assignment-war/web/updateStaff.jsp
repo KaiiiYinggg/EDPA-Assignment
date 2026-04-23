@@ -126,10 +126,9 @@
                                     <input type="text" name="password" class="form-control" value="${staff.password}" required minlength="4">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">IC Number</label>
-                                    <input type="text" name="userIC" class="form-control" value="${staff.userIC}" 
-                                           maxlength="12" minlength="12" pattern="[0-9]{12}" inputmode="numeric" 
-                                           oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                                    <label class="form-label">IC Number (Identity Locked)</label>
+                                    <input type="text" name="userIC" class="form-control bg-light" value="${staff.userIC}" readonly>
+                                    <small class="text-muted">Staff identity records cannot be changed.</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Email Address</label>
@@ -138,7 +137,9 @@
                                 <div class="col-md-6">
                                     <label class="form-label">Phone Number</label>
                                     <input type="text" name="phoneNumber" class="form-control" value="${staff.phoneNumber}" 
-                                           required pattern="[0-9]{10,11}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                           required pattern="[0-9]{10,11}" 
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                           title="Phone number must be 10-11 digits">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Gender</label>

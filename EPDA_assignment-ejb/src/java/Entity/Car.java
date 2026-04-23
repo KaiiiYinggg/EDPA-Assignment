@@ -51,7 +51,6 @@ public class Car implements Serializable {
         this.user = user;
     }
 
-    // getters 和 setters
     public String getCarPlateNumber() {
         return carPlateNumber;
     }

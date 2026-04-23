@@ -11,10 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-/**
- *
- * @author teech
- */
 @Entity
 public class Services implements Serializable {
 
@@ -46,9 +42,6 @@ public class Services implements Serializable {
         this.serviceHour = serviceHour;
     }
 
-
-    
-
     public void setPrice(double price) {
         this.price = price;
     }
@@ -72,28 +65,18 @@ public class Services implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (service_id != null ? service_id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Services)) {
-            return false;
-        }
-        Services other = (Services) object;
-        if ((this.service_id == null && other.service_id != null) || (this.service_id != null && !this.service_id.equals(other.service_id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public String toString() {
-        return "Entity.Services[ id=" + service_id + " ]";
+        return super.toString(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
 }

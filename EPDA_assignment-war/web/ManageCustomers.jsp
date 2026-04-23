@@ -112,6 +112,22 @@
             <h2 class="fw-bold" style="color:#2c3e50;">Customer Management</h2>
             <hr>
 
+            <c:if test="${not empty sessionScope.successMsg}">
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i> ${sessionScope.successMsg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <c:remove var="successMsg" scope="session" />
+            </c:if>
+
+            <c:if test="${not empty sessionScope.errorMsg}">
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle me-2"></i> ${sessionScope.errorMsg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <c:remove var="errorMsg" scope="session" />
+            </c:if>
+
             <form action="ManageCustomers" method="GET" class="mb-4">
                 <input type="hidden" name="action" value="list">
                 <div class="d-flex gap-2">
@@ -225,7 +241,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-muted">Email Address</label>
-                                <input type="email" name="email" id="updateEmail" class="form-control" required maxlength="100">
+                                <input type="email" name="email" id="updateEmail" class="form-control bg-light" readonly>
                             </div>
 
                             <div class="d-flex gap-2 mt-4">

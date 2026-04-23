@@ -155,6 +155,38 @@
         <div class="main-content">
             <h2 class="fw-bold mb-4" style="color: #2c3e50;">
                 <i class="fas fa-comments me-2 text-primary"></i>
+                <div class="card p-3 mb-4 shadow-sm border-0">
+                    <form action="ViewFeedback" method="GET" class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="small fw-bold text-muted">Search Keyword</label>
+                            <input type="text" name="searchQuery" class="form-control" placeholder="Plate, Service..." value="${param.searchQuery}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="small fw-bold text-muted">Service Date</label>
+                            <input type="date" name="dateFilter" class="form-control" value="${param.dateFilter}">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="small fw-bold text-muted">Rating</label>
+                            <select name="ratingFilter" class="form-select">
+                                <option value="">-- All --</option>
+                                <option value="5" ${param.ratingFilter == '5' ? 'selected' : ''}>5 Stars ⭐</option>
+                                <option value="4" ${param.ratingFilter == '4' ? 'selected' : ''}>4 Stars ⭐</option>
+                                <option value="3" ${param.ratingFilter == '3' ? 'selected' : ''}>3 Stars ⭐</option>
+                                <option value="2" ${param.ratingFilter == '2' ? 'selected' : ''}>2 Stars ⭐</option>
+                                <option value="1" ${param.ratingFilter == '1' ? 'selected' : ''}>1 Star ⭐</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Apply</button>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="ViewFeedback" class="btn btn-light border w-100">Reset</a>
+                        </div>
+                    </form>
+                </div>
                 <c:choose>
                     <c:when test="${sessionScope.user.role == 'manager'}">Global Customer Feedback</c:when>
                     <c:when test="${sessionScope.user.role == 'technician'}">My Service Ratings</c:when>
@@ -185,8 +217,20 @@
                                 </c:if>
 
                                 <td>
-                                    <span class="fw-bold text-dark">${row[1]}</span>
+                                    <div class="fw-bold text-dark">${row[1]}</div>
+
+                                    <small class="text-muted">
+                                        ${row[2]} <!-- service type -->
+                                    </small>
+
+                                    <br>
+
+                                    <small class="text-info">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        ${row[3]} <!-- date -->
+                                    </small>
                                 </td>
+
 
                                 <td>
                                     <div class="small">

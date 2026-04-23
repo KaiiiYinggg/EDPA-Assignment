@@ -1,3 +1,4 @@
+
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
@@ -23,7 +24,7 @@ public class EditProfile extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
-    
+
     @EJB // <-- 修复 1：必须添加此注解
     private CarFacade carFacade;
 
@@ -37,26 +38,47 @@ public class EditProfile extends HttpServlet {
         }
 
         try {
-            // 1. 更新资料
             String username = request.getParameter("username");
-            String phone = request.getParameter("phoneNumber");
+            String phoneStr = request.getParameter("phoneNumber");
             String password = request.getParameter("password");
+            // 如果你允许改 IC (通常建议 readonly)
+            // String userIC = request.getParameter("userIC"); 
 
-            if (username != null && !username.trim().isEmpty()) user.setUsername(username);
-            if (phone != null && !phone.trim().isEmpty()) user.setPhoneNumber(Integer.parseInt(phone));
-            if (password != null && !password.trim().isEmpty()) user.setPassword(password);
+            // --- ✨ 1. 电话号码检查逻辑 ---
+            if (phoneStr != null && !phoneStr.trim().isEmpty()) {
+                int newPhone = Integer.parseInt(phoneStr.replaceAll("[^0-9]", ""));
 
-            // 2. 头像处理
+                // 查找该号码是否被其他人使用
+                User existingUser = userFacade.findByPhone(newPhone);
+                if (existingUser != null && !existingUser.getUser_id().equals(user.getUser_id())) {
+                    request.setAttribute("errorMessage", "Error: The phone number " + phoneStr + " is already in use by another account!");
+                    doGet(request, response); // 返回页面显示错误
+                    return;
+                }
+                user.setPhoneNumber(newPhone);
+            }
+
+            // --- ✨ 2. 更新其他资料 ---
+            if (username != null && !username.trim().isEmpty()) {
+                user.setUsername(username);
+            }
+
+            if (password != null && !password.trim().isEmpty()) {
+                user.setPassword(password);
+            }
+
+            // 3. 头像处理 (保持你原有的逻辑)
             Part filePart = request.getPart("profileImage");
             if (filePart != null && filePart.getSize() > 0) {
                 String submittedFileName = filePart.getSubmittedFileName();
                 String uploadPath = getServletContext().getRealPath("/profile_pics");
                 File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) uploadDir.mkdirs();
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();
+                }
 
                 File file = new File(uploadDir, submittedFileName);
-                try (FileOutputStream fos = new FileOutputStream(file); 
-                     InputStream input = filePart.getInputStream()) {
+                try (FileOutputStream fos = new FileOutputStream(file); InputStream input = filePart.getInputStream()) {
                     byte[] buffer = new byte[1024];
                     int bytesRead;
                     while ((bytesRead = input.read(buffer)) != -1) {
@@ -66,16 +88,17 @@ public class EditProfile extends HttpServlet {
                 user.setProfilePic(submittedFileName);
             }
 
-            // 3. 同步数据库与 Session
+            // 4. 同步数据库与 Session
             userFacade.edit(user);
             request.getSession().setAttribute("user", user);
 
+            response.sendRedirect("EditProfile?message=Profile+Updated+Successfully");
+
         } catch (Exception e) {
             e.printStackTrace();
+            request.setAttribute("errorMessage", "Update failed: " + e.getMessage());
+            doGet(request, response);
         }
-
-        // 修复 2：跳转回 EditProfile 触发 doGet 刷新数据
-        response.sendRedirect("EditProfile?message=Profile+Updated");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

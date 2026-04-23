@@ -29,6 +29,7 @@ public class PaymentFacade extends AbstractFacade<Payment> {
         super(Payment.class);
     }
 
+    // View History Use
     public List<Payment> findFilteredPayments(String email, String date, String method) {
         StringBuilder queryStr = new StringBuilder(
                 "SELECT p FROM Payment p WHERE p.appointment.customer.email = :email"
@@ -54,7 +55,7 @@ public class PaymentFacade extends AbstractFacade<Payment> {
         return query.getResultList();
     }
 
-    // 获取服务类型的分布情况 (Service Name vs Count)
+    //Load manager dashboard
     public List<Object[]> getServiceDistribution() {
         return em.createQuery(
                 "SELECT s.serviceType, COUNT(a) FROM Appointment a JOIN a.service s GROUP BY s.serviceType",
@@ -69,21 +70,19 @@ public class PaymentFacade extends AbstractFacade<Payment> {
     }
 
     public double getTotalRevenue() {
-        // 确保这里的字段名是 total_price，和你 Entity 里的一样
         Double total = (Double) em.createQuery("SELECT SUM(p.total_price) FROM Payment p").getSingleResult();
         return (total != null) ? total : 0.0;
     }
 
+    //use in payment servlet
     public List<Payment> searchHistory(String query) {
         try {
-            // 这里的 JPQL 会去匹配收据 ID 或者 顾客的名字
             return em.createQuery(
                     "SELECT p FROM Payment p WHERE p.receipt_id LIKE :q OR p.appointment.customer.username LIKE :q",
                     Payment.class)
                     .setParameter("q", "%" + query + "%")
                     .getResultList();
         } catch (Exception e) {
-            // 如果报错就回传一个空的 list，防止系统直接崩溃
             return new java.util.ArrayList<>();
         }
     }

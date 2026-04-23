@@ -7,10 +7,6 @@ package Entity;
 import java.util.List;
 import javax.persistence.EntityManager;
 
-/**
- *
- * @author teech
- */
 public abstract class AbstractFacade<T> {
 
     private Class<T> entityClass;

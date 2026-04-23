@@ -184,38 +184,42 @@
                             <label class="form-label">Profile Photo</label>
                             <input type="file" name="profileImage" class="form-control" accept="image/*">
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label">Username</label>
                             <input type="text" name="username" class="form-control" 
                                    value="${sessionScope.user.username}" 
-                                   required 
-                                   maxlength="50"
-                                   pattern="[A-Za-z ]{3,50}" 
-                                   title="Username can only contain letters and spaces (3-50 chars)">
+                                   required maxlength="50">
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label">Email Address</label>
                             <input type="email" class="form-control bg-light" value="${sessionScope.user.email}" readonly>
                         </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">IC Number</label>
+                            <input type="text" class="form-control bg-light" value="${sessionScope.user.userIC}" readonly>
+                        </div>
+
                         <div class="col-md-6">
                             <label class="form-label">Phone Number</label>
                             <input type="text" name="phoneNumber" class="form-control" 
                                    value="${sessionScope.user.phoneNumber}" 
                                    required
-                                   maxlength="15"
-                                   pattern="\d{6,15}" 
-                                   title="Phone number must be 6-15 digits">
+                                   pattern="\d{10,11}" 
+                                   title="Please enter 10-11 digits">
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label">Gender</label>
                             <input type="text" class="form-control bg-light" value="${sessionScope.user.gender}" disabled>
                         </div>
-                        <div class="col-md-12">
+
+                        <div class="col-md-6">
                             <label class="form-label">Update Password</label>
                             <input type="password" name="password" class="form-control" 
-                                   placeholder="Leave blank to keep current password" 
-                                   minlength="4"
-                                   title="Password must be at least 4 characters if you want to change it">
+                                   placeholder="Leave blank to keep current" minlength="4">
                         </div>
                     </div>
 

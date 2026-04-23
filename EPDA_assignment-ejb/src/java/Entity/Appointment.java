@@ -15,10 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Column;
 
-/**
- *
- * @author teech
- */
 @Entity
 public class Appointment implements Serializable {
 
@@ -46,9 +42,8 @@ public class Appointment implements Serializable {
 
     private String appointment_status;
 
-    // 在 Appointment.java 中修改
     @ManyToOne
-    @JoinColumn(name = "CAR_PLATE_NUMBER") // 对应数据库 APPOINTMENT 表中的列名
+    @JoinColumn(name = "CAR_PLATE_NUMBER")
     private Car car;
 
     @javax.persistence.OneToMany(mappedBy = "appointment", cascade = javax.persistence.CascadeType.ALL, fetch = javax.persistence.FetchType.EAGER)
@@ -141,32 +136,21 @@ public class Appointment implements Serializable {
     public void setExpected_end_time(LocalTime expected_end_time) {
         this.expected_end_time = expected_end_time;
     }
-    
-    
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (appointment_id != null ? appointment_id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Appointment)) {
-            return false;
-        }
-        Appointment other = (Appointment) object;
-        if ((this.appointment_id == null && other.appointment_id != null) || (this.appointment_id != null && !this.appointment_id.equals(other.appointment_id))) {
-            return false;
-        }
-        return true;
-    }
 
     @Override
     public String toString() {
-        return "Entity.Appointment[ id=" + appointment_id + " ]";
+        return super.toString(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+    
+    
 }

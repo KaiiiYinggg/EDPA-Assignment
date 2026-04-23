@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(urlPatterns = {"/ViewFeedback"})
 public class ViewFeedback extends HttpServlet {
+
     @EJB
     private FeedbackFacade FeedbackFacade;
 
@@ -32,8 +33,6 @@ public class ViewFeedback extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -46,24 +45,25 @@ public class ViewFeedback extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
             response.sendRedirect("login.jsp");
             return;
         }
-        
+
         String email = user.getEmail();
         String role = user.getRole();
-        // 添加下面这一行，运行后看 NetBeans 底下的 Output 窗口
-        //System.out.println(">>> DEBUG: The email from Session is: [" + email + "]");
 
-        // Call the detailed method that joins Feedback, Appointment, Services, and Car 
-        List<Object[]> feedbackData = FeedbackFacade.findDetailedFeedback(email, role);
+        // 💡 获取所有参数
+        String searchQuery = request.getParameter("searchQuery");
+        String ratingFilter = request.getParameter("ratingFilter");
+        String dateFilter = request.getParameter("dateFilter"); // ✨ 新增日期参数
 
-        // Pass the object array list to the JSP 
+        // 调用 Facade (增加一个 dateFilter 参数)
+        List<Object[]> feedbackData = FeedbackFacade.findDetailedFeedbackFiltered(email, role, searchQuery, ratingFilter, dateFilter);
+
         request.setAttribute("feedbackData", feedbackData);
-
         request.getRequestDispatcher("viewFeedback.jsp").forward(request, response);
     }
 

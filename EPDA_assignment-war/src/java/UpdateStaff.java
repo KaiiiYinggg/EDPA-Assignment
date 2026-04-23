@@ -30,6 +30,7 @@ import javax.servlet.http.Part;
         maxRequestSize = 1024 * 1024 * 10 // 10MB
 )
 public class UpdateStaff extends HttpServlet {
+
     @EJB
     private UserFacade userFacade;
 
@@ -47,7 +48,7 @@ public class UpdateStaff extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             String method = request.getMethod();
-            
+
             if (method.equalsIgnoreCase("GET")) {
                 // --- 这里放之前的 doGet 逻辑 (准备资料) ---
                 String email = request.getParameter("email");
@@ -60,7 +61,6 @@ public class UpdateStaff extends HttpServlet {
                 }
 
             } else if (method.equalsIgnoreCase("POST")) {
-                // 在 POST 逻辑部分
                 try {
                     String oldEmail = request.getParameter("oldEmail");
                     String newEmail = request.getParameter("newEmail");
@@ -69,38 +69,45 @@ public class UpdateStaff extends HttpServlet {
                     String gender = request.getParameter("gender");
                     String password = request.getParameter("password");
                     String address = request.getParameter("address");
-                    String userIC = request.getParameter("userIC");
-                    int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber").replaceAll("[^0-9]", ""));
-                    
-                    // Check if null, check length, and check if it's numeric
-                    if (userIC == null || userIC.trim().length() != 12 || !userIC.matches("^[0-9]+$")) {
-                        request.setAttribute("error", "IC must be exactly 12 numeric digits!");
-                        request.getRequestDispatcher("register.jsp").forward(request, response);
+                    String userIC = request.getParameter("userIC"); // 这里虽然是 readonly，但提交时仍会带上旧值
+
+                    String rawPhone = request.getParameter("phoneNumber").replaceAll("[^0-9]", "");
+                    int phoneNumber = Integer.parseInt(rawPhone);
+
+                    // 💡 1. 电话号码查重逻辑
+                    // 我们先找到旧员工的对象，用来比对 ID
+                    User currentStaff = userFacade.findByEmail(oldEmail);
+                    User userWithThisPhone = userFacade.findByPhone(phoneNumber);
+
+                    if (userWithThisPhone != null && !userWithThisPhone.getUser_id().equals(currentStaff.getUser_id())) {
+                        // 如果这个电话有人用了，且那个人不是正在被修改的这位员工
+                        request.setAttribute("error", "The phone number " + rawPhone + " is already in use by another account!");
+                        request.setAttribute("staff", currentStaff); // 重新放回页面显示
+                        request.getRequestDispatcher("updateStaff.jsp").forward(request, response);
                         return;
                     }
-                    
-                    // Get the current profile picture string from the hidden field
+
+                    // 💡 2. IC 格式校验 (虽然只读，但为了防止绕过前端修改，后端留一个基础判断)
+                    if (userIC == null || userIC.length() != 12) {
+                        request.setAttribute("error", "Critical error: IC data is missing or corrupted.");
+                        request.setAttribute("staff", currentStaff);
+                        request.getRequestDispatcher("updateStaff.jsp").forward(request, response);
+                        return;
+                    }
+
+                    // 3. 处理图片 (保持你原本的代码逻辑)
                     String profilePic = request.getParameter("profilePic");
-                    //Check if a NEW image was uploaded
-                    Part filePart = request.getPart("newProfilePic"); // Make sure this matches your JSP input name
-                    
+                    Part filePart = request.getPart("newProfilePic");
                     if (filePart != null && filePart.getSize() > 0) {
-                        // Extract the actual filename of the file you selected
                         String submittedFileName = filePart.getSubmittedFileName();
-                        // Set your variable to this name so it saves to the database correctly
                         profilePic = submittedFileName;
-
                         String uploadPath = getServletContext().getRealPath("/profile_pics");
-                        System.out.println("DEBUG: Files are being saved to: " + uploadPath);
                         File uploadDir = new File(uploadPath);
-                        if (!uploadDir.exists()) uploadDir.mkdirs();
-                        
-                        // 3. Use the original name for the File object
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
+                        }
                         File file = new File(uploadDir, profilePic);
-
-                        //File file = new File(uploadDir, profilePic);
-                        try (FileOutputStream fos = new FileOutputStream(file); 
-                             InputStream input = filePart.getInputStream()) {
+                        try (FileOutputStream fos = new FileOutputStream(file); InputStream input = filePart.getInputStream()) {
                             byte[] buffer = new byte[1024];
                             int bytesRead;
                             while ((bytesRead = input.read(buffer)) != -1) {
@@ -109,18 +116,14 @@ public class UpdateStaff extends HttpServlet {
                         }
                     }
 
-                    // update database
-                    String result = userFacade.updateStaff(oldEmail, newEmail, username, phoneNumber, role, gender, password,profilePic,userIC,address);
+                    // 4. 调用 Facade 更新数据库
+                    String result = userFacade.updateStaff(oldEmail, newEmail, username, phoneNumber, role, gender, password, profilePic, userIC, address);
 
                     if (result.equals("success")) {
-                        out.println("<script>alert('Update Successful!'); location='ManageStaff';</script>");
+                        out.println("<script>alert('Staff Record Updated!'); location='ManageStaff';</script>");
                     } else {
-                        // send error message to JSP
                         request.setAttribute("error", result);
-                        // reload staff info again so the form keeps the data
-                        User staff = userFacade.findByEmail(oldEmail);
-                        request.setAttribute("staff", staff);
-
+                        request.setAttribute("staff", currentStaff);
                         request.getRequestDispatcher("updateStaff.jsp").forward(request, response);
                     }
                 } catch (Exception e) {

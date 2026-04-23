@@ -124,61 +124,52 @@
 
                 </form>
 
-                <!-- ================= TABLE ================= -->
                 <form action="SetPrice" method="post">
-
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>Service</th>
-                                <th>Hour</th>
-                                <th>Price (RM)</th>
-                                <th>Action</th> <!-- ✅ 加这个 -->
+                                <th>Service Name</th>
+                                <th style="width: 150px;">Duration (hr)</th>
+                                <th style="width: 200px;">Price (RM)</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             <c:forEach var="s" items="${serviceList}" varStatus="status">
-
                                 <tr>
                                     <td>
-                                        ${s.serviceType}
+                                        <input type="text" name="serviceName_${status.index}" 
+                                               value="${s.serviceType}" class="form-control" required>
                                         <input type="hidden" name="serviceId_${status.index}" value="${s.service_id}">
                                     </td>
 
-                                    <td>${s.serviceHour} hr</td>
-
                                     <td>
-                                        <input type="number"
-                                               step="0.01"
-                                               name="price_${status.index}"
-                                               value="${s.price}"
-                                               class="form-control">
+                                        <div class="input-group">
+                                            <input type="number" name="serviceHour_${status.index}" 
+                                                   value="${s.serviceHour}" class="form-control" required min="1">
+                                            <span class="input-group-text">hr</span>
+                                        </div>
                                     </td>
 
-                                    <!-- ✅ FIXED DELETE (没有 form inside form) -->
                                     <td>
-                                        <button type="submit"
-                                                name="deleteId"
-                                                value="${s.service_id}"
-                                                class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Delete this service?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <div class="input-group">
+                                            <span class="input-group-text">RM</span>
+                                            <input type="number" step="0.01" name="price_${status.index}" 
+                                                   value="${s.price}" class="form-control" required>
+                                        </div>
                                     </td>
                                 </tr>
-
                             </c:forEach>
                         </tbody>
                     </table>
 
                     <input type="hidden" name="totalCount" value="${serviceList.size()}">
 
-                    <!-- ✅ UPDATE BUTTON -->
-                    <button class="btn btn-warning mt-3" name="updateAll" value="1">
-                        Update All
-                    </button>
-
+                    <div class="text-end">
+                        <button class="btn btn-warning px-5 py-2 fw-bold" name="updateAll" value="1">
+                            <i class="fas fa-save me-2"></i>Save All Changes
+                        </button>
+                    </div>
                 </form>
 
             </div>

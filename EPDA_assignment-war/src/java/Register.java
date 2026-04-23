@@ -69,6 +69,57 @@ public class Register extends HttpServlet {
                 return;
             }
 
+            try {
+                // 1. 拆分 IC 前六位 (日期)
+                int yy = Integer.parseInt(userICStr.substring(0, 2));
+                int mm = Integer.parseInt(userICStr.substring(2, 4));
+                int dd = Integer.parseInt(userICStr.substring(4, 6));
+
+                // 2. 确定世纪并验证日期合法性
+                int currentYear = java.time.LocalDate.now().getYear();
+                int birthYear = (yy <= (currentYear % 100)) ? (2000 + yy) : (1900 + yy);
+                java.time.LocalDate birthDate = java.time.LocalDate.of(birthYear, mm, dd);
+
+                // 3. ✨ 州属代码检查 (第 7-8 位)
+                String pbStr = userICStr.substring(6, 8);
+                int pbCode = Integer.parseInt(pbStr);
+
+                // 马来西亚目前存在的合法 PB 代码列表 (包含州属和海外出生)
+                java.util.List<Integer> validPB = java.util.Arrays.asList(
+                        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, // 州属
+                        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, // 海外/特殊
+                        40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+                        82
+                );
+
+                if (!validPB.contains(pbCode)) {
+                    request.setAttribute("error", "Invalid IC: State code '" + pbStr + "' is not a valid Malaysia state code.");
+                    request.getRequestDispatcher("register.jsp").forward(request, response);
+                    return;
+                }
+
+                // 4. 计算精确年龄
+                java.time.LocalDate today = java.time.LocalDate.now();
+                int age = java.time.Period.between(birthDate, today).getYears();
+
+                if (age < 17) {
+                    request.setAttribute("error", "Underaged: Registration requires at least 17 years old (Current age: " + age + ").");
+                    request.getRequestDispatcher("register.jsp").forward(request, response);
+                    return;
+                }
+
+            } catch (java.time.DateTimeException | NumberFormatException | StringIndexOutOfBoundsException e) {
+                request.setAttribute("error", "Invalid IC Number: Incorrect birth date or format.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            if (userFacade.findByIC(userICStr) != null) {
+                request.setAttribute("error", "Error: IC Number already registered!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
             // 3. Validate phone number
             int phoneNumber;
             try {
@@ -79,6 +130,12 @@ public class Register extends HttpServlet {
                 }
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "Invalid phone number format!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            if (userFacade.findByPhone(phoneNumber) != null) {
+                request.setAttribute("error", "Error: Phone Number already in use!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }

@@ -23,7 +23,8 @@ public class BusinessHourFacade extends AbstractFacade<BusinessHour> {
     public BusinessHourFacade() {
         super(BusinessHour.class);
     }
-
+    
+    // Use in Appointment
     public BusinessHour findByDate(LocalDate date) {
         try {
             return em.createQuery(
@@ -36,6 +37,7 @@ public class BusinessHourFacade extends AbstractFacade<BusinessHour> {
         }
     }
 
+    // Use in Customer Dashboard, Business Hour, Staff Dashboard, Technician Servlet
     public List<BusinessHour> findAllOrderedByDate() {
         return em.createQuery("SELECT b FROM BusinessHour b ORDER BY b.businessDate ASC", BusinessHour.class)
                 .getResultList();

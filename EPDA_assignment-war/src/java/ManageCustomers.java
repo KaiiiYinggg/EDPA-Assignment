@@ -1,3 +1,4 @@
+
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
@@ -82,23 +83,28 @@ public class ManageCustomers extends HttpServlet {
         } else if ("update".equals(action)) {
             try {
                 Long id = Long.parseLong(request.getParameter("user_id"));
-                String email = request.getParameter("email");
                 String username = request.getParameter("username");
                 String phoneStr = request.getParameter("phoneNumber");
+                int newPhoneNumber = Integer.parseInt(phoneStr.replaceAll("[^0-9]", ""));
 
-                // 💡 1. 检查 Email 是否被【其他人】占用
-                User existingUser = userFacade.findByEmail(email);
+                // 💡 1. 检查电话号码是否被【其他人】占用
+                User userWithThisPhone = userFacade.findByPhone(newPhoneNumber);
 
-                if (existingUser != null && !existingUser.getUser_id().equals(id)) {
-                    request.getSession().setAttribute("errorMsg", "Error: Email '" + email + "' is already in use by another customer!");
+                if (userWithThisPhone != null && !userWithThisPhone.getUser_id().equals(id)) {
+                    // 如果找到了这个电话号码，且拥有者不是当前正在修改的这个人
+                    request.getSession().setAttribute("errorMsg", "Update failed: Phone number '" + phoneStr + "' is already registered to another customer!");
                 } else {
+                    // 💡 2. 没冲突，执行更新
                     User u = userFacade.find(id);
                     if (u != null) {
                         u.setUsername(username);
-                        u.setPhoneNumber(Integer.parseInt(phoneStr));
-                        u.setEmail(email);
+                        u.setPhoneNumber(newPhoneNumber);
+                        // Email 已经在 JSP 设为 readonly，这里不处理 email
+
                         userFacade.edit(u);
-                        request.getSession().setAttribute("successMsg", "Customer '" + username + "' updated successfully!");
+                        request.getSession().setAttribute("successMsg", "Customer '" + username + "' profile updated successfully!");
+                    } else {
+                        request.getSession().setAttribute("errorMsg", "Update failed: Customer not found.");
                     }
                 }
             } catch (Exception e) {

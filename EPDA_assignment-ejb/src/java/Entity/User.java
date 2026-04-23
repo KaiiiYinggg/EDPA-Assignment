@@ -15,10 +15,6 @@ import javax.persistence.Table;
 import javax.persistence.Column;
 import javax.persistence.OneToMany;
 
-/**
- *
- * @author teech
- */
 @Entity
 @Table(name = "USERS_LIST")
 
@@ -40,9 +36,6 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
     private String profilePic;
-
-//    @javax.persistence.OneToMany(mappedBy = "user", cascade = javax.persistence.CascadeType.ALL)
-//    private java.util.List<Car> carList;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Car> carList;
@@ -149,31 +142,6 @@ public class User implements Serializable {
         this.carList = carList;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (user_id != null ? user_id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof User)) {
-            return false;
-        }
-        User other = (User) object;
-        if ((this.user_id == null && other.user_id != null) || (this.user_id != null && !this.user_id.equals(other.user_id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.User[ id=" + user_id + " ]";
-    }
-
     public String getPassword() {
         return password;
     }
@@ -189,6 +157,30 @@ public class User implements Serializable {
     public void setProfilePic(String profilePic) {
         this.profilePic = profilePic;
 
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (user_id != null ? user_id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof User)) {
+            return false;
+        }
+        User other = (User) object;
+        if ((this.user_id == null && other.user_id != null) || (this.user_id != null && !this.user_id.equals(other.user_id))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Entity.User[ id=" + user_id + " ]";
     }
 
 }

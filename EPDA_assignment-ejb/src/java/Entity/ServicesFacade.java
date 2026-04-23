@@ -8,10 +8,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-/**
- *
- * @author teech
- */
 @Stateless
 public class ServicesFacade extends AbstractFacade<Services> {
 
@@ -27,7 +23,6 @@ public class ServicesFacade extends AbstractFacade<Services> {
         super(Services.class);
     }
 
-    //method//   
     public void updatePrice(Long service_id, double newPrice) {
         Services s = em.find(Services.class, service_id);
         if (s != null) {
@@ -44,6 +39,7 @@ public class ServicesFacade extends AbstractFacade<Services> {
         }
     }
 
+    //use in set price
     public Services findByType(String type) {
         try {
             return (Services) em.createQuery("SELECT s FROM Services s WHERE s.serviceType = :type")

@@ -219,7 +219,9 @@
                                 <th>Service</th>
                                 <th>${sessionScope.user.role == 'customer' ? 'Assigned Tech' : 'Customer Email'}</th>
                                 <th>Status</th>
-                                <th class="text-center">Action</th>
+                                    <c:if test="${sessionScope.user.role != 'manager'}">
+                                    <th class="text-center">Action</th>
+                                    </c:if>
                             </tr>
                         </thead>
                         <tbody>

@@ -4,15 +4,14 @@
  */
 package Entity;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
-/**
- *
- * @author teech
- */
 @Stateless
 public class FeedbackFacade extends AbstractFacade<Feedback> {
 
@@ -40,27 +39,18 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
         String jpql = baseSelect + baseJoin;
 
         if ("manager".equals(role)) {
-            // 管理员：通常看到所有已存在反馈的记录（可选：是否过滤 Pending）
+            //see all existing feedback records
             jpql += " ORDER BY a.appointment_date DESC";
             return em.createQuery(jpql, Object[].class).getResultList();
 
         } else if ("technician".equals(role)) {
-            // 只要是分配给该技术员的单子，就全部显示出来
-            // 删掉那些对 technician_feedback 的强制过滤
+            //display all orders assigned to this technician
             jpql += " WHERE a.technician_email = :email "
                     + " ORDER BY a.appointment_date DESC";
             return em.createQuery(jpql, Object[].class).setParameter("email", email).getResultList();
-
-//        else if ("technician".equals(role)) {
-//            // 技术人员逻辑：必须是分配给自己的，且自己已经回复过的 (不等于 Pending)
-//            jpql += " WHERE a.technician_email = :email " +
-//                    " AND f.technician_feedback IS NOT NULL " +
-//                    " AND f.technician_feedback <> 'Pending' " +
-//                    " AND f.technician_feedback <> '' " +
-//                    " ORDER BY a.appointment_date DESC";
-//            return em.createQuery(jpql, Object[].class).setParameter("email", email).getResultList();
         } else {
-            // 顾客逻辑：必须是自己的，且自己已经评价过的 (ranking > 0)
+            // customer part
+            // must be their own services and they already rated it , means ranking > 0
             jpql += " WHERE a.customer.email = :email "
                     + " AND f.ranking > 0 "
                     + " ORDER BY a.appointment_date DESC";
@@ -68,23 +58,23 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
         }
     }
 
+    // Give Feedback & View History
     public Feedback findByAppointmentId(Long appointmentId) {
         try {
-            // 使用 JPQL 查询，通过关联实体 appointment 的 ID 进行筛选
             return (Feedback) em.createQuery(
                     "SELECT f FROM Feedback f WHERE f.appointment.appointment_id = :appId")
                     .setParameter("appId", appointmentId)
                     .getSingleResult();
         } catch (javax.persistence.NoResultException e) {
-            // 如果该预约还没有任何反馈记录（客户还没填），则返回 null
+            // no feedback record for the appointment return null
             return null;
         } catch (Exception e) {
-            // 捕获其他潜在异常
             e.printStackTrace();
             return null;
         }
     }
 
+    // Load Manager Dashboard
     public List<Object[]> getServiceRatings() {
         return em.createQuery(
                 "SELECT s.serviceType, AVG(f.ranking) FROM Feedback f "
@@ -93,4 +83,83 @@ public class FeedbackFacade extends AbstractFacade<Feedback> {
                 Object[].class).getResultList();
     }
 
+    // View Feedback
+    public List<Object[]> findDetailedFeedbackFiltered(String email, String role, String search, String rating, String date) {
+
+        StringBuilder jpql = new StringBuilder(
+                "SELECT f, c.carPlateNumber, s.serviceType, a.appointment_date, "
+                + "a.staff_email, a.technician_email, a.appointment_status, u.username "
+                + "FROM Feedback f "
+                + "JOIN f.appointment a "
+                + "JOIN a.service s "
+                + "JOIN a.car c "
+                + "JOIN a.customer u "
+                + "WHERE 1=1 "
+        );
+
+        //filter by role
+        if ("technician".equalsIgnoreCase(role)) {
+            jpql.append(" AND a.technician_email = :email");
+        } else if ("customer".equalsIgnoreCase(role)) {
+            jpql.append(" AND u.email = :email");
+        }
+
+        //search
+        if (search != null && !search.trim().isEmpty()) {
+            jpql.append(" AND (UPPER(c.carPlateNumber) LIKE :search "
+                    + "OR UPPER(s.serviceType) LIKE :search "
+                    + "OR UPPER(u.username) LIKE :search)");
+        }
+
+        //rating filter
+        if (rating != null && !rating.trim().isEmpty()) {
+            jpql.append(" AND f.ranking = :rating");
+        }
+
+        //date filter
+        boolean hasDate = (date != null && !date.trim().isEmpty());
+        if (hasDate) {
+            // compare date range (same day)
+            jpql.append(" AND FUNCTION('DATE', a.appointment_date) >= :startDate ");
+            jpql.append(" AND FUNCTION('DATE', a.appointment_date) <= :endDate");
+        }
+
+        jpql.append(" ORDER BY a.appointment_date DESC");
+
+        TypedQuery<Object[]> query = em.createQuery(jpql.toString(), Object[].class);
+        if ("technician".equalsIgnoreCase(role) || "customer".equalsIgnoreCase(role)) {
+            query.setParameter("email", email);
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            query.setParameter("search", "%" + search.trim().toUpperCase() + "%");
+        }
+        if (rating != null && !rating.trim().isEmpty()) {
+            try {
+                query.setParameter("rating", Integer.parseInt(rating));
+            } catch (NumberFormatException e) {
+                // fallback invalid rating
+                query.setParameter("rating", -1);
+            }
+        }
+
+        if (hasDate) {
+            try {
+                LocalDate parsedDate = LocalDate.parse(date.trim());
+                // same day range
+                String startDate = parsedDate.toString();
+                String endDate = parsedDate.toString();
+
+                query.setParameter("startDate", startDate);
+                query.setParameter("endDate", endDate);
+
+            } catch (Exception e) {
+                System.err.println("date parse error: " + date);
+                e.printStackTrace();
+                return new ArrayList<>();
+            }
+        }
+
+        return query.getResultList();
+    }
 }
