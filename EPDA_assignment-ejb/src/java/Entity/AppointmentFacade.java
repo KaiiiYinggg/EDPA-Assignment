@@ -35,7 +35,7 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
         super(Appointment.class);
     }
 
-    public List<Appointment> findFilteredAppointments(String email, String role, String date, String name) {
+    public List<Appointment> findFilteredAppointments(String email, String role, String date, String name, String status) {
         StringBuilder queryStr = new StringBuilder(
                 "SELECT DISTINCT a FROM Appointment a "
                 + "JOIN FETCH a.service s "
@@ -43,29 +43,53 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
                 + "LEFT JOIN FETCH a.feedbacks f "
         );
 
-        if ("technician".equals(role)) {
-            queryStr.append(" WHERE a.technician_email = :email");
-        } else {
-            queryStr.append(" WHERE a.customer.email = :email");
+        boolean hasWhere = false;
+
+        // 只有非 manager 才过滤 email
+        if (!"manager".equals(role) && email != null) {
+            if ("technician".equals(role)) {
+                queryStr.append(" WHERE a.technician_email = :email");
+            } else {
+                queryStr.append(" WHERE a.customer.email = :email");
+            }
+            hasWhere = true;
         }
 
         if (date != null && !date.isEmpty()) {
-            queryStr.append(" AND a.appointment_date = :date");
+            queryStr.append(hasWhere ? " AND" : " WHERE");
+            queryStr.append(" a.appointment_date = :date");
+            hasWhere = true;
         }
+
         if (name != null && !name.isEmpty()) {
-            queryStr.append(" AND UPPER(s.serviceType) LIKE :name");
+            queryStr.append(hasWhere ? " AND" : " WHERE");
+            queryStr.append(" UPPER(s.serviceType) LIKE :name");
+            hasWhere = true;
+        }
+
+        // ✅ 添加 status 筛选条件
+        if (status != null && !status.isEmpty()) {
+            queryStr.append(hasWhere ? " AND" : " WHERE");
+            queryStr.append(" a.appointment_status = :status");
+            hasWhere = true;
         }
 
         queryStr.append(" ORDER BY a.appointment_date DESC, a.appointment_time DESC");
 
         TypedQuery<Appointment> query = em.createQuery(queryStr.toString(), Appointment.class);
-        query.setParameter("email", email);
+
+        if (!"manager".equals(role) && email != null) {
+            query.setParameter("email", email);
+        }
 
         if (date != null && !date.isEmpty()) {
             query.setParameter("date", java.time.LocalDate.parse(date));
         }
         if (name != null && !name.isEmpty()) {
             query.setParameter("name", "%" + name.toUpperCase() + "%");
+        }
+        if (status != null && !status.isEmpty()) {
+            query.setParameter("status", status);
         }
 
         return query.getResultList();
@@ -237,4 +261,43 @@ public class AppointmentFacade extends AbstractFacade<Appointment> {
                 .getResultList();
     }
 
+    public List<Appointment> findAllFiltered(String date, String service, String status) {
+
+        StringBuilder jpql = new StringBuilder("SELECT a FROM Appointment a WHERE 1=1");
+
+        // 🔍 Date filter
+        if (date != null && !date.isEmpty()) {
+            jpql.append(" AND a.appointment_date = :date");
+        }
+
+        // 🔍 Service filter
+        if (service != null && !service.isEmpty()) {
+            jpql.append(" AND a.service.serviceType = :service");
+        }
+
+        // 🔥 NEW: Status filter
+        if (status != null && !status.isEmpty()) {
+            jpql.append(" AND a.appointment_status = :status");
+        }
+
+        // ⭐ 加这个很加分（排序）
+        jpql.append(" ORDER BY a.appointment_date DESC, a.appointment_time DESC");
+
+        TypedQuery<Appointment> query = em.createQuery(jpql.toString(), Appointment.class);
+
+        // set parameters
+        if (date != null && !date.isEmpty()) {
+            query.setParameter("date", java.time.LocalDate.parse(date));
+        }
+
+        if (service != null && !service.isEmpty()) {
+            query.setParameter("service", service);
+        }
+
+        if (status != null && !status.isEmpty()) {
+            query.setParameter("status", status);
+        }
+
+        return query.getResultList();
+    }
 }

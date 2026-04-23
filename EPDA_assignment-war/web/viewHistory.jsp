@@ -52,6 +52,9 @@
             .bg-customer {
                 background: #1e272e;
             }
+            .bg-manager {
+                background: #1a252f;
+            }
             .main-content {
                 margin-left: var(--sidebar-width);
                 padding: 30px;
@@ -117,6 +120,21 @@
                     <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
                 </div>
             </c:when>
+            <c:when test="${sessionScope.user.role == 'manager'}">
+                <div class="sidebar bg-manager">
+                    <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
+                    <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
+                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
+                    <a href="${pageContext.request.contextPath}/ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
+                    <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
+                    <a href="${pageContext.request.contextPath}/ViewHistory" class="active"><i class="fas fa-history me-2"></i> Task History</a>
+                    <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
+                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
+                    <a href="${pageContext.request.contextPath}/Manager/BusinessHourServlet"><i class="fas fa-user-edit me-2"></i> Business Hour</a>
+                    <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
+                </div>
+            </c:when>
             <c:otherwise>
                 <div class="sidebar bg-customer">
                     <div class="text-center mb-4"><i class="fas fa-user-circle fa-3x mb-2 text-success"></i><h5 class="fw-bold">CUSTOMER</h5></div>
@@ -134,8 +152,17 @@
             <h2 class="fw-bold mb-4" style="color: #2c3e50;">
                 <i class="fas fa-history me-2 text-primary"></i>
                 <c:choose>
-                    <c:when test="${sessionScope.user.role == 'technician'}">Work Task History</c:when>
-                    <c:otherwise>My Service & Payment Records</c:otherwise>
+                    <c:when test="${sessionScope.user.role == 'technician'}">
+                        Work Task History
+                    </c:when>
+
+                    <c:when test="${sessionScope.user.role == 'manager'}">
+                        All Appointment Records
+                    </c:when>
+
+                    <c:otherwise>
+                        My Service & Payment Records
+                    </c:otherwise>
                 </c:choose>
             </h2>
 
@@ -145,7 +172,8 @@
                         <label class="small fw-bold text-muted">Service Date</label>
                         <input type="date" name="searchDate" class="form-control" value="${param.searchDate}">
                     </div>
-                    <div class="col-md-4">
+
+                    <div class="col-md-3">
                         <label class="small fw-bold text-muted">Service Type</label>
                         <select name="searchName" class="form-select">
                             <option value="">-- All Categories --</option>
@@ -156,8 +184,22 @@
                             </c:forEach>
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-primary px-4 shadow-sm"><i class="fas fa-filter me-2"></i>Apply Filter</button>
+
+                    <!-- ✅ 新增这个 -->
+                    <div class="col-md-3">
+                        <label class="small fw-bold text-muted">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="Approved" ${param.status == 'Approved' ? 'selected' : ''}>Approved</option>
+                            <option value="Completed" ${param.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Paid" ${param.status == 'Paid' ? 'selected' : ''}>Paid</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                            <i class="fas fa-filter me-2"></i>Apply Filter
+                        </button>
                         <a href="ViewHistory" class="btn btn-light border ms-2">Reset</a>
                     </div>
                 </form>

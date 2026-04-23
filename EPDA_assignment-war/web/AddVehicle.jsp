@@ -50,10 +50,7 @@
                 border-left: 4px solid #1abc9c;
             }
 
-            /* 角色背景色 */
-            .bg-manager {
-                background: #1a252f;
-            }
+           
             .bg-staff {
                 background: #2c3e50;
             }
@@ -128,22 +125,6 @@
         %>
 
         <c:choose>
-            <%-- MANAGER --%>
-            <c:when test="${sessionScope.user.role == 'manager'}">
-                <div class="sidebar bg-manager">
-                    <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
-                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
-                    <a href="${pageContext.request.contextPath}/Manager/loadManagerDashboard"><i class="fas fa-chart-line me-2"></i> Home Page</a>
-                    <a href="${pageContext.request.contextPath}/register.jsp"><i class="fas fa-user-plus me-2"></i> Register Staff</a>
-                    <a href="${pageContext.request.contextPath}/ManageStaff"><i class="fas fa-users-cog me-2"></i> Manage Staff</a>
-                    <a href="${pageContext.request.contextPath}/SetPrice"><i class="fas fa-tags me-2"></i> Set Price</a>
-                    <a href="${pageContext.request.contextPath}/ViewFeedback"><i class="fas fa-comments me-2"></i> View Feedback</a>
-                    <a href="${pageContext.request.contextPath}/EditProfile"><i class="fas fa-user-edit me-2"></i> My Profile</a>
-                    <div style="position: absolute; bottom: 20px; width: 100%;">
-                        <a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-                    </div>
-                </div>
-            </c:when>
             <%-- COUNTER STAFF --%>
             <c:when test="${sessionScope.user.role == 'counter staff'}">
                 <div class="sidebar bg-staff">

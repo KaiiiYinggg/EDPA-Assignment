@@ -49,7 +49,7 @@ public class ViewHistory extends HttpServlet {
             return;
         }
 
-        // 根据 ID 重新获取一个“活跃”的 User 对象
+        // 根据 ID 重新获取一个"活跃"的 User 对象
         User activeUser = userFacade.find(user.getUser_id());
 
         if (activeUser == null) {
@@ -60,17 +60,25 @@ public class ViewHistory extends HttpServlet {
         String role = activeUser.getRole().toLowerCase();
         String searchDate = request.getParameter("searchDate");
         String searchName = request.getParameter("searchName");
+        String status = request.getParameter("status");  // ✅ 新增：获取 status 参数
 
         // 2. 💡 新增：获取数据库中所有的服务类型，供下拉菜单使用
         List<Services> allServices = serviceFacade.findAll();
         request.setAttribute("allServices", allServices);
 
-        // 3. 获取 appointment 列表
+        String emailFilter = null;
+
+        if (!"manager".equals(role)) {
+            emailFilter = activeUser.getEmail();
+        }
+
+        // ✅ 修改：传递 status 参数
         List<Appointment> appointmentData = appointmentFacade.findFilteredAppointments(
-                activeUser.getEmail(),
+                emailFilter,
                 role,
                 searchDate,
-                searchName
+                searchName,
+                status // 新增 status 参数
         );
 
         // ⚡ 强制加载 feedbacks，避免 Hibernate 延迟加载导致第一次 redirect 看不到最新反馈
