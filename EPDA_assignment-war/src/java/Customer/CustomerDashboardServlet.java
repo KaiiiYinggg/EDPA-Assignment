@@ -1,4 +1,4 @@
-
+package Customer;
 import Entity.*;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
-@WebServlet(urlPatterns = {"/CustomerDashboardServlet"})
+@WebServlet(urlPatterns = {"/Customer/CustomerDashboardServlet"})
 public class CustomerDashboardServlet extends HttpServlet {
 
     @EJB

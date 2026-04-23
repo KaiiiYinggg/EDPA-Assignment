@@ -72,7 +72,7 @@ public class Login extends HttpServlet {
                     session.setAttribute("serviceSummary", serviceSummary);
 
                     // ⭐ redirect to servlet (NOT JSP)
-                    response.sendRedirect(request.getContextPath() + "/CustomerDashboardServlet");
+                    response.sendRedirect(request.getContextPath() + "/Customer/CustomerDashboardServlet");
                     break;
                 default:
                     response.sendRedirect("index.jsp");
