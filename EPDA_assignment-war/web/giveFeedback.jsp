@@ -188,18 +188,22 @@
         </div>
 
         <script>
+            // track if user typed anything
             let formChanged = false;
             const feedbackForm = document.getElementById('feedbackForm');
 
             feedbackForm.addEventListener('input', () => {
+                // something changed in the form
                 formChanged = true;
             });
 
             feedbackForm.addEventListener('submit', () => {
+                // reset flag on submit so it doesnt block leaving
                 formChanged = false;
             });
 
             window.addEventListener('beforeunload', (event) => {
+                // warn user if they try to leave with unsaved data
                 if (formChanged) {
                     event.preventDefault();
                     event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';

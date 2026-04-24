@@ -132,7 +132,6 @@
                         <p class="text-muted">Welcome back, <strong><c:out value="${sessionScope.user.username}"/></strong>. Summary of center operations.</p>
                     </div>
                 </div>
-
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="stat-box" style="background: #f0fdf4; border: 1px solid #bbf7d0;">

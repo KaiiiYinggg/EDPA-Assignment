@@ -74,7 +74,6 @@
 
     <body>
 
-        <!-- SIDEBAR -->
         <div class="sidebar bg-manager">
             <div class="text-center mb-4"><i class="fas fa-user-shield fa-3x mb-2 text-warning"></i><h5 class="fw-bold">MANAGER</h5></div>
             <hr style="border-color: rgba(255,255,255,0.1); margin: 0 15px;">
@@ -89,14 +88,12 @@
             <div style="position: absolute; bottom: 20px; width: 100%;"><a href="${pageContext.request.contextPath}/Logout" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></div>
         </div>
 
-        <!-- MAIN -->
         <div class="main-content">
 
             <div class="card-box">
 
                 <h3 class="mb-3">Service Management</h3>
 
-                <!-- ================= ADD SERVICE ================= -->
                 <form action="SetPrice" method="post" class="row g-2 mb-4">
 
                     <input type="hidden" name="action" value="add">

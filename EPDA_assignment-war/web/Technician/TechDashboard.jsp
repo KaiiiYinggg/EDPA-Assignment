@@ -176,11 +176,9 @@
                     <div class="notice-label">
                         <i class="fas fa-bullhorn me-2"></i> Notice
                     </div>
-
+                    <%-- display holiday date --%>
                     <div class="ticker-wrapper">
-
                         <div class="ticker">
-                            <!-- 第一轮 -->
                             <c:forEach var="b" items="${businessHours}">
                                 <span class="ticker-item me-5 px-3">
                                     <i class="far fa-calendar-alt me-1"></i>
@@ -204,7 +202,6 @@
                                 </span>
                             </c:forEach>
 
-                            <!-- 第二轮（无缝滚动关键） -->
                             <c:forEach var="b" items="${businessHours}">
                                 <span class="ticker-item me-5 px-3">
                                     <i class="far fa-calendar-alt me-1"></i>

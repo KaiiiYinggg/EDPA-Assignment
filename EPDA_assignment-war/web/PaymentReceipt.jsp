@@ -47,12 +47,10 @@
                 border-left: 4px solid #1abc9c;
             }
 
-            /* ✨ 修正 Manager 角色的背景色 ✨ */
             .bg-manager {
                 background: #1a252f;
             }
 
-            /* Staff Portal 依然可以保留之前的颜色做区分，或者统一改掉 */
             .bg-staff {
                 background: #2c3e50;
             }
@@ -310,16 +308,21 @@
 
         <script>
             function openPaymentModal(id, cust, svc, price) {
+                // fill in payment details before showing modal
                 document.getElementById('displayId').innerText = id;
                 document.getElementById('inputAppId').value = id;
                 document.getElementById('displayCust').innerText = cust;
                 document.getElementById('displayPrice').innerText = price;
                 document.getElementById('payModal').style.display = 'block';
             }
+
             function closeModal() {
+                // hide the payment popup
                 document.getElementById('payModal').style.display = 'none';
             }
+
             window.onclick = function (e) {
+                // close if user clicks outside the modal box
                 if (e.target == document.getElementById('payModal'))
                     closeModal();
             }

@@ -116,7 +116,6 @@
 
             String errorMsg = (String) request.getAttribute("errorMessage");
             if (errorMsg != null && !errorMsg.isEmpty()) {
-                // 安全转义处理，防止 XSS
                 String safeMsg = errorMsg.replace("\\", "\\\\").replace("\"", "\\\"");
         %>
         <script>showAlert("<%=safeMsg%>");</script>

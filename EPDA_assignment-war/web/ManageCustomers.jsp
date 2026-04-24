@@ -256,31 +256,37 @@
 
         <script>
             function toggleSelectAll(source) {
+                // select or deselect all checkboxes
                 const checkboxes = document.getElementsByName('selectedIds');
                 checkboxes.forEach(cb => cb.checked = source.checked);
             }
 
             function validateDelete() {
+                // make sure at least one row is picked
                 const checkedCount = document.querySelectorAll('input[name="selectedIds"]:checked').length;
                 if (checkedCount === 0) {
                     alert("Please select at least one customer to delete.");
                     return false;
                 }
+                // double check with user
                 return confirm("Are you sure you want to delete " + checkedCount + " selected customer(s)?");
             }
 
             function openUpdateModal(id, name, phone, email) {
+                // pass data to modal inputs
                 document.getElementById('updateId').value = id;
                 document.getElementById('updateUsername').value = name;
                 document.getElementById('updatePhone').value = phone;
                 document.getElementById('updateEmail').value = email;
 
+                // trigger bootstrap modal
                 const modalEl = document.getElementById('updateModal');
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
             }
 
             function validateUpdateForm() {
+                // simple phone length check
                 const phone = document.getElementById('updatePhone').value;
                 if (phone.length < 10 || phone.length > 11) {
                     alert("Phone number must be 10 or 11 digits!");
@@ -290,6 +296,7 @@
             }
 
             function goToBooking() {
+                // redirect to appointments using customer email
                 const email = document.getElementById('updateEmail').value;
                 if (email) {
                     window.location.href = '${pageContext.request.contextPath}/AppointmentServlet?customerEmail=' + encodeURIComponent(email);

@@ -206,7 +206,7 @@
                     return false;
                 }
 
-                // 获取 IC 前两位计算年龄
+                //check IC first 2 number to calculate whether is below 17 years old
                 const yearPart = parseInt(ic.substring(0, 2));
                 const currentYear = new Date().getFullYear();
                 const birthYear = (yearPart <= (currentYear % 100)) ? (2000 + yearPart) : (1900 + yearPart);

@@ -196,12 +196,14 @@
                 const form = document.getElementById("updateStaffForm");
                 const inputs = form.querySelectorAll("input, select");
 
+                // watch all inputs for any changes
                 inputs.forEach(input => {
                     input.addEventListener("input", () => {
                         formChanged = true;
                     });
                 });
 
+                // handle profile pic upload and preview
                 document.getElementById('fileInput').onchange = evt => {
                     const [file] = document.getElementById('fileInput').files;
                     if (file) {
@@ -210,6 +212,7 @@
                     }
                 };
 
+                // stop user from accidental exit if form is dirty
                 window.addEventListener("beforeunload", (e) => {
                     if (formChanged) {
                         e.preventDefault();
@@ -219,10 +222,12 @@
             };
 
             function disableWarning() {
+                // call this on submit to bypass the leave warning
                 formChanged = false;
             }
 
             function confirmCancel() {
+                // manual check when clicking cancel button
                 if (formChanged) {
                     if (confirm("Discard all unsaved changes and return to staff list?")) {
                         window.location.href = "ManageStaff";

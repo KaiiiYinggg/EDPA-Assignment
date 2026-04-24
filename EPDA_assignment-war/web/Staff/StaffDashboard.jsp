@@ -140,28 +140,24 @@
                     <span class="fw-bold text-primary"><c:out value="${sessionScope.user.username}"/></span>
                 </div>
             </div>
-                
-                <c:if test="${not empty businessHours}">
+
+            <c:if test="${not empty businessHours}">
                 <div class="notice-bar shadow-sm mb-4">
 
                     <div class="notice-label">
                         <i class="fas fa-bullhorn me-2"></i> Notice
                     </div>
-
+                    <%-- display holiday date --%>
                     <div class="ticker-wrapper">
-
                         <div class="ticker">
-                            <!-- 第一轮 -->
                             <c:forEach var="b" items="${businessHours}">
                                 <span class="ticker-item me-5 px-3">
                                     <i class="far fa-calendar-alt me-1"></i>
                                     ${b.businessDate} :
-
                                     <c:choose>
                                         <c:when test="${b.isClosed}">
                                             <span class="text-danger fw-bold">Closed (Holiday)</span>
                                         </c:when>
-
                                         <c:otherwise>
                                             <span class="text-info">
                                                 Open ${b.openTime} - ${b.closeTime}
@@ -175,7 +171,6 @@
                                 </span>
                             </c:forEach>
 
-                            <!-- 第二轮（无缝滚动关键） -->
                             <c:forEach var="b" items="${businessHours}">
                                 <span class="ticker-item me-5 px-3">
                                     <i class="far fa-calendar-alt me-1"></i>

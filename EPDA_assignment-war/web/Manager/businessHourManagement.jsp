@@ -160,6 +160,7 @@
         </div>
 
         <script>
+            //block past dates from picker
             document.addEventListener("DOMContentLoaded", function () {
                 const todayStr = new Date().toISOString().split("T")[0];
                 const datePicker = document.getElementById('datePicker');
@@ -173,12 +174,14 @@
                     window.history.replaceState({path: url.href}, '', url.href);
                 }
             });
-
+            
+            //disable save if bookings exist
             function checkSubmitButtonStatus() {
                 const datePicker = document.getElementById('datePicker');
                 const submitBtn = document.querySelector('button[type="submit"]');
                 const apptCount = parseInt(datePicker.dataset.apptCount || "0");
-
+                
+                //change button color and text
                 if (apptCount > 0) {
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = "<i class='fas fa-ban me-2'></i> Cannot Modify (Bookings Exist)";
@@ -191,18 +194,21 @@
                     submitBtn.classList.add('btn-primary');
                 }
             }
-
+            
+            //disable time fields if closed
             function toggleTimeInputs(isClosed) {
                 document.getElementById('openInput').disabled = isClosed;
                 document.getElementById('closeInput').disabled = isClosed;
                 checkSubmitButtonStatus();
             }
-
+            
+            //trigger when user picks a date
             function onDateChange(date) {
                 document.getElementById('formAction').value = "save";
                 loadDateSettings(date);
             }
-
+            
+            //show if it is a holiday or normal day
             function loadDateSettings(date) {
                 if (!date)
                     return;
@@ -212,7 +218,8 @@
                             const statusInfo = document.getElementById('statusInfo');
                             const conflictAlert = document.getElementById('conflictAlert');
                             const datePicker = document.getElementById('datePicker');
-
+                            
+                            //check if there are any conflict
                             datePicker.dataset.apptCount = data.apptCount || 0;
                             if (data.apptCount > 0) {
                                 conflictAlert.classList.remove('d-none');
@@ -245,7 +252,8 @@
                             checkSubmitButtonStatus();
                         });
             }
-
+            
+            //fill form with existing data
             function editSetting(date) {
                 const todayStr = new Date().toISOString().split("T")[0];
                 if (date < todayStr) {
@@ -257,7 +265,8 @@
                 loadDateSettings(date);
                 window.scrollTo({top: 0, behavior: 'smooth'});
             }
-
+            
+            //a confirm before delete
             function deleteSetting() {
                 if (confirm("Remove this setting?")) {
                     document.getElementById('formAction').value = "delete";

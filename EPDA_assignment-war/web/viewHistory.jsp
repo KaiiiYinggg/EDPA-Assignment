@@ -185,7 +185,6 @@
                         </select>
                     </div>
 
-                    <!-- ✅ 新增这个 -->
                     <div class="col-md-3">
                         <label class="small fw-bold text-muted">Status</label>
                         <select name="status" class="form-select">
@@ -219,6 +218,7 @@
                                 <th>Service</th>
                                 <th>${sessionScope.user.role == 'customer' ? 'Assigned Tech' : 'Customer Email'}</th>
                                 <th>Status</th>
+                                    <%-- check if not manager then only show header --%>
                                     <c:if test="${sessionScope.user.role != 'manager'}">
                                     <th class="text-center">Action</th>
                                     </c:if>
@@ -247,55 +247,61 @@
                                         <c:if test="${app.appointment_status == 'Completed' || app.appointment_status == 'Paid'}"><c:set var="tagClass" value="tag-done" /></c:if>
                                         <span class="status-tag ${tagClass}">${app.appointment_status}</span>
                                     </td>
-                                    <td class="text-center">
-                                        <c:choose>
-                                            <c:when test="${sessionScope.user.role == 'technician' && app.appointment_status == 'Approved'}">
-                                                <span class="badge bg-light text-dark border">
-                                                    <i class="fas fa-hourglass-half me-1"></i>
-                                                    Pending Completion<br>
-                                                    <small>Update on Dashboard</small>
-                                                </span>
-                                            </c:when>
+                                    <%-- only render this column if the user is NOT a manager --%>
+                                    <c:if test="${sessionScope.user.role != 'manager'}">
+                                        <td class="text-center">
+                                            <c:choose>
+                                                <%-- technician view: show pending status --%>
+                                                <c:when test="${sessionScope.user.role == 'technician' && app.appointment_status == 'Approved'}">
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="fas fa-hourglass-half me-1"></i>
+                                                        Pending Completion<br>
+                                                        <small>Update on Dashboard</small>
+                                                    </span>
+                                                </c:when>
 
-                                            <c:when test="${sessionScope.user.role == 'customer' && app.appointment_status == 'Approved'}">
-                                                <span class="badge bg-info-soft text-info border border-info">
-                                                    <i class="fas fa-tools me-1"></i>
-                                                    Service in Progress...<br>
-                                                </span>
-                                            </c:when>
+                                                <%-- customer view: show progress status --%>
+                                                <c:when test="${sessionScope.user.role == 'customer' && app.appointment_status == 'Approved'}">
+                                                    <span class="badge bg-info-soft text-info border border-info">
+                                                        <i class="fas fa-tools me-1"></i>
+                                                        Service in Progress...<br>
+                                                    </span>
+                                                </c:when>
 
-                                            <c:when test="${app.appointment_status == 'Paid' || app.appointment_status == 'Completed'}">
-                                                <c:set var="isFbDone" value="false" />
-                                                <c:forEach var="fb" items="${app.feedbacks}">
-                                                    <c:if test="${(sessionScope.user.role == 'technician' && not empty fb.technician_feedback && fb.technician_feedback != 'Pending') || (sessionScope.user.role == 'customer' && fb.ranking > 0)}">
-                                                        <c:set var="isFbDone" value="true" />
-                                                    </c:if>
-                                                </c:forEach>
+                                                <%-- both: feedback/notes logic for completed tasks --%>
+                                                <c:when test="${app.appointment_status == 'Paid' || app.appointment_status == 'Completed'}">
+                                                    <c:set var="isFbDone" value="false" />
+                                                    <c:forEach var="fb" items="${app.feedbacks}">
+                                                        <c:if test="${(sessionScope.user.role == 'technician' && not empty fb.technician_feedback && fb.technician_feedback != 'Pending') || (sessionScope.user.role == 'customer' && fb.ranking > 0)}">
+                                                            <c:set var="isFbDone" value="true" />
+                                                        </c:if>
+                                                    </c:forEach>
 
-                                                <c:choose>
-                                                    <c:when test="${isFbDone}">
-                                                        <span class="feedback-done">
-                                                            <i class="fas fa-check-circle me-1"></i>
-                                                            <c:choose>
-                                                                <c:when test="${sessionScope.user.role == 'technician'}">
-                                                                    Notes Submitted
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    Feedback Submitted
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </span>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <a href="${pageContext.request.contextPath}/GiveFeedback?appointmentId=${app.appointment_id}" class="btn btn-sm btn-outline-primary px-3">
-                                                            <i class="fas fa-edit me-1"></i>${sessionScope.user.role == 'technician' ? 'Notes' : 'Feedback'}
-                                                        </a>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </c:when>
-                                            <c:otherwise><span class="text-muted small">N/A</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
+                                                    <c:choose>
+                                                        <c:when test="${isFbDone}">
+                                                            <span class="feedback-done">
+                                                                <i class="fas fa-check-circle me-1"></i>
+                                                                <c:choose>
+                                                                    <c:when test="${sessionScope.user.role == 'technician'}">Notes Submitted</c:when>
+                                                                    <c:otherwise>Feedback Submitted</c:otherwise>
+                                                                </c:choose>
+                                                            </span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <a href="${pageContext.request.contextPath}/GiveFeedback?appointmentId=${app.appointment_id}" class="btn btn-sm btn-outline-primary px-3">
+                                                                <i class="fas fa-edit me-1"></i>${sessionScope.user.role == 'technician' ? 'Notes' : 'Feedback'}
+                                                            </a>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:when>
+
+                                                <%-- fallback --%>
+                                                <c:otherwise>
+                                                    <span class="text-muted small">N/A</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                    </c:if>
                                 </tr>
                             </c:forEach>
                         </tbody>

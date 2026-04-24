@@ -210,13 +210,18 @@
                         <tbody>
                         <c:forEach var="row" items="${feedbackData}">
                             <tr>
-                                <td class="text-muted">#${row[0].feedback_id}<br><small>Appt #${row[0].appointment.appointment_id}</small></td>
-
+                                <!-- feedback id -->
+                                <td class="text-muted">#${row[0].feedback_id}<br>
+                                    <!-- appointment id -->
+                                    <small>Appt #${row[0].appointment.appointment_id}</small></td>
+                                
+                                <!-- customer name -->
                                 <c:if test="${sessionScope.user.role == 'manager'}">
                                     <td class="fw-bold"><c:out value="${row[7]}"/></td>
                                 </c:if>
 
                                 <td>
+                                    <!-- Vehicle -->
                                     <div class="fw-bold text-dark">${row[1]}</div>
 
                                     <small class="text-muted">
@@ -234,25 +239,31 @@
 
                                 <td>
                                     <div class="small">
+                                        <!-- staff email -->
                                         <i class="fas fa-user-tie me-1 text-muted"></i> Staff: ${empty row[4] ? '-' : row[4]}<br>
+                                        <!-- technician email -->
                                         <i class="fas fa-wrench me-1 text-muted"></i> Tech: ${empty row[5] ? '-' : row[5]}
                                     </div>
                                 </td>
 
                                 <td>
                                     <div class="comment-text" title="To Tech: ${row[0].customerCommentToTech} | To Staff: ${row[0].customerCommentToStaff}">
+                                        <!-- customer comment -->
                                         <span class="text-primary">T:</span> <c:out value="${empty row[0].customerCommentToTech ? 'None' : row[0].customerCommentToTech}"/><br>
+                                        <!-- technician comment -->
                                         <span class="text-secondary">S:</span> <c:out value="${empty row[0].customerCommentToStaff ? 'None' : row[0].customerCommentToStaff}"/>
                                     </div>
                                 </td>
 
                                 <td class="text-center">
                                     <span class="rating-badge">
+                                        <!-- ranking -->
                                         <i class="fas fa-star me-1"></i>${row[0].ranking}
                                     </span>
                                 </td>
 
                                 <td>
+                                    <!-- technician notes -->
                                     <c:choose>
                                         <c:when test="${empty row[0].technician_feedback}">
                                             <span class="text-muted fst-italic small">No record</span>

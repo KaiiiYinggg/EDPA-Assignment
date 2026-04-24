@@ -395,12 +395,12 @@
         </div>
 
         <script>
-
             document.addEventListener("DOMContentLoaded", function () {
                 const urlParams = new URLSearchParams(window.location.search);
                 const error = urlParams.get('error');
                 const custEmail = urlParams.get('customerEmail');
 
+                // show error alerts if registration fails
                 if (error) {
                     let msg = "";
                     if (error === "holiday") {
@@ -411,12 +411,13 @@
 
                     if (msg) {
                         alert(msg)
-
+                        // clean up url after showing alert
                         const cleanUrl = window.location.pathname + "?customerEmail=" + encodeURIComponent(custEmail);
                         window.history.replaceState({}, document.title, cleanUrl);
                     }
                 }
 
+                // set min and max booking range (today to +30 days)
                 const today = new Date();
                 const maxDate = new Date();
                 maxDate.setDate(today.getDate() + 30);
@@ -437,7 +438,6 @@
                 }
             });
 
-            // 弹窗控制逻辑
             function openAddModal() {
                 document.getElementById('addModal').style.display = 'block';
             }
@@ -446,34 +446,31 @@
                 document.getElementById(m).style.display = 'none';
             }
 
-            // 核心：检查营业时间的异步函数 (由 calculateEndTime 调用)
             async function checkBusinessHour(prefix, selectedDate) {
                 const timeInput = document.getElementById(prefix + 'Time');
                 const endTimeDisplay = document.getElementById(prefix + 'EndTimeDisplay');
                 const techSelect = document.getElementById(prefix + 'TechSelect');
 
                 try {
-                    // 调用后端 Servlet 获取当天营业规则
+                    // get business hours for picked date
                     const response = await fetch("BusinessHourServlet?date=" + encodeURIComponent(selectedDate));
                     const data = await response.json();
 
                     if (data.type === "holiday") {
                         alert("Sorry, we are CLOSED on " + selectedDate + ". \nReason: " + (data.message || "Public Holiday"));
                         timeInput.value = "";
-                        timeInput.disabled = true; // 休息日直接禁止选择时间
+                        timeInput.disabled = true;
                         endTimeDisplay.value = "CLOSED";
                         techSelect.innerHTML = '<option value="">-- Shop Closed --</option>';
                         return null;
                     } else {
                         timeInput.disabled = false;
-                        // 关键点：动态更新 HTML5 原生的 min 和 max 限制
-                        timeInput.min = data.openTime; // 比如 "10:00"
-                        timeInput.max = data.closeTime; // 比如 "13:00" (如果是自定义短程营业)
+                        timeInput.min = data.openTime;
+                        timeInput.max = data.closeTime;
                         return data;
                     }
                 } catch (err) {
                     console.error("Error fetching business hours:", err);
-                    // 容错处理：报错则默认 10:00 - 18:00
                     timeInput.disabled = false;
                     timeInput.min = "10:00";
                     timeInput.max = "18:00";
@@ -481,7 +478,6 @@
                 }
             }
 
-            // 计算结束时间并校验时间合法性
             async function calculateEndTime(prefix) {
                 const dateInput = document.getElementById(prefix + 'Date');
                 const startTimeInput = document.getElementById(prefix + 'Time');
@@ -491,14 +487,12 @@
                 if (!dateInput.value)
                     return;
 
-                // 1. 先异步等待营业时间配置
                 const businessConfig = await checkBusinessHour(prefix, dateInput.value);
 
-                // 2. 如果不开门或数据不全，停止逻辑
                 if (!businessConfig || !startTimeInput.value || !serviceSelect.value)
                     return;
 
-                // 3. 校验开始时间是否在范围内
+                // check if start time is within operating hours
                 const selectedStartTime = startTimeInput.value;
                 if (selectedStartTime < businessConfig.openTime || selectedStartTime > businessConfig.closeTime) {
                     alert("Invalid Time! Business hours for this day are " + businessConfig.openTime + " to " + businessConfig.closeTime);
@@ -506,7 +500,7 @@
                     return;
                 }
 
-                // 4. 计算结束时间
+                // calculate duration
                 const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
                 const serviceHours = parseFloat(selectedOption.getAttribute('data-hours'));
                 const [h, m] = startTimeInput.value.split(':').map(Number);
@@ -515,11 +509,11 @@
                 d.setHours(h);
                 d.setMinutes(m + Math.round(serviceHours * 60));
 
-                // 5. 校验结束时间是否会超过当天的关门时间
                 const [closeH, closeM] = businessConfig.closeTime.split(':').map(Number);
                 const endTotalMinutes = d.getHours() * 60 + d.getMinutes();
                 const closeTotalMinutes = closeH * 60 + closeM;
 
+                // make sure service doesnt end after shop closes
                 if (endTotalMinutes > closeTotalMinutes) {
                     alert("This service takes " + serviceHours + " hour(s) and will exceed closing time (" + businessConfig.closeTime + ")!");
                     startTimeInput.value = "";
@@ -527,19 +521,19 @@
                     return;
                 }
 
-                // 6. 成功通过所有校验，显示预计结束时间并加载技师
                 const endTimeStr = String(d.getHours()).padStart(2, '0') + ":" + String(d.getMinutes()).padStart(2, '0');
                 endTimeDisplay.value = endTimeStr;
+                // find who is free for this time slot
                 fetchAvailableTechs(prefix, dateInput.value, startTimeInput.value, endTimeStr);
             }
 
-            // 获取可用技师逻辑
             function fetchAvailableTechs(prefix, date, start, end) {
                 const techSelect = document.getElementById(prefix + 'TechSelect');
                 const loader = document.getElementById(prefix + 'TechLoading');
                 if (loader)
                     loader.style.display = 'inline';
 
+                // get tech list from server
                 fetch("AppointmentServlet?action=getAvailableTechs&date=" + encodeURIComponent(date) + "&startTime=" + encodeURIComponent(start) + "&endTime=" + encodeURIComponent(end))
                         .then(r => r.json())
                         .then(data => {
@@ -559,8 +553,8 @@
                         });
             }
 
-            // 提交表单前的最终校验
             function validateForm(prefix) {
+                // skip validation if deleting
                 const actionInput = document.getElementById('upAction');
                 if (prefix === 'up' && actionInput && actionInput.value === 'delete')
                     return true;
@@ -568,10 +562,10 @@
                 const timeInput = document.getElementById(prefix + 'Time');
                 const techSelect = document.getElementById(prefix + 'TechSelect');
 
-                // 改为读取动态设置的 min/max 属性
                 const minVal = timeInput.getAttribute('min') || "10:00";
                 const maxVal = timeInput.getAttribute('max') || "18:00";
 
+                // last check before submit
                 if (timeInput.value < minVal || timeInput.value > maxVal) {
                     alert("Error: Selected time must be between " + minVal + " and " + maxVal + ".");
                     return false;
@@ -583,8 +577,8 @@
                 return true;
             }
 
-            // 更新弹窗初始化
             function openUpdateModal(id, plate, svcId, date, time, currentTech, status) {
+                // fill up modal fields
                 document.getElementById('upId').value = id;
                 document.getElementById('upPlate').value = plate;
                 document.getElementById('upService').value = svcId;
@@ -599,6 +593,7 @@
 
                 const currentStatus = (status || "").trim().toLowerCase();
 
+                // lock fields if already paid or done
                 if (currentStatus === 'paid' || currentStatus === 'completed') {
                     inputs.forEach(i => i.disabled = true);
                     editGroup.style.setProperty("display", "none", "important");
@@ -609,13 +604,12 @@
                     editGroup.style.setProperty("display", "flex", "important");
                     readOnlyGroup.style.display = 'none';
                     notice.style.display = 'none';
-                    // 打开弹窗时，先执行一次营业时间同步检查
                     calculateEndTime('up');
                 }
                 document.getElementById('updateModal').style.display = 'block';
             }
 
-            // 点击背景关闭弹窗
+            // close modal if user clicks outside of it
             window.onclick = function (e) {
                 if (e.target.className === 'modal')
                     e.target.style.display = "none";
