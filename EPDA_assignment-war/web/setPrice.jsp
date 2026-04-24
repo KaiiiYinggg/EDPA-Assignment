@@ -69,6 +69,9 @@
                 font-size: 0.85rem;
                 color: #6c757d;
             }
+            input[name="serviceType"], input[name^="serviceName_"] {
+                text-transform: uppercase;
+            }
         </style>
     </head>
 

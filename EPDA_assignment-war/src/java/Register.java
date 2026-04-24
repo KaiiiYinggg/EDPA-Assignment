@@ -1,8 +1,3 @@
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
  /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
@@ -24,9 +19,9 @@ import javax.servlet.http.Part;
 
 @WebServlet(urlPatterns = {"/Register"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024, // 1MB
-        maxFileSize = 1024 * 1024 * 5, // 5MB
-        maxRequestSize = 1024 * 1024 * 10 // 10MB
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5, 
+        maxRequestSize = 1024 * 1024 * 10 
 )
 public class Register extends HttpServlet {
 
@@ -39,7 +34,6 @@ public class Register extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         try {
-            // 1. Get parameters
             String name = request.getParameter("username");
             String password = request.getParameter("password");
             String email = request.getParameter("email");
@@ -49,7 +43,7 @@ public class Register extends HttpServlet {
             String userICStr = request.getParameter("userIC");
             String address = request.getParameter("address");
 
-            // 2. Basic validation
+            // basic validation
             if (name == null || name.trim().isEmpty()
                     || email == null || email.trim().isEmpty()
                     || password == null || password.trim().isEmpty()
@@ -62,7 +56,7 @@ public class Register extends HttpServlet {
                 return;
             }
 
-            // Check if null, check length, and check if it's numeric
+            // check if null, check length, and check if is numeric
             if (userICStr == null || userICStr.trim().length() != 12 || !userICStr.matches("^[0-9]+$")) {
                 request.setAttribute("error", "IC must be exactly 12 numeric digits!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
@@ -70,24 +64,24 @@ public class Register extends HttpServlet {
             }
 
             try {
-                // 1. 拆分 IC 前六位 (日期)
+                //ic format yymmdd-pb(specific)-xxxx(random)
+                // check ic , split to yy(year) mm(month) dd(date)
                 int yy = Integer.parseInt(userICStr.substring(0, 2));
                 int mm = Integer.parseInt(userICStr.substring(2, 4));
                 int dd = Integer.parseInt(userICStr.substring(4, 6));
 
-                // 2. 确定世纪并验证日期合法性
+                //validate year
                 int currentYear = java.time.LocalDate.now().getYear();
                 int birthYear = (yy <= (currentYear % 100)) ? (2000 + yy) : (1900 + yy);
                 java.time.LocalDate birthDate = java.time.LocalDate.of(birthYear, mm, dd);
 
-                // 3. ✨ 州属代码检查 (第 7-8 位)
+                // validate pb
                 String pbStr = userICStr.substring(6, 8);
                 int pbCode = Integer.parseInt(pbStr);
 
-                // 马来西亚目前存在的合法 PB 代码列表 (包含州属和海外出生)
                 java.util.List<Integer> validPB = java.util.Arrays.asList(
-                        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, // 州属
-                        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, // 海外/特殊
+                        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
                         40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
                         82
                 );
@@ -98,7 +92,6 @@ public class Register extends HttpServlet {
                     return;
                 }
 
-                // 4. 计算精确年龄
                 java.time.LocalDate today = java.time.LocalDate.now();
                 int age = java.time.Period.between(birthDate, today).getYears();
 
@@ -120,7 +113,7 @@ public class Register extends HttpServlet {
                 return;
             }
 
-            // 3. Validate phone number
+            // validate phone number
             int phoneNumber;
             try {
                 phoneNumber = Integer.parseInt(phoneStr.replaceAll("[^0-9]", ""));
@@ -140,14 +133,14 @@ public class Register extends HttpServlet {
                 return;
             }
 
-            // 4. Check if email already exists
+            // check if email already exists
             if (userFacade.findByEmail(email) != null) {
                 request.setAttribute("error", "Email already registered!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
 
-            // 5. Set default profile picture based on gender
+            // set default profile picture based on gender
             String defaultPic = "default.jpg";
             if ("Male".equalsIgnoreCase(gender)) {
                 defaultPic = "male_default.jpg";
@@ -155,11 +148,11 @@ public class Register extends HttpServlet {
                 defaultPic = "female_default.jpg";
             }
 
-            // 6. Create user with default profile pic
+            // create user with default profile pic
             User newUser = new User(name, password, userICStr, address, phoneNumber, gender, role, email);
             newUser.setProfilePic(defaultPic);
             userFacade.create(newUser);
-            // ⭐ 新增代码：注册成功后异步发送邮件
+            // send register successful email
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -170,9 +163,7 @@ public class Register extends HttpServlet {
                     }
                 }
             }).start();
-            // ⭐ 新增代码结束
-
-            // 7. Handle file upload
+            // handle file upload
             Part filePart = request.getPart("profilePic");
             if (filePart != null && filePart.getSize() > 0) {
                 String submittedFileName = filePart.getSubmittedFileName();
@@ -193,12 +184,12 @@ public class Register extends HttpServlet {
                     }
                 }
 
-                // Upload successful, update profilePic
+                // upload successful, update profilePic
                 newUser.setProfilePic(submittedFileName);
                 userFacade.edit(newUser);
             }
 
-            // 8. Redirect success
+            // redirect success
             response.sendRedirect(request.getContextPath() + "/Register?success=true");
 
         } catch (Exception ex) {

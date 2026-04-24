@@ -14,34 +14,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author teech
- */
 @WebServlet(urlPatterns = {"/ViewFeedback"})
 public class ViewFeedback extends HttpServlet {
 
     @EJB
     private FeedbackFacade FeedbackFacade;
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -55,40 +32,25 @@ public class ViewFeedback extends HttpServlet {
         String email = user.getEmail();
         String role = user.getRole();
 
-        // 💡 获取所有参数
         String searchQuery = request.getParameter("searchQuery");
         String ratingFilter = request.getParameter("ratingFilter");
-        String dateFilter = request.getParameter("dateFilter"); // ✨ 新增日期参数
+        String dateFilter = request.getParameter("dateFilter");
 
-        // 调用 Facade (增加一个 dateFilter 参数)
         List<Object[]> feedbackData = FeedbackFacade.findDetailedFeedbackFiltered(email, role, searchQuery, ratingFilter, dateFilter);
 
         request.setAttribute("feedbackData", feedbackData);
         request.getRequestDispatcher("viewFeedback.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doGet(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }

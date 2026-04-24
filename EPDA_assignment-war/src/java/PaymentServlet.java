@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 import Entity.Appointment;
 import Entity.AppointmentFacade;
 import Entity.Payment;
@@ -135,7 +138,6 @@ public class PaymentServlet extends HttpServlet {
     }
 
     private void exportPDF(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // 获取参数 (保持不变)
         String id = request.getParameter("id");
         String cust = request.getParameter("cust");
         String svc = request.getParameter("svc");
@@ -146,17 +148,14 @@ public class PaymentServlet extends HttpServlet {
         response.setHeader("Content-Disposition", "attachment; filename=Receipt_" + id + ".pdf");
 
         try {
-            // 1. 设置纸张大小（类似于小票的宽度，或者用 A4 但窄一点）
             com.itextpdf.text.Document document = new com.itextpdf.text.Document(com.itextpdf.text.PageSize.A6);
             com.itextpdf.text.pdf.PdfWriter.getInstance(document, response.getOutputStream());
             document.open();
 
-            // 2. 定义字体
             com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 16, com.itextpdf.text.Font.BOLD);
             com.itextpdf.text.Font boldFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 10, com.itextpdf.text.Font.BOLD);
             com.itextpdf.text.Font normalFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 10, com.itextpdf.text.Font.NORMAL);
 
-            // 3. 标题居中
             com.itextpdf.text.Paragraph title = new com.itextpdf.text.Paragraph("APU AUTOMOTIVE", titleFont);
             title.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
             document.add(title);
@@ -166,16 +165,13 @@ public class PaymentServlet extends HttpServlet {
             subTitle.setSpacingAfter(10f);
             document.add(subTitle);
 
-            // 分割线
-            document.add(new com.itextpdf.text.Paragraph("----------------------------------------------------------"));
+            document.add(new com.itextpdf.text.Paragraph("--------------------------------------------------------"));
 
-            // 4. 使用表格来排列详情 (2列)
             com.itextpdf.text.pdf.PdfPTable table = new com.itextpdf.text.pdf.PdfPTable(2);
             table.setWidthPercentage(100);
             table.setSpacingBefore(10f);
             table.setSpacingAfter(10f);
 
-            // 辅助方法：添加表格行
             addTableRow(table, "Transaction ID:", id, normalFont);
             addTableRow(table, "Customer:", cust, normalFont);
             addTableRow(table, "Date:", java.time.LocalDate.now().toString(), normalFont);
@@ -183,9 +179,8 @@ public class PaymentServlet extends HttpServlet {
 
             document.add(table);
 
-            document.add(new com.itextpdf.text.Paragraph("----------------------------------------------------------"));
+            document.add(new com.itextpdf.text.Paragraph("--------------------------------------------------------"));
 
-            // 5. 费用总计 (两端对齐)
             com.itextpdf.text.pdf.PdfPTable totalTable = new com.itextpdf.text.pdf.PdfPTable(2);
             totalTable.setWidthPercentage(100);
 
@@ -200,9 +195,7 @@ public class PaymentServlet extends HttpServlet {
 
             document.add(totalTable);
 
-            document.add(new com.itextpdf.text.Paragraph("----------------------------------------------------------"));
-
-            // 6. PAID 状态
+            document.add(new com.itextpdf.text.Paragraph("--------------------------------------------------------"));
             com.itextpdf.text.Paragraph footer = new com.itextpdf.text.Paragraph("*** PAID ***", titleFont);
             footer.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
             footer.setSpacingBefore(20f);
@@ -215,7 +208,6 @@ public class PaymentServlet extends HttpServlet {
         }
     }
 
-// 辅助函数：用来简化表格行的添加
     private void addTableRow(com.itextpdf.text.pdf.PdfPTable table, String label, String value, com.itextpdf.text.Font font) {
         com.itextpdf.text.pdf.PdfPCell cell1 = new com.itextpdf.text.pdf.PdfPCell(new com.itextpdf.text.Phrase(label, font));
         cell1.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);

@@ -1,12 +1,15 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 import Entity.Appointment;
 import Entity.AppointmentFacade;
 import Entity.Feedback;
 import Entity.FeedbackFacade;
 import Entity.Payment;
 import Entity.PaymentFacade;
-import Entity.Services; // 确保导入 Service 实体
-import Entity.ServicesFacade; // 确保导入 ServiceFacade
+import Entity.Services;
+import Entity.ServicesFacade;
 import Entity.User;
 import Entity.UserFacade;
 import java.io.IOException;
@@ -19,10 +22,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author teech
- */
 @WebServlet(urlPatterns = {"/ViewHistory"})
 public class ViewHistory extends HttpServlet {
 
@@ -33,7 +32,7 @@ public class ViewHistory extends HttpServlet {
     @EJB
     private PaymentFacade paymentFacade;
     @EJB
-    private ServicesFacade serviceFacade; // 1. 注入 ServiceFacade
+    private ServicesFacade serviceFacade;
     @EJB
     private FeedbackFacade feedbackFacade;
 
@@ -41,7 +40,6 @@ public class ViewHistory extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Get the current user from the session
         User user = (User) request.getSession().getAttribute("user");
 
         if (user == null) {
@@ -49,7 +47,6 @@ public class ViewHistory extends HttpServlet {
             return;
         }
 
-        // 根据 ID 重新获取一个"活跃"的 User 对象
         User activeUser = userFacade.find(user.getUser_id());
 
         if (activeUser == null) {
@@ -60,9 +57,9 @@ public class ViewHistory extends HttpServlet {
         String role = activeUser.getRole().toLowerCase();
         String searchDate = request.getParameter("searchDate");
         String searchName = request.getParameter("searchName");
-        String status = request.getParameter("status");  // ✅ 新增：获取 status 参数
+        String status = request.getParameter("status"); 
 
-        // 2. 💡 新增：获取数据库中所有的服务类型，供下拉菜单使用
+        // services
         List<Services> allServices = serviceFacade.findAll();
         request.setAttribute("allServices", allServices);
 
@@ -71,17 +68,15 @@ public class ViewHistory extends HttpServlet {
         if (!"manager".equals(role)) {
             emailFilter = activeUser.getEmail();
         }
-
-        // ✅ 修改：传递 status 参数
         List<Appointment> appointmentData = appointmentFacade.findFilteredAppointments(
                 emailFilter,
                 role,
                 searchDate,
                 searchName,
-                status // 新增 status 参数
+                status
         );
 
-        // ⚡ 强制加载 feedbacks，避免 Hibernate 延迟加载导致第一次 redirect 看不到最新反馈
+        // feedback load
         for (Appointment app : appointmentData) {
 
             Feedback fb = feedbackFacade.findByAppointmentId(app.getAppointment_id());
@@ -92,7 +87,6 @@ public class ViewHistory extends HttpServlet {
 
         }
 
-        // 4. 获取 payment 列表（仅客户）
         List<Payment> payments = null;
         if ("customer".equals(role)) {
             payments = paymentFacade.findFilteredPayments(
@@ -102,11 +96,9 @@ public class ViewHistory extends HttpServlet {
             );
         }
 
-        // 5. 传递给 JSP
         request.setAttribute("appointmentData", appointmentData);
         request.setAttribute("payments", payments);
 
-        // 6. Forward 到 JSP
         request.getRequestDispatcher("viewHistory.jsp").forward(request, response);
     }
 

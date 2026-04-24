@@ -1,4 +1,7 @@
-
+ /*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 import Entity.Services;
 import Entity.ServicesFacade;
 import java.io.IOException;
@@ -33,14 +36,14 @@ public class SetPrice extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        // ================= 1. ADD SERVICE (新增逻辑) =================
+        // add services
         if ("add".equals(action)) {
             String serviceType = request.getParameter("serviceType").trim();
             String priceStr = request.getParameter("price");
             String hourStr = request.getParameter("serviceHour");
 
             if (serviceType != null && !serviceType.isEmpty()) {
-                // 💡 检查名字是否已存在
+                // check same service type
                 Services existing = servicesFacade.findByType(serviceType);
                 if (existing != null) {
                     sendAlert(response, "Error: Service [" + serviceType + "] already exists!");
@@ -57,12 +60,12 @@ public class SetPrice extends HttpServlet {
             return;
         }
 
-        // ================= 2. UPDATE ALL (编辑逻辑 + 重名检查) =================
+        // update all
         if (request.getParameter("updateAll") != null) {
             try {
                 int total = Integer.parseInt(request.getParameter("totalCount"));
 
-                // 💡 第一步：【全面预检】—— 先检查一遍有没有任何一个名字会被改重名
+                //check edited services type no duplicate record in db
                 for (int i = 0; i < total; i++) {
                     String idStr = request.getParameter("serviceId_" + i);
                     String newName = request.getParameter("serviceName_" + i).trim();
@@ -71,15 +74,14 @@ public class SetPrice extends HttpServlet {
                         Long id = Long.parseLong(idStr);
                         Services existing = servicesFacade.findByType(newName);
 
-                        // 如果找到了同名服务，且 ID 不是当前这个正在改的服务
                         if (existing != null && !existing.getService_id().equals(id)) {
                             sendAlert(response, "Error: The name [" + newName + "] is already used! No changes were saved.");
-                            return; // ✋ 立刻停止，不执行下面的第二步（Save 逻辑）
+                            return;
                         }
                     }
                 }
 
-                // 💡 第二步：【正式执行】—— 只有预检通过了，才真正跑第二次循环去 Save
+                // save
                 for (int i = 0; i < total; i++) {
                     String idStr = request.getParameter("serviceId_" + i);
                     String newName = request.getParameter("serviceName_" + i).trim();
@@ -93,7 +95,7 @@ public class SetPrice extends HttpServlet {
                             s.setServiceType(newName);
                             s.setServiceHour(Integer.parseInt(newHourStr));
                             s.setPrice(Double.parseDouble(newPriceStr));
-                            servicesFacade.edit(s); // 这次才是真的存进 DB
+                            servicesFacade.edit(s);
                         }
                     }
                 }
@@ -106,7 +108,6 @@ public class SetPrice extends HttpServlet {
         }
     }
 
-// 辅助方法：用来弹窗并跳转/返回
     private void sendAlert(HttpServletResponse response, String msg) throws IOException {
         sendAlert(response, msg, null);
     }

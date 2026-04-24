@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package Customer;
 import Entity.*;
 import java.io.IOException;
@@ -33,15 +37,15 @@ public class CustomerDashboardServlet extends HttpServlet {
             return;
         }
 
-        // 🔥 refresh user cars
+        //refresh user cars
         List<Car> customerCars = carFacade.findByUserEmail(user.getEmail());
         session.setAttribute("customerCars", customerCars);
 
-        // 🔥 service summary
+        //service summary
         List<Object[]> serviceSummary = appointmentFacade.findServiceSummary(user.getEmail());
         session.setAttribute("serviceSummary", serviceSummary);
 
-        // 🔥 business hours (IMPORTANT)
+        //business hours (IMPORTANT)
         LocalDate today = LocalDate.now();
         LocalDate oneMonthLater = today.plusMonths(1);
 
@@ -56,7 +60,6 @@ public class CustomerDashboardServlet extends HttpServlet {
 
         request.setAttribute("businessHours", businessHours);
 
-        // forward to JSP
         request.getRequestDispatcher("/Customer/customerDashboard.jsp")
                 .forward(request, response);
     }

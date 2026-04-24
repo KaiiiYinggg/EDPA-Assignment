@@ -114,7 +114,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Open Time</label>
-                        <input type="time" name="openTime" id="openInput" class="form-control" value="10:00">
+                        <input type="time" name="openTime" id="openInput" class="form-control" value="10:00" readonly>
                     </div>
 
                     <div class="col-md-4">
@@ -174,13 +174,13 @@
                     window.history.replaceState({path: url.href}, '', url.href);
                 }
             });
-            
+
             //disable save if bookings exist
             function checkSubmitButtonStatus() {
                 const datePicker = document.getElementById('datePicker');
                 const submitBtn = document.querySelector('button[type="submit"]');
                 const apptCount = parseInt(datePicker.dataset.apptCount || "0");
-                
+
                 //change button color and text
                 if (apptCount > 0) {
                     submitBtn.disabled = true;
@@ -194,20 +194,20 @@
                     submitBtn.classList.add('btn-primary');
                 }
             }
-            
+
             //disable time fields if closed
             function toggleTimeInputs(isClosed) {
                 document.getElementById('openInput').disabled = isClosed;
                 document.getElementById('closeInput').disabled = isClosed;
                 checkSubmitButtonStatus();
             }
-            
+
             //trigger when user picks a date
             function onDateChange(date) {
                 document.getElementById('formAction').value = "save";
                 loadDateSettings(date);
             }
-            
+
             //show if it is a holiday or normal day
             function loadDateSettings(date) {
                 if (!date)
@@ -218,7 +218,7 @@
                             const statusInfo = document.getElementById('statusInfo');
                             const conflictAlert = document.getElementById('conflictAlert');
                             const datePicker = document.getElementById('datePicker');
-                            
+
                             //check if there are any conflict
                             datePicker.dataset.apptCount = data.apptCount || 0;
                             if (data.apptCount > 0) {
@@ -252,7 +252,7 @@
                             checkSubmitButtonStatus();
                         });
             }
-            
+
             //fill form with existing data
             function editSetting(date) {
                 const todayStr = new Date().toISOString().split("T")[0];
@@ -265,7 +265,7 @@
                 loadDateSettings(date);
                 window.scrollTo({top: 0, behavior: 'smooth'});
             }
-            
+
             //a confirm before delete
             function deleteSetting() {
                 if (confirm("Remove this setting?")) {
@@ -273,6 +273,29 @@
                     document.getElementById('bhForm').submit();
                 }
             }
+
+            document.getElementById('bhForm').addEventListener('submit', function (e) {
+                const action = document.getElementById('formAction').value;
+                const isClosed = document.getElementById('isClosedCheck').checked;
+
+                // skip check if deleting
+                if (action === 'delete')
+                    return;
+
+                // if shop is open, check the time logic
+                if (!isClosed) {
+                    const openTime = document.getElementById('openInput').value;
+                    const closeTime = document.getElementById('closeInput').value;
+
+                    if (openTime && closeTime) {
+                        // compare time strings
+                        if (closeTime <= openTime) {
+                            e.preventDefault(); // stop submit
+                            alert("error: closing time must be later than opening time (10:00).");
+                        }
+                    }
+                }
+            });
         </script>
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
     </body>

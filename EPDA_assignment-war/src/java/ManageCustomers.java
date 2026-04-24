@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 import Entity.Car;
 import Entity.CarFacade;
 import Entity.User;
@@ -36,7 +39,6 @@ public class ManageCustomers extends HttpServlet {
             action = "list";
         }
 
-        // 💡 搜索与列表逻辑
         String searchQuery = request.getParameter("searchQuery");
         List<User> userList = userFacade.findAllCustomers();
         request.setAttribute("userList", userList);
@@ -84,27 +86,26 @@ public class ManageCustomers extends HttpServlet {
             try {
                 Long id = Long.parseLong(request.getParameter("user_id"));
                 String username = request.getParameter("username");
+                String gender = request.getParameter("gender");
+                String address = request.getParameter("address");
                 String phoneStr = request.getParameter("phoneNumber");
                 int newPhoneNumber = Integer.parseInt(phoneStr.replaceAll("[^0-9]", ""));
 
-                // 💡 1. 检查电话号码是否被【其他人】占用
+                // check duplicate phone number
                 User userWithThisPhone = userFacade.findByPhone(newPhoneNumber);
 
                 if (userWithThisPhone != null && !userWithThisPhone.getUser_id().equals(id)) {
-                    // 如果找到了这个电话号码，且拥有者不是当前正在修改的这个人
-                    request.getSession().setAttribute("errorMsg", "Update failed: Phone number '" + phoneStr + "' is already registered to another customer!");
+                    request.getSession().setAttribute("errorMsg", "Update failed: Phone number is already in use!");
                 } else {
-                    // 💡 2. 没冲突，执行更新
                     User u = userFacade.find(id);
                     if (u != null) {
+                        // update all fields
                         u.setUsername(username);
                         u.setPhoneNumber(newPhoneNumber);
-                        // Email 已经在 JSP 设为 readonly，这里不处理 email
+                        u.setAddress(address);
 
                         userFacade.edit(u);
                         request.getSession().setAttribute("successMsg", "Customer '" + username + "' profile updated successfully!");
-                    } else {
-                        request.getSession().setAttribute("errorMsg", "Update failed: Customer not found.");
                     }
                 }
             } catch (Exception e) {

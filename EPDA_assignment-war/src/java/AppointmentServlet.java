@@ -1,5 +1,7 @@
-package Servlet;
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 import Entity.Appointment;
 import Entity.AppointmentFacade;
 import Entity.User;
@@ -96,18 +98,15 @@ public class AppointmentServlet extends HttpServlet {
                 List<Car> cars = carFacade.findByUserEmail(custEmail);
                 List<Services> services = servicesFacade.findAll();
 
-                // ✨ 新增：获取未来 30 天的特殊营业时间（用于 Notice Box 显示）
-                // --- 找到这段代码并替换 ---
+                //notic box display 30 day record
                 LocalDate today = LocalDate.now();
-                LocalDate oneMonthLater = today.plusMonths(1); // 准确的一个月后
+                LocalDate oneMonthLater = today.plusMonths(1); //one month
 
-// 获取所有记录
                 List<BusinessHour> allHours = bhFacade.findAll();
-
-// ✨ 使用 Java Stream 过滤：只保留 [今天] 到 [一个月后] 之间的日期
+                //calculate one month , calculate by 'today'
                 List<BusinessHour> specialHours = allHours.stream()
                         .filter(bh -> !bh.getBusinessDate().isBefore(today) && !bh.getBusinessDate().isAfter(oneMonthLater))
-                        .sorted((a, b) -> a.getBusinessDate().compareTo(b.getBusinessDate())) // 按日期排序
+                        .sorted((a, b) -> a.getBusinessDate().compareTo(b.getBusinessDate())) //sort by date
                         .collect(java.util.stream.Collectors.toList());
 
                 request.setAttribute("specialHours", specialHours);
@@ -139,13 +138,13 @@ public class AppointmentServlet extends HttpServlet {
 
                 BusinessHour bh = bhFacade.findByDate(appDate);
 
-                // 1. 拦截：如果是假期
+                //if holiday
                 if (bh != null && bh.isIsClosed()) {
                     response.sendRedirect("AppointmentServlet?customerEmail=" + custEmail + "&error=holiday");
                     return;
                 }
 
-                // 2. 拦截：如果超出当天营业时间
+                //if out of range BH
                 LocalTime openT = (bh != null) ? bh.getOpenTime() : LocalTime.of(10, 0);
                 LocalTime closeT = (bh != null) ? bh.getCloseTime() : LocalTime.of(18, 0);
 
@@ -219,7 +218,6 @@ public class AppointmentServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
         }
     }
 

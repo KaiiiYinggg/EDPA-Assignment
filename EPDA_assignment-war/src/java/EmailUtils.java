@@ -3,10 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
-/**
- *
- * @author Kai Ying
- */
 import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -31,11 +27,11 @@ public class EmailUtils {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(myEmail, "APU Automotive Service Center")); // 这样发件人会显示名字
+            message.setFrom(new InternetAddress(myEmail, "APU Automotive Service Center")); //display name
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject("Welcome to APU Automotive - Registration Successful!");
-
-            // 设计漂亮的 HTML 内容
+            
+            // email design
             String htmlBody
                     = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>"
                     + "<div style='background-color: #2c3e50; color: white; padding: 20px; text-align: center;'>"
@@ -52,13 +48,12 @@ public class EmailUtils {
                     + "</div>"
                     + "</div>";
 
-            // 注意：这里必须用 setContent 才能发 HTML，不能用 setText
             message.setContent(htmlBody, "text/html; charset=utf-8");
 
             Transport.send(message);
             System.out.println("Email Sent Successfully with Design!");
 
-        } catch (Exception e) { // 改成 Exception 可以抓到更多细节错误
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -33,31 +33,29 @@ public class Login extends HttpServlet {
         String emailInput = request.getParameter("email");
         String passwordInput = request.getParameter("password");
 
-        // 1️⃣ Basic validation
+        // basic valitation
         if (emailInput == null || emailInput.isEmpty() || passwordInput == null || passwordInput.isEmpty()) {
             request.setAttribute("error", "Please enter both email and password.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
-        // 2️⃣ Find user by email
+        //find user by email
         User user = userFacade.findByEmail(emailInput);
 
         if (user != null && user.getPassword().equals(passwordInput)) {
-            // 3️⃣ Store user in session
+            // store user in session
             HttpSession session = request.getSession();
-            session.setAttribute("user", user);          // 整个 User 对象
-            session.setAttribute("email", user.getEmail()); // 单独存 email，AddVehicle 可以直接用
+            session.setAttribute("user", user);
+            session.setAttribute("email", user.getEmail());
 
-            // 4️⃣ Redirect according to role
+            // redirect according to role
             String role = user.getRole().toLowerCase();
             switch (role) {
                 case "manager":
                     response.sendRedirect(request.getContextPath() + "/Manager/loadManagerDashboard");
                     break;
-                // 在 Login.java 的 switch 块中修改这一段
                 case "counter staff":
-                    // 使用 request.getContextPath() 确保路径从项目根目录开始，避免 404
                     response.sendRedirect(request.getContextPath() + "/Staff/StaffDashboardServlet");
                     break;
                 case "technician":
@@ -71,14 +69,12 @@ public class Login extends HttpServlet {
                     List<Object[]> serviceSummary = appointmentFacade.findServiceSummary(user.getEmail());
                     session.setAttribute("serviceSummary", serviceSummary);
 
-                    // ⭐ redirect to servlet (NOT JSP)
                     response.sendRedirect(request.getContextPath() + "/Customer/CustomerDashboardServlet");
                     break;
                 default:
                     response.sendRedirect("index.jsp");
             }
         } else {
-            // 5️⃣ Login failed
             request.setAttribute("error", "Invalid email or password.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }

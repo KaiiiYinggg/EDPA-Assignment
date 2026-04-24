@@ -19,30 +19,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-/**
- *
- * @author teech
- */
 @WebServlet(urlPatterns = {"/UpdateStaff"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024, // 1MB
-        maxFileSize = 1024 * 1024 * 5, // 5MB
-        maxRequestSize = 1024 * 1024 * 10 // 10MB
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5,
+        maxRequestSize = 1024 * 1024 * 10
 )
 public class UpdateStaff extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -50,7 +37,6 @@ public class UpdateStaff extends HttpServlet {
             String method = request.getMethod();
 
             if (method.equalsIgnoreCase("GET")) {
-                // --- 这里放之前的 doGet 逻辑 (准备资料) ---
                 String email = request.getParameter("email");
                 User staff = userFacade.findByEmail(email);
                 if (staff != null) {
@@ -69,33 +55,32 @@ public class UpdateStaff extends HttpServlet {
                     String gender = request.getParameter("gender");
                     String password = request.getParameter("password");
                     String address = request.getParameter("address");
-                    String userIC = request.getParameter("userIC"); // 这里虽然是 readonly，但提交时仍会带上旧值
+                    String userIC = request.getParameter("userIC"); //readonly reocrd
 
                     String rawPhone = request.getParameter("phoneNumber").replaceAll("[^0-9]", "");
                     int phoneNumber = Integer.parseInt(rawPhone);
 
-                    // 💡 1. 电话号码查重逻辑
-                    // 我们先找到旧员工的对象，用来比对 ID
+                    // check phone number
                     User currentStaff = userFacade.findByEmail(oldEmail);
                     User userWithThisPhone = userFacade.findByPhone(phoneNumber);
 
                     if (userWithThisPhone != null && !userWithThisPhone.getUser_id().equals(currentStaff.getUser_id())) {
-                        // 如果这个电话有人用了，且那个人不是正在被修改的这位员工
+                        //duplicate phone number
                         request.setAttribute("error", "The phone number " + rawPhone + " is already in use by another account!");
-                        request.setAttribute("staff", currentStaff); // 重新放回页面显示
+                        request.setAttribute("staff", currentStaff);
                         request.getRequestDispatcher("updateStaff.jsp").forward(request, response);
                         return;
                     }
 
-                    // 💡 2. IC 格式校验 (虽然只读，但为了防止绕过前端修改，后端留一个基础判断)
+                    // ic validate
                     if (userIC == null || userIC.length() != 12) {
                         request.setAttribute("error", "Critical error: IC data is missing or corrupted.");
                         request.setAttribute("staff", currentStaff);
                         request.getRequestDispatcher("updateStaff.jsp").forward(request, response);
                         return;
                     }
-
-                    // 3. 处理图片 (保持你原本的代码逻辑)
+                    
+                    //profile pic
                     String profilePic = request.getParameter("profilePic");
                     Part filePart = request.getPart("newProfilePic");
                     if (filePart != null && filePart.getSize() > 0) {
@@ -116,7 +101,6 @@ public class UpdateStaff extends HttpServlet {
                         }
                     }
 
-                    // 4. 调用 Facade 更新数据库
                     String result = userFacade.updateStaff(oldEmail, newEmail, username, phoneNumber, role, gender, password, profilePic, userIC, address);
 
                     if (result.equals("success")) {
@@ -133,43 +117,22 @@ public class UpdateStaff extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }

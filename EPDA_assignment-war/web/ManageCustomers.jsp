@@ -148,7 +148,7 @@
                     </thead>
                     <tbody>
                         <c:forEach var="u" items="${userList}">
-                            <tr class="clickable-row" onclick="openUpdateModal('${u.user_id}', '${u.username}', '${u.phoneNumber}', '${u.email}')">
+                            <tr class="clickable-row" onclick="openUpdateModal('${u.user_id}', '${u.username}', '${u.phoneNumber}', '${u.email}', '${u.gender}', '${u.address}', '${u.userIC}')">
                                 <td onclick="event.stopPropagation();" class="text-center">
                                     <input type="checkbox" name="selectedIds" value="${u.user_id}">
                                 </td>
@@ -228,20 +228,33 @@
 
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-muted">Username</label>
-                                <input type="text" name="username" id="updateUsername" class="form-control" required minlength="2" maxlength="50">
+                                <input type="text" name="username" id="updateUsername" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Gender (Readonly)</label>
+                                <input type="text" id="updateGender" class="form-control bg-light" readonly>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-muted">Phone Number</label>
-                                <input type="text" name="phoneNumber" id="updatePhone" class="form-control" 
-                                       required pattern="[0-9]{10,11}" title="Phone number must be 10-11 digits"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                <small class="text-muted">Example: 0123456789</small>
+                                <input type="text" name="phoneNumber" id="updatePhone" class="form-control" required>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label small fw-bold text-muted">Email Address</label>
-                                <input type="email" name="email" id="updateEmail" class="form-control bg-light" readonly>
+                                <label class="form-label small fw-bold text-muted">Address</label>
+                                <textarea name="address" id="updateAddress" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold text-muted">IC Number (Readonly)</label>
+                                    <input type="text" id="updateIC" class="form-control bg-light" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold text-muted">Email (Readonly)</label>
+                                    <input type="email" id="updateEmail" class="form-control bg-light" readonly>
+                                </div>
                             </div>
 
                             <div class="d-flex gap-2 mt-4">
@@ -272,14 +285,18 @@
                 return confirm("Are you sure you want to delete " + checkedCount + " selected customer(s)?");
             }
 
-            function openUpdateModal(id, name, phone, email) {
-                // pass data to modal inputs
+            function openUpdateModal(id, name, phone, email, gender, address, ic) {
                 document.getElementById('updateId').value = id;
                 document.getElementById('updateUsername').value = name;
                 document.getElementById('updatePhone').value = phone;
                 document.getElementById('updateEmail').value = email;
 
-                // trigger bootstrap modal
+                // fill gender to the readonly input
+                document.getElementById('updateGender').value = gender;
+
+                document.getElementById('updateAddress').value = address;
+                document.getElementById('updateIC').value = ic;
+
                 const modalEl = document.getElementById('updateModal');
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
