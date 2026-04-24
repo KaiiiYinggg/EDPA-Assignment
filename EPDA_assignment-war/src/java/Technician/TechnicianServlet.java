@@ -68,20 +68,31 @@ public class TechnicianServlet extends HttpServlet {
 
         try {
             String appIdStr = request.getParameter("appointmentId");
-            //completed
             if (appIdStr != null) {
                 Long appId = Long.parseLong(appIdStr);
                 Appointment app = appFacade.find(appId);
 
                 if (app != null) {
-                    app.setAppointment_status("Completed");
-                    appFacade.edit(app);
+                    // get today's date
+                    LocalDate today = LocalDate.now();
+
+                    // NO NEED TO PARSE: getAppointment_date() is already LocalDate
+                    LocalDate taskDate = app.getAppointment_date();
+
+                    if (taskDate != null && taskDate.equals(today)) {
+                        app.setAppointment_status("Completed");
+                        appFacade.edit(app);
+                    } else {
+                        // just a log for debugging
+                        System.out.println("not today or date is null: " + taskDate);
+                    }
                 }
             }
             response.sendRedirect("TechnicianServlet");
 
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("TechnicianServlet?error=true");
         }
     }
 }

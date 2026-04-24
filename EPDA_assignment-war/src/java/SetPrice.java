@@ -38,7 +38,7 @@ public class SetPrice extends HttpServlet {
 
         // add services
         if ("add".equals(action)) {
-            String serviceType = request.getParameter("serviceType").trim();
+            String serviceType = request.getParameter("serviceType").trim().toUpperCase();
             String priceStr = request.getParameter("price");
             String hourStr = request.getParameter("serviceHour");
 
@@ -68,7 +68,7 @@ public class SetPrice extends HttpServlet {
                 //check edited services type no duplicate record in db
                 for (int i = 0; i < total; i++) {
                     String idStr = request.getParameter("serviceId_" + i);
-                    String newName = request.getParameter("serviceName_" + i).trim();
+                    String newName = request.getParameter("serviceName_" + i).trim().toUpperCase();
 
                     if (idStr != null) {
                         Long id = Long.parseLong(idStr);

@@ -131,8 +131,9 @@
                                     <small class="text-muted">Staff identity records cannot be changed.</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email Address</label>
-                                    <input type="email" name="newEmail" class="form-control" value="${staff.email}" required maxlength="100">
+                                    <label class="form-label">Email Address (Account ID Locked)</label>
+                                    <input type="email" name="email" class="form-control bg-light" value="${staff.email}" readonly>
+                                    <small class="text-muted">Email is used as login ID and cannot be changed.</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Phone Number</label>

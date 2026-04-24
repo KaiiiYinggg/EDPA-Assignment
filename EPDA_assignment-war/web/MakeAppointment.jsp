@@ -417,10 +417,10 @@
                     }
                 }
 
-                // set min and max booking range (today to +30 days)
+                // set min and max booking range (today to +5 days)
                 const today = new Date();
                 const maxDate = new Date();
-                maxDate.setDate(today.getDate() + 30);
+                maxDate.setDate(today.getDate() + 5);
 
                 const minStr = today.toISOString().split("T")[0];
                 const maxStr = maxDate.toISOString().split("T")[0];

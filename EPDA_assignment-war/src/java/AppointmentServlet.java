@@ -134,6 +134,14 @@ public class AppointmentServlet extends HttpServlet {
             if ("add".equals(action) || "update".equals(action)) {
                 String dateStr = request.getParameter("date");
                 LocalDate appDate = LocalDate.parse(dateStr);
+
+                // limit booking to next 5 days only
+                LocalDate today = LocalDate.now();
+                if (appDate.isAfter(today.plusDays(5))) {
+                    response.sendRedirect("AppointmentServlet?customerEmail=" + custEmail + "&error=rangeExceeded");
+                    return;
+                }
+
                 LocalTime startTime = parseTime(request.getParameter("time"));
 
                 BusinessHour bh = bhFacade.findByDate(appDate);

@@ -48,8 +48,7 @@ public class UpdateStaff extends HttpServlet {
 
             } else if (method.equalsIgnoreCase("POST")) {
                 try {
-                    String oldEmail = request.getParameter("oldEmail");
-                    String newEmail = request.getParameter("newEmail");
+                    String email = request.getParameter("email");
                     String username = request.getParameter("username");
                     String role = request.getParameter("role");
                     String gender = request.getParameter("gender");
@@ -61,7 +60,7 @@ public class UpdateStaff extends HttpServlet {
                     int phoneNumber = Integer.parseInt(rawPhone);
 
                     // check phone number
-                    User currentStaff = userFacade.findByEmail(oldEmail);
+                    User currentStaff = userFacade.findByEmail(email);
                     User userWithThisPhone = userFacade.findByPhone(phoneNumber);
 
                     if (userWithThisPhone != null && !userWithThisPhone.getUser_id().equals(currentStaff.getUser_id())) {
@@ -101,7 +100,7 @@ public class UpdateStaff extends HttpServlet {
                         }
                     }
 
-                    String result = userFacade.updateStaff(oldEmail, newEmail, username, phoneNumber, role, gender, password, profilePic, userIC, address);
+                    String result = userFacade.updateStaff(email, email, username, phoneNumber, role, gender, password, profilePic, userIC, address);
 
                     if (result.equals("success")) {
                         out.println("<script>alert('Staff Record Updated!'); location='ManageStaff';</script>");

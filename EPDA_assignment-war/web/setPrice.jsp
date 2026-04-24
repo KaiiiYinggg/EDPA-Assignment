@@ -177,4 +177,17 @@
         </div>
 
     </body>
+
+    <script>
+        // watch all inputs for service names
+        document.addEventListener('input', function (e) {
+            if (e.target.name === 'serviceType' || e.target.name.startsWith('serviceName_')) {
+                // change to uppercase
+                const start = e.target.selectionStart;
+                const end = e.target.selectionEnd;
+                e.target.value = e.target.value.toUpperCase();
+                e.target.setSelectionRange(start, end);
+            }
+        });
+    </script>
 </html>

@@ -255,14 +255,27 @@
                                     </td>
                                     <td><c:out value="${app.customer.username}"/></td>
                                     <td><span class="status-badge"><i class="fas fa-spinner fa-spin me-1"></i> In Service</span></td>
+                                    <c:set var="todayDate" value="<%= java.time.LocalDate.now().toString()%>" />
+
                                     <td class="text-center">
-                                        <form action="TechnicianServlet" method="POST" class="m-0">
-                                            <input type="hidden" name="appointmentId" value="${app.appointment_id}">
-                                            <input type="hidden" name="status" value="Completed">
-                                            <button type="submit" class="done-btn" onclick="return confirm('Confirm completion for car ${app.car.carPlateNumber}?')">
-                                                <i class="fas fa-check-circle me-1"></i> Mark as Done
-                                            </button>
-                                        </form>
+                                        <c:choose>
+                                            <%-- Only allow action if the appointment is today --%>
+                                            <c:when test="${app.appointment_date == todayDate}">
+                                                <form action="TechnicianServlet" method="POST" class="m-0">
+                                                    <input type="hidden" name="appointmentId" value="${app.appointment_id}">
+                                                    <input type="hidden" name="status" value="Completed">
+                                                    <button type="submit" class="done-btn" onclick="return confirm('Confirm completion for car ${app.car.carPlateNumber}?')">
+                                                        <i class="fas fa-check-circle me-1"></i> Mark as Done
+                                                    </button>
+                                                </form>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <%-- If not today, show a locked status --%>
+                                                <button class="btn btn-sm btn-secondary opacity-50" disabled title="Only available on the scheduled date">
+                                                    <i class="fas fa-lock me-1"></i> Not Today
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
                                 </tr>
                             </c:if>
